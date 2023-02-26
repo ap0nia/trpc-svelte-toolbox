@@ -1,14 +1,10 @@
 <script lang="ts">
   import { trpc } from '$lib/trpc'
 
-  /**
-   * this should already have been fetched and cached; so it's always defined
-   */
-  const countQuery = trpc.count.useQuery()
+  // expectation:
+  // whichever queries were prefetched in +page.ts will be immediately available from the cache
 
-  /**
-   * this wasn't explicitly fetched, so it's briefly undefined
-   */
+  const countQuery = trpc.count.useQuery()
   const greetingQuery = trpc.greeting.useQuery()
 </script>
 

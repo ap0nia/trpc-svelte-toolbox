@@ -5,8 +5,10 @@ and plugged in @tanstack/svelte-query instead of @tanstack/react-query.
 
 # Setup
 
-## `$lib/queryClient.ts`
+## query client
   ```ts
+  // $lib/queryClient
+
   import { QueryClient } from '@tanstack/svelte-query'
   import { browser } from '$app/environment'
 
@@ -68,6 +70,8 @@ and plugged in @tanstack/svelte-query instead of @tanstack/react-query.
   ```ts
   // src/routes/+layout.ts
 
+  import { queryClient } from '$lib/queryClient'
+
   // go through the same process of initializing the client for the client-side,
   // but override the fetch with the one from SvelteKit
   export const load: LayoutLoad = async (event) => {
@@ -86,7 +90,7 @@ and plugged in @tanstack/svelte-query instead of @tanstack/react-query.
     transformer: superjson,
     links: [
       httpBatchLink({
-        url: browser ? PUBLIC_TRPC_API_BROWSER : PUBLIC_TRPC_API_SERVER,
+        url: '/trpc',
         fetch: event.fetch
       }),
     ],
@@ -98,10 +102,7 @@ and plugged in @tanstack/svelte-query instead of @tanstack/react-query.
    */
   trpcLoad.Provider({ queryClient, client })
 
-  return {
-    trpcLoad,
-    ...event.data,
-  }
+  return { trpcLoad, ...event.data }
 }
   ```
 
@@ -131,7 +132,12 @@ export const load: PageLoad = async ({ parent }) => {
   /**
    * the requests are fetched, cached in the shared queryClient, and returned by each promise
    */
-  await Promise.allSettled([ utils.gretting.fetch(), utils.count.prefetch(), ... ])
+  const [greeting, count] = await Promise.all([
+    utils.greeting.fetch(),
+    utils.count.prefetch()
+  ])
+
+  return { greeting, count } // value is ['greeting', void], because prefetch doesn't return a value
 }
 ```
 
@@ -143,6 +149,9 @@ export const load: PageLoad = async ({ parent }) => {
 ```html
 <script>
   import { trpc } from '$lib/trpc'
+  import { PageData } from './$types'
+
+  export let data: PageData
 
   /**
    * despite not having any relation to the +layout.ts or +page.ts shenanigans,
@@ -152,10 +161,18 @@ export const load: PageLoad = async ({ parent }) => {
    */
   const greetingQuery = trpc.greeting.useQuery()
   const countQuery = trpc.count.useQuery()
+
+  // you can also use the values returned by the queries
+  const count = data.count // void because this was `prefetch`
+  const greeting = data.greeting // some "greeting" becuase this was `fetch`
 </script>
 
 {$greetingQuery.data}
 {$countQuery.data}
+
+{count}
+
+{greeting}
 ```
 
 ### Notes

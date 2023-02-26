@@ -66,7 +66,7 @@ and plugged in @tanstack/svelte-query instead of @tanstack/react-query.
       (but I haven't done anything about it for Svelte land)
   - now you invoke trpc exactly like like described in the @trpc/react-query docs
 
-## server-side client
+## ~~server-side client~~ wait why does it work without this step now???
   ```ts
   // src/routes/+layout.ts
 

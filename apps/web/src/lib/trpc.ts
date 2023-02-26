@@ -16,11 +16,13 @@ export const trpc = createTRPCSvelte<AppRouter>({
   reactQueryContext: queryClient,
 })
 
+const url = import.meta.env.DEV ? 'http://localhost:5173/trpc' : 'http://localhost:4173/trpc'
+
 /**
  * initialize a client with the same router definition
  */
 const client = trpc.createClient({
-  links: [ httpBatchLink({ url: 'http://localhost:5173/trpc' }) ],
+  links: [ httpBatchLink({ url }) ],
 })
 
 /**

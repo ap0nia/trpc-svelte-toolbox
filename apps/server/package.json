@@ -1,8 +1,0 @@
-{
-  "name": "@apps/server",
-  "version": "0.1.0",
-  "dependencies": {
-    "@trpc/client": "^10.12.0",
-    "@trpc/server": "^10.12.0"
-  }
-}

@@ -418,17 +418,8 @@ export function __createHooksInternal<
     pathAndInput: [path: string, ...args: unknown[]],
     opts?: CreateTRPCQueryOptions<unknown, unknown, unknown, unknown, TError>,
   ): CreateTRPCQueryResult<unknown, TError> {
-    const { abortOnUnmount, client, ssrState, queryClient, prefetchQuery } = context;
+    const { abortOnUnmount, client } = context;
 
-    if (
-      typeof window === 'undefined' &&
-      ssrState === 'prepass' &&
-      opts?.trpc?.ssr !== false &&
-      opts?.enabled !== false &&
-      !queryClient.getQueryCache().find(getArrayQueryKey(pathAndInput, 'query'))
-    ) {
-      void prefetchQuery(pathAndInput as any, opts as any);
-    }
     const ssrOpts = useSSRQueryOptionsIfNeeded(pathAndInput, 'query', opts);
 
     // request option should take priority over global
@@ -448,10 +439,6 @@ export function __createHooksInternal<
               : {}),
           },
         };
-
-        client.query('', '', {
-          ...actualOpts.trpc
-        })
 
         return (client as any).query(
           ...getClientArgs(pathAndInput, actualOpts),

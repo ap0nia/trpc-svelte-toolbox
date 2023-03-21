@@ -79,6 +79,7 @@ type QueryContextProcedure<T extends AnyProcedure> = {
   ): Promise<void>
 
   getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+
 } & MaybeInfiniteContextProcedure<T>
 
 /**
@@ -87,7 +88,8 @@ type QueryContextProcedure<T extends AnyProcedure> = {
 export type ContextProcedure<T> = 
   T extends Procedure<infer Type, infer _TParams> ? 
     Type extends 'query' ? QueryContextProcedure<T> :
-    Type extends 'mutation' ? any :
+    Type extends 'mutation' ? never : 
+    Type extends 'subscription' ? never :
     never : never
 
 /**

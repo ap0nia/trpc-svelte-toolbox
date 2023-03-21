@@ -1,15 +1,15 @@
 {
-  "name": "svelte-moment",
-  "version": "1.0.0",
+  "name": "@bevm0/svelte-query",
+  "version": "0.0.69",
   "license": "MIT",
   "dependencies": {
     "@tanstack/svelte-query": "^4.27.0",
     "@trpc/client": "^10.17.0",
     "@trpc/server": "^10.17.0",
-    "typescript": "^5.0.2",
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "svelte": "^3.57.0"
+    "svelte": "^3.57.0",
+    "typescript": "^5.0.2"
   }
 }

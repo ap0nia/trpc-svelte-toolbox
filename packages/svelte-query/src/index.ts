@@ -107,10 +107,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.prefetchInfiniteQuery(fetchInfiniteArgs)
 
         case 'setInfiniteData':
-          return queryClient.setQueryData(queryKey, input)
+          return queryClient.setQueryData(queryKey, args[0], args[1])
 
         case 'getInfiniteData':
-          return queryClient.setQueryData(queryKey, input)
+          return queryClient.getQueryData(queryKey, ...args)
 
         case 'fetch':
           return queryClient.fetchQuery(fetchArgs)

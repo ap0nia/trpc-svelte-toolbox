@@ -25,6 +25,7 @@ importers:
       '@tanstack/svelte-query': ^4.27.0
       '@trpc/client': ^10.17.0
       '@trpc/server': ^10.17.0
+      prettier: ^2.8.6
       svelte: ^3.57.0
       typescript: ^5.0.2
       zod: ^3.21.4
@@ -34,6 +35,7 @@ importers:
       '@trpc/server': 10.17.0
       zod: 3.21.4
     devDependencies:
+      prettier: 2.8.6
       svelte: 3.57.0
       typescript: 5.0.2
 
@@ -63,6 +65,12 @@ packages:
   /@trpc/server/10.17.0:
     resolution: {integrity: sha512-ZY8jUsJpyqyu80k7TbCcdAx7NsoQAnPK27lGS4/9R42yMKrt7KJdS0Ka2KF1KRRkr112qxTskVqUufVpRVLq7Q==}
     dev: false
+
+  /prettier/2.8.6:
+    resolution: {integrity: sha512-mtuzdiBbHwPEgl7NxWlqOkithPyp4VN93V7VeHVWBF+ad3I5avc0RVDT4oImXQy9H/AqxA2NSQH8pSxHW6FYbQ==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
 
   /svelte/3.57.0:
     resolution: {integrity: sha512-WMXEvF+RtAaclw0t3bPDTUe19pplMlfyKDsixbHQYgCWi9+O9VN0kXU1OppzrB9gPAvz4NALuoca2LfW2bOjTQ==}

@@ -24,4 +24,6 @@ let test: Test
 
 test.a.createQuery(undefined, {})
 test.c.d.createInfiniteQuery
-let context = test.context()
+test.a.fetch
+test.a.setData(123)
+test.a.getData

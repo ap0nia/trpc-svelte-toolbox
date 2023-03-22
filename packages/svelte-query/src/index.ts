@@ -1,6 +1,6 @@
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import { createTRPCUntypedClient } from '@trpc/client'
-import { QueryClient, createInfiniteQuery, createMutation, createQuery } from '@tanstack/svelte-query'
+import { CreateInfiniteQueryOptions, CreateMutationOptions, CreateQueryOptions, QueryClient, createInfiniteQuery, createMutation, createQuery } from '@tanstack/svelte-query'
 import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import { getArrayQueryKey } from './getArrayQueryKey'
@@ -26,112 +26,118 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    */
   const proxy = createFlatProxy<TRPCSvelteQueryRouter<T>>((key) => {
     /**
-     * Nested properties of the tRPC + svelte-query proxy. 
+     * Nested properties of the tRPC + svelte-query proxy.
      * @example `createQuery`, `createMutation`
      */
     return createRecursiveProxy((opts) => {
       /**
        * Arguments to the desired method.
        */
-      const args = opts.args;
+      const args: any = opts.args
 
       /**
        * The tRPC route represented as an array of strings, excluding input.
        * @example `['post', 'byId']`
        */
-      const pathArray = [key, ...opts.path];
+      const pathArray = [key, ...opts.path]
 
       /**
        * `createQuery`, `createMutation`, etc.
        */
-      const queryMethod = pathArray.pop()
+      const method = pathArray.pop()
+
+      if (method == null) return
 
       /**
        * The tRPC route represented as a string, exluding input.
        * @example `post.byId`
        */
-      const path = pathArray.join('.');
+      const path = pathArray.join('.')
 
       /**
-       * tRPC args are under the "trpc" key. Dynamic runtime checks are used to satisfy TS.
+       * Generally, the first argument is input, and the second is params for tRPC or svelte-query.
+       * Verify this by checking the type definitions for each function call.
        */
-      const trpcArgs = ('trpc' in args && typeof args.trpc === 'object' ? args.trpc : null) || {};
+      const [input, params] = args;
 
-      const [input, ..._rest] = args;
+      const queryKey = getArrayQueryKey(pathArray, input, method)
 
-      // the type of key to use for svelte-query methods is described here: 
-      // https://github.com/ottomated/trpc-svelte-query/blob/main/src/createTRPCSvelte.ts#L165
-      //
-      // the type of key to use for query client methods is described here:
-      // https://github.com/ottomated/trpc-svelte-query/blob/main/src/shared/utils.ts#L164
+      const fetchArgs: CreateQueryOptions = {
+        ...params,
+        queryKey,
+        queryFn() {
+          return client.query(path, input, params)
+        }
+      }
 
-      const queryKey = getArrayQueryKey(pathArray, input, 'query')
-      const infiniteQueryKey = getArrayQueryKey(pathArray, input, 'infinite')
-      const anyQueryKey = getArrayQueryKey(pathArray, input, 'any')
+      const mutationArgs: CreateMutationOptions = {
+        ...args,
+        mutationKey: queryKey,
+        mutationFn(data) {
+          return client.mutation(path, data, args)
+        }
+      }
 
-      switch(queryMethod) {
+      const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
+        ...params,
+        queryKey,
+        queryFn({ pageParam }) {
+          const infiniteQueryInput = { ...input, cursor: pageParam }
+          return client.query(path, infiniteQueryInput, params)
+        }
+      }
+
+      switch (method) {
         case 'getQueryKey':
           return queryKey
 
         case 'createQuery':
-          return createQuery({
-            ...args,
-            queryKey,
-            queryFn: () => client.query(path, input, trpcArgs),
-          })
+          return createQuery(fetchArgs)
 
-        case 'createMutation': 
-          return createMutation({
-            ...args,
-            mutationKey: anyQueryKey,
-            mutationFn: data => client.mutation(path, data, trpcArgs),
-          })
+        case 'createMutation':
+          return createMutation(mutationArgs)
 
         case 'createInfiniteQuery':
-          return createInfiniteQuery({
-            ...args,
-            queryKey: infiniteQueryKey,
-            queryFn: () => client.query(path, input, trpcArgs),
-          })
+          return createInfiniteQuery(fetchInfiniteArgs)
 
         case 'fetchInfinite':
-          return queryClient.fetchInfiniteQuery
+          return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
 
         case 'prefetchInfinite':
-          return queryClient.prefetchInfiniteQuery
+          return queryClient.prefetchInfiniteQuery(fetchInfiniteArgs)
 
         case 'setInfiniteData':
-          return queryClient.setQueryData
+          return queryClient.setQueryData(queryKey, input)
 
         case 'getInfiniteData':
-          return queryClient.setQueryData
-
-        case 'invalidate':
-          return queryClient.invalidateQueries
+          return queryClient.setQueryData(queryKey, input)
 
         case 'fetch':
-          return queryClient.fetchQuery
+          return queryClient.fetchQuery(fetchArgs)
 
         case 'prefetch':
-          return queryClient.prefetchQuery
+          return queryClient.prefetchQuery(fetchArgs)
+
+        case 'invalidate':
+          return queryClient.invalidateQueries(queryKey, ...args)
 
         case 'reset':
-          return queryClient.resetQueries
+          return queryClient.resetQueries(queryKey, ...args)
 
         case 'cancel':
-          return queryClient.cancelQueries
+          return queryClient.cancelQueries(queryKey, ...args)
 
         case 'ensureData':
-          return queryClient.ensureQueryData
+          return queryClient.ensureQueryData(queryKey, ...args)
 
         case 'setData':
-          return queryClient.setQueryData
+          return queryClient.setQueryData(queryKey, args[0], args[1])
 
         case 'getData':
-          return queryClient.getQueryData
+          return queryClient.getQueryData(queryKey, ...args)
 
         default:
-          throw new TypeError(`trpc.${path}.${queryMethod} is not a function`);
+          throw new TypeError(`trpc.${path}.${method} is not a function`)
       }
     })
   })

@@ -4,14 +4,14 @@
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'
-import type { 
+import type {
   AnyProcedure,
   AnyRouter,
   inferProcedureInput,
   inferProcedureOutput,
   Procedure,
 } from '@trpc/server'
-import type { 
+import type {
   InvalidateQueryFilters,
   InvalidateOptions,
   FetchQueryOptions,
@@ -19,6 +19,8 @@ import type {
   ResetQueryFilters,
   QueryFilters,
   Updater,
+  CancelOptions,
+  SetDataOptions,
 } from '@tanstack/svelte-query'
 
 /**
@@ -30,68 +32,63 @@ type InfiniteQueryInput = { cursor: any }
 /**
  * Utilities from "context" for infinite queries.
  */
-export type MaybeInfiniteContextProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput ? {
-  fetchInfinite(
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
+  inferProcedureInput<T> extends InfiniteQueryInput
+    ? {
+        fetchInfinite(
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+        ): Promise<void>
 
-  prefetchInfinite(
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+        prefetchInfinite(
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+        ): Promise<void>
 
-  setInfiniteData(
-    data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>
-  ): Promise<void>
+        setInfiniteData(data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>): Promise<void>
 
-  getInfiniteData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
-} : object
+        getInfiniteData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+      }
+    : object
 
 /**
  * Utilities from "context" that directly control the QueryClient for a procedure.
  */
 export type QueryContextProcedure<T extends AnyProcedure> = {
+  fetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
+
+  prefetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
+
   invalidate(
     filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
     opts?: InvalidateOptions
   ): Promise<void>
 
-  fetch(
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+  reset(filters?: ResetQueryFilters<inferProcedureInput<T>>, opts?: ResetOptions): Promise<void>
 
-  prefetch(
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+  cancel(filters?: QueryFilters, options?: CancelOptions): Promise<void>
 
-  reset(
-    filters?: ResetQueryFilters<inferProcedureInput<T>>,
-    opts?: ResetOptions
-  ): Promise<void>
-
-  cancel(opts?: QueryFilters): Promise<void>
-
-  ensureData(
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+  ensureData(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
 
   setData(
-    data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>
+    data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>,
+    options?: SetDataOptions
   ): Promise<void>
 
   getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
-
 } & MaybeInfiniteContextProcedure<T>
 
 /**
  * Map tRPC procedures to context.
  * Only queries are supported right now.
  */
-export type ContextProcedure<T> = 
-  T extends Procedure<infer Type, infer _TParams> ? 
-    Type extends 'query' ? QueryContextProcedure<T> :
-    Type extends 'mutation' ? never : 
-    Type extends 'subscription' ? never :
-    never : never
+export type ContextProcedure<T> = T extends Procedure<infer Type, infer _TParams>
+  ? Type extends 'query'
+    ? QueryContextProcedure<T>
+    : Type extends 'mutation'
+    ? never
+    : Type extends 'subscription'
+    ? never
+    : never
+  : never
 
 /**
  * Map tRPC router properties to context.

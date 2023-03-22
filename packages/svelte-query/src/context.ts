@@ -30,7 +30,7 @@ type InfiniteQueryInput = { cursor: any }
 /**
  * Utilities from "context" for infinite queries.
  */
-type MaybeInfiniteContextProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput ? {
+export type MaybeInfiniteContextProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput ? {
   fetchInfinite(
     opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
   ): Promise<void>
@@ -49,7 +49,7 @@ type MaybeInfiniteContextProcedure<T extends AnyProcedure> = inferProcedureInput
 /**
  * Utilities from "context" that directly control the QueryClient for a procedure.
  */
-type QueryContextProcedure<T extends AnyProcedure> = {
+export type QueryContextProcedure<T extends AnyProcedure> = {
   invalidate(
     filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
     opts?: InvalidateOptions
@@ -84,6 +84,7 @@ type QueryContextProcedure<T extends AnyProcedure> = {
 
 /**
  * Map tRPC procedures to context.
+ * Only queries are supported right now.
  */
 export type ContextProcedure<T> = 
   T extends Procedure<infer Type, infer _TParams> ? 

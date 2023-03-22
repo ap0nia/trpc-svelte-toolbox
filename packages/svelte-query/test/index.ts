@@ -25,4 +25,3 @@ let test: Test
 test.a.createQuery(undefined, {})
 test.c.d.createInfiniteQuery
 let context = test.context()
-

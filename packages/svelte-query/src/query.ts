@@ -2,6 +2,12 @@
  * `query`
  * Refers to both svelte-query and a type of tRPC procedure.
  * This file maps tRPC procedures to svelte-query functions, like `createQuery`, `createMutation`.
+ *
+ * `context` is traditionally available after requesting `useContext` from the root.
+ * @see {@link https://trpc.io/docs/reactjs/usecontext}
+ *
+ * I've chosen to expose it as a top-level property to all routes for ease of use,
+ * since this Svelte implementation doesn't incorporate any context like React.
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'
@@ -14,6 +20,7 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
+import type { MaybeInfiniteContextProcedure, QueryContextProcedure } from './context'
 
 /**
  * An infinite query must have the "cursor" property required as input.
@@ -29,7 +36,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T
     input: inferProcedureInput<T>,
     opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
   ) => CreateInfiniteQueryResult
-} : object
+} & MaybeInfiniteContextProcedure<T> : object
 
 /**
  * Map a tRPC `query` procedure to svelte-query methods.
@@ -39,7 +46,7 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
     input: inferProcedureInput<T>,
     opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
   ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-} & MaybeInfiniteQueryProcedure<T>
+} & QueryContextProcedure<T> & MaybeInfiniteQueryProcedure<T>
 
 /**
  * Map a tRPC `mutation` procedure to svelte-query methods.
@@ -52,10 +59,21 @@ type TRPCMutationProcedure<T extends AnyProcedure> = {
 }
 
 /**
+ * Map a tRPC `subscription procedure to svelte-query methods.
+ */
+type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
+  createSubscription: (
+    input: inferProcedureInput<T>,
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+  ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+}
+
+/**
  * Map all tRPC procedures to svelte-query methods.
  */
 export type TRPCSvelteQueryProcedure<T> = 
   T extends Procedure<infer Type, infer _TParams> ? 
     Type extends 'query' ? TRPCQueryProcedure<T> :
     Type extends 'mutation' ? TRPCMutationProcedure<T> :
+    Type extends 'subscription' ? TRPCSubscriptionProcedure<T> :
     never : never

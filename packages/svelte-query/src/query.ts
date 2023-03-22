@@ -79,12 +79,11 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
 /**
  * Map all tRPC procedures to svelte-query methods.
  */
-export type TRPCSvelteQueryProcedure<T> = T extends Procedure<infer Type, infer _TParams>
-  ? Type extends 'query'
-    ? TRPCQueryProcedure<T>
-    : Type extends 'mutation'
-    ? TRPCMutationProcedure<T>
-    : Type extends 'subscription'
-    ? TRPCSubscriptionProcedure<T>
-    : never
+
+// prettier-ignore
+export type TRPCSvelteQueryProcedure<T> = 
+  T extends Procedure<infer Type, infer _TParams> ? 
+    Type extends 'query' ? TRPCQueryProcedure<T> :
+    Type extends 'mutation' ? TRPCMutationProcedure<T> :
+    Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : never
   : never

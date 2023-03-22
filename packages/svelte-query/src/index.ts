@@ -1,23 +1,39 @@
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { createTRPCUntypedClient } from '@trpc/client'
-import { CreateInfiniteQueryOptions, CreateMutationOptions, CreateQueryOptions, QueryClient, createInfiniteQuery, createMutation, createQuery } from '@tanstack/svelte-query'
+import { CreateTRPCProxyClient, createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
+import {
+  CreateInfiniteQueryOptions,
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryClient,
+  createInfiniteQuery,
+  createMutation,
+  createQuery,
+} from '@tanstack/svelte-query'
 import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import { getArrayQueryKey } from './getArrayQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
 
 /**
+ * Additional properties at the root of the tRPC + svelte-query proxy.
+ */
+type RootProperties<T extends AnyRouter> = {
+  client: CreateTRPCProxyClient<T>
+}
+
+/**
  * Map all properties of a tRPC router to svelte-query methods.
  */
 export type TRPCSvelteQueryRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? TRPCSvelteQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
-}
+} & RootProperties<T>
 
 /**
  * Create a tRPC + svelte-query proxy.
  */
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
+  proxyClient: CreateTRPCProxyClient<T>,
   queryClient: QueryClient
 ): TRPCSvelteQueryRouter<T> {
   /**
@@ -25,8 +41,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    * This proxy allows dynamic access to these non-existent properties during runtime.
    */
   const proxy = createFlatProxy<TRPCSvelteQueryRouter<T>>((key) => {
+    if (key === 'client') return proxyClient
+
     /**
-     * Nested properties of the tRPC + svelte-query proxy.
+     * Access nested properties of the tRPC + svelte-query proxy via the recursive proxy.
      * @example `createQuery`, `createMutation`
      */
     return createRecursiveProxy((opts) => {
@@ -34,11 +52,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        * Depending on the call, args can vary.
        * Check the type definition of the function and index accordingly.
        *
-       * @example 
+       * @example
        * `createQuery` accepts 1 argument, so use args[0] for input
        * `setData` accepts 2 arguments, so use args[0] for input and args[1] for params
        *
-       * @remarks only svelte-query options are currently available, 
+       * @remarks only svelte-query options are currently available,
        * but they're passed into the tRPC method as a "proof of concept".
        */
       const args: any = opts.args
@@ -50,9 +68,15 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const pathArray = [key, ...opts.path]
 
       /**
-       * `createQuery`, `createMutation`, etc.
+       * @example `createQuery`, `createMutation`, etc.
        */
       const method = pathArray.pop() ?? ''
+
+      /**
+       * The query key used for caching with svelte-query.
+       * @example [ [...pathArray], { input, type } ]
+       */
+      const queryKey = getArrayQueryKey(pathArray, args[0], method)
 
       /**
        * The tRPC route represented as a string, exluding input.
@@ -60,36 +84,27 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const queryKey = getArrayQueryKey(pathArray, args[0], method)
-
       const fetchArgs: CreateQueryOptions = {
         ...args[1],
         queryKey,
-        queryFn() {
-          return client.query(path, args[0], args[1])
-        }
+        queryFn: () => client.query(path, args[0], args[1]),
       }
 
       const mutationArgs: CreateMutationOptions = {
-        ...args,
-        mutationKey: queryKey,
-        mutationFn(data) {
-          return client.mutation(path, data, ...args)
-        }
+        ...args[0],
+        mutationKey: [pathArray],
+        mutationFn: (data) => client.mutation(path, data, args[0]),
       }
 
       const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
         ...args[1],
         queryKey,
-        queryFn({ pageParam }) {
-          const infiniteQueryInput = { ...args[0], cursor: pageParam }
-          return client.query(path, infiniteQueryInput, args[1])
-        }
+        queryFn: ({ pageParam }) => client.query(path, { ...args[0], cursor: pageParam }, args[1]),
       }
 
       switch (method) {
         case 'getQueryKey':
-          return queryKey
+          return getArrayQueryKey(pathArray, args[0], args[1] ?? 'any')
 
         case 'createQuery':
           return createQuery(fetchArgs)
@@ -99,6 +114,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
         case 'createInfiniteQuery':
           return createInfiniteQuery(fetchInfiniteArgs)
+
+        /** TODO: createSubscription */
+        case 'createSubscription':
+          break
 
         case 'fetchInfinite':
           return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
@@ -158,12 +177,18 @@ export function createTRPCSvelte<T extends AnyRouter>(
    * and requires a full path to construct the request.
    * This is used for compatibility with the `createProxy` utilities from trpc.
    */
-  const client = createTRPCUntypedClient<T>(opts)
+  const untypedClient = createTRPCUntypedClient<T>(opts)
+
+  /**
+   * The `proxyClient` is a native tRPC client without the svelte-query integration.
+   * Can be accessed via `proxy.client`
+   */
+  const proxyClient = createTRPCProxyClient<T>(opts)
 
   /**
    * Use `createFlatProxy` and `createRecursiveProxy` to allow dynamic access
    * of all tRPC routes and their corresponding svelte-query methods.
    */
-  const proxy = createTRPCSvelteQueryProxy<T>(client, queryClient || new QueryClient())
+  const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
   return proxy
 }

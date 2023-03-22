@@ -12,9 +12,9 @@ type QueryKey = [string[], { input?: unknown; type?: Exclude<QueryType, 'any'> }
 
 export const methodToQueryType: Record<string, QueryType> = {
   getQueryKey: 'any',
-  query: 'query',
-  mutation: 'any',
-  infiniteQuery: 'infinite',
+  createQuery: 'query',
+  createMutation: 'any',
+  createInfiniteQuery: 'infinite',
   invalidate: 'any',
   prefetch: 'query',
   prefetchInfinite: 'infinite',
@@ -41,19 +41,28 @@ export const methodToQueryType: Record<string, QueryType> = {
  * @see {@link https://github.com/trpc/trpc/issues/3128}
  *
  * @remarks This function doesn't need to convert legacy formats, unlike the one from react-query.
+ *
+ * @param path The path of the query as a string array.
+ * @param input The input of the query.
+ * @param method The svelte-query related method.
  */
 export function getArrayQueryKey(pathArray: string[], input: unknown, method: string): QueryKey {
   const type = methodToQueryType[method]
 
-  const hasInput = typeof input !== 'undefined'
+  /**
+   * Mutations don't have input; they return a function that will accept the input.
+   * They only have options, which aren't used for the query key.
+   */
+  const hasInput = typeof input !== 'undefined' && !method.includes('mutation')
   const hasType = type && type !== 'any'
 
-  if (!hasInput && !hasType)
-    /**
-     * For `utils.invalidate()` to match all queries (including vanilla react-query),
-     * we don't want nested array if path is empty, i.e. `[]` instead of `[[]]`.
-     */
+  /**
+   * For `utils.invalidate()` to match all queries (including vanilla react-query),
+   * we don't want nested array if path is empty, i.e. `[]` instead of `[[]]`.
+   */
+  if (!hasInput && !hasType) {
     return pathArray.length ? [pathArray] : ([] as unknown as QueryKey)
+  }
 
-  return [pathArray, { ...(hasInput && { input: input }), ...(hasType && { type: type }) }]
+  return [pathArray, { ...(hasInput && { input }), ...(hasType && { type }) }]
 }

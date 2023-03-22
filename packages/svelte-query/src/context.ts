@@ -21,7 +21,10 @@ import type {
   Updater,
   CancelOptions,
   SetDataOptions,
+  QueryKey,
 } from '@tanstack/svelte-query'
+
+type QueryType = 'query' | 'infinite' | 'any'
 
 /**
  * An infinite query must have the "cursor" property required as input.
@@ -50,9 +53,11 @@ export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
     : object
 
 /**
- * Utilities from "context" that directly control the QueryClient for a procedure.
+ * Utilities from "context" that directly control the QueryClient for a query procedure.
  */
 export type QueryContextProcedure<T extends AnyProcedure> = {
+  getQueryKey(input: inferProcedureInput<T>, type?: QueryType): QueryKey
+
   fetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
 
   prefetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
@@ -77,17 +82,25 @@ export type QueryContextProcedure<T extends AnyProcedure> = {
 } & MaybeInfiniteContextProcedure<T>
 
 /**
- * Map tRPC procedures to context.
- * Only queries are supported right now.
+ * Utilities from "context" that directly control the QueryClient for a mutation procedure.
  */
-export type ContextProcedure<T> = T extends Procedure<infer Type, infer _TParams>
-  ? Type extends 'query'
-    ? QueryContextProcedure<T>
-    : Type extends 'mutation'
-    ? never
-    : Type extends 'subscription'
-    ? never
-    : never
+export type MutationContextProcedure<T extends AnyProcedure> = {}
+
+/**
+ * Utilities from "context" that directly control the QueryClient for a subscription procedure.
+ */
+export type SubscriptionContextProcedure<T extends AnyProcedure> = {}
+
+/**
+ * Map tRPC procedures to context.
+ */
+
+// prettier-ignore
+export type ContextProcedure<T> = 
+  T extends Procedure<infer Type, infer _TParams> ?
+    Type extends 'query' ? QueryContextProcedure<T> : 
+    Type extends 'mutation' ? MutationContextProcedure<T> :
+    Type extends 'subscription' ? SubscriptionContextProcedure<T> : never 
   : never
 
 /**

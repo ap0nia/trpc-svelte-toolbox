@@ -13,7 +13,6 @@ type QueryKey = [string[], { input?: unknown; type?: Exclude<QueryType, 'any'> }
 export const methodToQueryType: Record<string, QueryType> = {
   getQueryKey: 'any',
   createQuery: 'query',
-  createMutation: 'any',
   createInfiniteQuery: 'infinite',
   invalidate: 'any',
   prefetch: 'query',
@@ -53,8 +52,8 @@ export function getArrayQueryKey(pathArray: string[], input: unknown, method: st
    * Mutations don't have input; they return a function that will accept the input.
    * They only have options, which aren't used for the query key.
    */
-  const hasInput = typeof input !== 'undefined' && !method.includes('mutation')
-  const hasType = type && type !== 'any'
+  const hasInput = typeof input !== 'undefined' && !method.toLowerCase().includes('mutation')
+  const hasType = !!type && type !== 'any'
 
   /**
    * For `utils.invalidate()` to match all queries (including vanilla react-query),

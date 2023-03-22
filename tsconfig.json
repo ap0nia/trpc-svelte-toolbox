@@ -9,12 +9,8 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      // aliases for apps start at project root
-      "@apps/web/*": ["apps/web/*"],
-      "@apps/server/*": ["apps/server/*"],
-
-      "@packages/svelte-query": ["packages/svelte-query/src"],
-      "@packages/svelte-query/*": ["packages/svelte-query/src/*"],
+      "@bevm0/svelte-query": ["packages/svelte-query/src"],
+      "@bevm0/svelte-query/*": ["packages/svelte-query/src/*"],
     }
   }
 }

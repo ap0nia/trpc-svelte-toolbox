@@ -13,19 +13,28 @@ import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import { getArrayQueryKey } from './getArrayQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
+import type { ContextRouter } from './context'
 
 /**
  * Additional properties at the root of the tRPC + svelte-query proxy.
  */
 type RootProperties<T extends AnyRouter> = {
   client: CreateTRPCProxyClient<T>
+  context: ContextRouter<T>
+}
+
+/**
+ * The inner router doesn't have any root properties.
+ */
+export type InnerTRPCQueryRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
 }
 
 /**
  * Map all properties of a tRPC router to svelte-query methods.
  */
-export type TRPCSvelteQueryRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? TRPCSvelteQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
+export type TRPCQueryRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
 } & RootProperties<T>
 
 /**
@@ -35,19 +44,24 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   proxyClient: CreateTRPCProxyClient<T>,
   queryClient: QueryClient
-): TRPCSvelteQueryRouter<T> {
+): TRPCQueryRouter<T> {
   /**
    * All the properties that TS believes to exist, actually don't exist.
    * This proxy allows dynamic access to these non-existent properties during runtime.
    */
-  const proxy = createFlatProxy<TRPCSvelteQueryRouter<T>>((key) => {
-    if (key === 'client') return proxyClient
+  const proxy = createFlatProxy<TRPCQueryRouter<T>>((initialKey) => {
+    if (initialKey === 'client') return proxyClient
+
+    /**
+     * If the initial key asks for `context`, mark it as `undefined` and prune it from the path later.
+     */
+    const key = initialKey === 'context' ? undefined : initialKey
 
     /**
      * Access nested properties of the tRPC + svelte-query proxy via the recursive proxy.
      * @example `createQuery`, `createMutation`
      */
-    return createRecursiveProxy((opts) => {
+    const nestedProperties = createRecursiveProxy((opts) => {
       /**
        * Depending on the call, args can vary.
        * Check the type definition of the function and index accordingly.
@@ -63,9 +77,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
       /**
        * The tRPC route represented as an array of strings, excluding input.
+       * If the key is `undefined`, it's because the initial key was `context`.
        * @example `['post', 'byId']`
        */
-      const pathArray = [key, ...opts.path]
+      const pathArray = key != null ? [key, ...opts.path] : [...opts.path]
 
       /**
        * @example `createQuery`, `createMutation`, etc.
@@ -102,6 +117,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         queryFn: ({ pageParam }) => client.query(path, { ...args[0], cursor: pageParam }, args[1]),
       }
 
+      /**
+       * This proxy actually always allows ALL methods, e.g. including context and svelte-query related items.
+       * Type definitions are responsible for exposing the appropriate methods.
+       */
       switch (method) {
         case 'getQueryKey':
           return getArrayQueryKey(pathArray, args[0], args[1] ?? 'any')
@@ -131,9 +150,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getInfiniteData':
           return queryClient.getQueryData(queryKey, ...args)
 
+        /** TODO: SSR + hydration */
         case 'fetch':
           return queryClient.fetchQuery(fetchArgs)
 
+        /** TODO: SSR + hydration */
         case 'prefetch':
           return queryClient.prefetchQuery(fetchArgs)
 
@@ -159,6 +180,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           throw new TypeError(`trpc.${path}.${method} is not a function`)
       }
     })
+
+    return nestedProperties
   })
   return proxy
 }
@@ -171,7 +194,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 export function createTRPCSvelte<T extends AnyRouter>(
   opts: CreateTRPCClientOptions<T>,
   queryClient: QueryClient
-): TRPCSvelteQueryRouter<T> {
+): TRPCQueryRouter<T> {
   /**
    * An untyped tRPC client has `query`, `mutation`, etc. methods at the root,
    * and requires a full path to construct the request.

@@ -58,9 +58,15 @@ export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
 export type QueryContextProcedure<T extends AnyProcedure> = {
   getQueryKey(input: inferProcedureInput<T>, type?: QueryType): QueryKey
 
-  fetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
+  fetch(
+    input: inferProcedureInput<T>,
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+  ): Promise<void>
 
-  prefetch(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
+  prefetch(
+    input: inferProcedureInput<T>,
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+  ): Promise<void>
 
   invalidate(
     filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
@@ -104,8 +110,15 @@ export type ContextProcedure<T> =
   : never
 
 /**
+ * Properties available at all levels of context.
+ */
+type InnerContextRouter = {
+  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+}
+
+/**
  * Map tRPC router properties to context.
  */
 export type ContextRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T[k]>
-}
+} & InnerContextRouter 

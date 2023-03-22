@@ -5,9 +5,6 @@
  *
  * `context` is traditionally available after requesting `useContext` from the root.
  * @see {@link https://trpc.io/docs/reactjs/usecontext}
- *
- * I've chosen to expose it as a top-level property to all routes for ease of use,
- * since this Svelte implementation doesn't incorporate any context like React.
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'
@@ -20,7 +17,6 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
-import type { MaybeInfiniteContextProcedure, QueryContextProcedure } from './context'
 
 /**
  * An infinite query must have the "cursor" property required as input.
@@ -38,7 +34,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
           input: inferProcedureInput<T>,
           opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
         ) => CreateInfiniteQueryResult
-      } & MaybeInfiniteContextProcedure<T>
+      }
     : object
 
 /**
@@ -49,8 +45,7 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
     input: inferProcedureInput<T>,
     opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
   ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-} & QueryContextProcedure<T> &
-  MaybeInfiniteQueryProcedure<T>
+} & MaybeInfiniteQueryProcedure<T>
 
 /**
  * Map a tRPC `mutation` procedure to svelte-query methods.

@@ -160,7 +160,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.getQueryData
 
         default:
-					throw new TypeError(`trpc.${path}.${queryMethod} is not a function`);
+          throw new TypeError(`trpc.${path}.${queryMethod} is not a function`);
       }
     })
   })

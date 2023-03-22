@@ -16,8 +16,11 @@ export interface Options<T extends AnyRouter> extends HTTPBaseHandlerOptions<T, 
 
 const defaultUrl = '/trpc'
 
-export async function createTRPCHandle<T extends AnyRouter>(options: Options<T>) {
-  const handle: Handle = async ({ event }) => {
+export function createTRPCHandle<T extends AnyRouter>(options: Options<T>) {
+  const handle: Handle = async ({ event, resolve }) => {
+    if (!event.url.pathname.startsWith(options.url ?? defaultUrl)) {
+      return await resolve(event)
+    }
     const router = options.router
     const createContext = async () => options.createContext?.(event)
     const req = {

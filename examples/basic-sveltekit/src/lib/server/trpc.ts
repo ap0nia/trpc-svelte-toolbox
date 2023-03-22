@@ -6,7 +6,7 @@ const t = initTRPC.create({
   transformer: superjson,
 })
 
-const router = t.router({
+export const router = t.router({
   count: t.procedure.input(z.number()).query(({ input }) => input)
 })
 

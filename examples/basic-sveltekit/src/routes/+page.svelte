@@ -1,9 +1,9 @@
 <script lang="ts">
   import { trpc } from '$lib/trpc'
-  const countQuery = trpc[''].createQuery()
+  
+  const countQuery = trpc.count.createQuery(1)
 
-  function invalidate() {
-  }
+  function invalidate() { }
 </script>
 
 <button on:click={invalidate}>Invalidate</button>

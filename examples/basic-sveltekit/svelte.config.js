@@ -5,7 +5,8 @@ export default {
   preprocess: [vitePreprocess()],
   kit: {
     alias: {
-      "@bevm0/trpc-svelte-query": "../../packages/trpc-svelte-query/src"
+      "@bevm0/trpc-svelte-query": "../../packages/trpc-svelte-query/src",
+      "@bevm0/trpc-sveltekit": "../../packages/trpc-sveltekit/src",
     }
   }
 }

@@ -10,19 +10,11 @@ import { queryClient } from '$lib/queryClient'
 import type { AppRouter } from '$lib/server/trpc'
 
 /**
- * Initialize tRPC + svelte-query with the router definition
+ * Initialize tRPC + svelte-query with the router definition.
  */
 export const trpc = createTRPCSvelte<AppRouter>({
   transformer: superjson,
   links: [
-    httpBatchLink({
-      url: 'http://localhost:3000/api/trpc',
-      fetch(fetchUrl, options) {
-        return fetch(fetchUrl, {
-          ...options,
-          credentials: 'include',
-        })
-      },
-    }),
+    httpBatchLink({ url: 'http://localhost:5173/trpc' }),
   ],
 }, queryClient)

@@ -14,13 +14,17 @@ import type { AnyRouter } from '@trpc/server'
 import { getArrayQueryKey } from './getArrayQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
 import type { ContextRouter } from './context'
+import { SSROpts } from './ssr'
 
 /**
  * Additional properties at the root of the tRPC + svelte-query proxy.
  */
 type RootProperties<T extends AnyRouter> = {
   client: CreateTRPCProxyClient<T>
+  queryClient: QueryClient
   context: ContextRouter<T>
+  ssr: (opts: SSROpts) => any
+  hydrate: (data: Map<any, any>) => QueryClient
 }
 
 /**
@@ -51,9 +55,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    */
   const proxy = createFlatProxy<TRPCQueryRouter<T>>((initialKey) => {
     if (initialKey === 'client') return proxyClient
+    if (initialKey === 'queryClient') return queryClient
 
     /**
      * If the initial key asks for `context`, mark it as `undefined` and prune it from the path later.
+     * `context` will use the exact same proxy, but is limited by the type defs.
      */
     const key = initialKey === 'context' ? undefined : initialKey
 
@@ -139,7 +145,17 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           break
 
         case 'fetchInfinite':
-          return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
+          let ssrOpts: SSROpts = args?.[2]
+          if (!ssrOpts) {
+            return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
+          }
+          const data = queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
+          const { locals } = ssrOpts.event
+          if (!locals.trpcSSRData) {
+            locals.trpcSSRData = new Map()
+          }
+          locals.trpcSSRData.set(queryKey, data)
+          return data
 
         case 'prefetchInfinite':
           return queryClient.prefetchInfiniteQuery(fetchInfiniteArgs)
@@ -150,11 +166,20 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getInfiniteData':
           return queryClient.getQueryData(queryKey, ...args)
 
-        /** TODO: SSR + hydration */
-        case 'fetch':
-          return queryClient.fetchQuery(fetchArgs)
+        case 'fetch': {
+          const ssrOpts: SSROpts = args?.[2]
+          if (!ssrOpts) {
+            return queryClient.fetchQuery(fetchArgs)
+          }
+          const data = queryClient.fetchQuery(fetchArgs)
+          const { locals } = ssrOpts.event
+          if (!locals.trpcSSRData) {
+            locals.trpcSSRData = new Map()
+          }
+          locals.trpcSSRData.set(queryKey, data)
+          return data
+        }
 
-        /** TODO: SSR + hydration */
         case 'prefetch':
           return queryClient.prefetchQuery(fetchArgs)
 
@@ -175,6 +200,24 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
         case 'getData':
           return queryClient.getQueryData(queryKey, ...args)
+
+        case 'ssr': {
+          const ssrOpts: SSROpts = args[0]
+          const { locals } = ssrOpts.event
+          if (!locals.trpcSSRData) {
+            locals.trpcSSRData = new Map()
+          }
+          return locals.trpcSSRData
+        }
+
+        case 'hydrate': {
+          const ssrData: Map<any, any> = args?.[0]
+          if (!ssrData) return
+          for (const [key, value] of ssrData) {
+            queryClient.setQueryData(key, value)
+          }
+          return queryClient
+        }
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)
@@ -214,4 +257,12 @@ export function createTRPCSvelte<T extends AnyRouter>(
    */
   const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
   return proxy
+}
+
+async function doSomething(data: Map<any, any>) {
+  const result = new Map()
+  for (const [key, value] of data.entries()) {
+    result.set(key, await value)
+  }
+  return result
 }

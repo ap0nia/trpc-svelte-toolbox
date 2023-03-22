@@ -8,6 +8,7 @@ importers:
   examples/basic-sveltekit:
     specifiers:
       '@bevm0/trpc-svelte-query': '*'
+      '@bevm0/trpc-sveltekit': '*'
       '@sveltejs/kit': ^1.13.0
       '@tanstack/svelte-query': ^4.27.0
       '@trpc/client': ^10.17.0
@@ -19,6 +20,7 @@ importers:
       zod: ^3.21.4
     dependencies:
       '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
+      '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
       '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
       '@trpc/client': 10.17.0_@trpc+server@10.17.0
       '@trpc/server': 10.17.0
@@ -32,6 +34,7 @@ importers:
 
   packages/trpc-svelte-query:
     specifiers:
+      '@sveltejs/kit': ^1.13.0
       '@tanstack/svelte-query': ^4.27.0
       '@trpc/client': ^10.17.0
       '@trpc/server': ^10.17.0
@@ -43,6 +46,7 @@ importers:
       '@trpc/client': 10.17.0_@trpc+server@10.17.0
       '@trpc/server': 10.17.0
     devDependencies:
+      '@sveltejs/kit': 1.13.0_svelte@3.57.0
       prettier: 2.8.6
       svelte: 3.57.0
       typescript: 5.0.2

@@ -23,6 +23,7 @@ import type {
   SetDataOptions,
   QueryKey,
 } from '@tanstack/svelte-query'
+import type { SSROpts } from './ssr'
 
 type QueryType = 'query' | 'infinite' | 'any'
 
@@ -39,7 +40,8 @@ export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         fetchInfinite(
-          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>,
+          ssrOpts?: SSROpts
         ): Promise<void>
 
         prefetchInfinite(
@@ -60,13 +62,14 @@ export type QueryContextProcedure<T extends AnyProcedure> = {
 
   fetch(
     input: inferProcedureInput<T>,
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>,
+    ssrOpts?: SSROpts
+  ): Promise<inferProcedureOutput<T>>
 
   prefetch(
     input: inferProcedureInput<T>,
     opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<void>
+  ): Promise<inferProcedureOutput<T>>
 
   invalidate(
     filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
@@ -110,15 +113,27 @@ export type ContextProcedure<T> =
   : never
 
 /**
+ * Properties available at the root context.
+ */
+type RootContextRouter = {}
+
+/**
  * Properties available at all levels of context.
  */
-type InnerContextRouter = {
+type SharedContext = {
   invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
+
+/**
+ * Context router has the shared properties, and not the root properties.
+ */
+type InnerContextRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
+} & SharedContext
 
 /**
  * Map tRPC router properties to context.
  */
 export type ContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T[k]>
-} & InnerContextRouter 
+  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
+} & RootContextRouter 

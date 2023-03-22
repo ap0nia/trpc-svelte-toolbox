@@ -1,0 +1,18 @@
+{
+  "name": "@bevm0/trpc-svelte-query",
+  "version": "0.0.69",
+  "license": "MIT",
+  "scripts": {
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "@tanstack/svelte-query": "^4.27.0",
+    "@trpc/client": "^10.17.0",
+    "@trpc/server": "^10.17.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.6",
+    "svelte": "^3.57.0",
+    "typescript": "^5.0.2"
+  }
+}

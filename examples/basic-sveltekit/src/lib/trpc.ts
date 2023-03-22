@@ -5,7 +5,7 @@
 
 import superjson from 'superjson'
 import { httpBatchLink } from '@trpc/client'
-import { createTRPCSvelte } from '@bevm0/svelte-query'
+import { createTRPCSvelte } from '@bevm0/trpc-svelte-query'
 import { queryClient } from '$lib/queryClient'
 import type { AppRouter } from '$lib/server/trpc'
 

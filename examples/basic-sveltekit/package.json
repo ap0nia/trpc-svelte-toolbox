@@ -9,7 +9,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@bevm0/svelte-query": "*",
+    "@bevm0/trpc-svelte-query": "*",
     "@tanstack/svelte-query": "^4.27.0",
     "@trpc/client": "^10.17.0",
     "@trpc/server": "^10.17.0",

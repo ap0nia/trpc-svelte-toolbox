@@ -31,7 +31,15 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
      */
     return createRecursiveProxy((opts) => {
       /**
-       * Arguments to the desired method.
+       * Depending on the call, args can vary.
+       * Check the type definition of the function and index accordingly.
+       *
+       * @example 
+       * `createQuery` accepts 1 argument, so use args[0] for input
+       * `setData` accepts 2 arguments, so use args[0] for input and args[1] for params
+       *
+       * @remarks only svelte-query options are currently available, 
+       * but they're passed into the tRPC method as a "proof of concept".
        */
       const args: any = opts.args
 
@@ -44,9 +52,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       /**
        * `createQuery`, `createMutation`, etc.
        */
-      const method = pathArray.pop()
-
-      if (method == null) return
+      const method = pathArray.pop() ?? ''
 
       /**
        * The tRPC route represented as a string, exluding input.
@@ -54,19 +60,13 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      /**
-       * Generally, the first argument is input, and the second is params for tRPC or svelte-query.
-       * Verify this by checking the type definitions for each function call.
-       */
-      const [input, params] = args;
-
-      const queryKey = getArrayQueryKey(pathArray, input, method)
+      const queryKey = getArrayQueryKey(pathArray, args[0], method)
 
       const fetchArgs: CreateQueryOptions = {
-        ...params,
+        ...args[1],
         queryKey,
         queryFn() {
-          return client.query(path, input, params)
+          return client.query(path, args[0], args[1])
         }
       }
 
@@ -74,16 +74,16 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         ...args,
         mutationKey: queryKey,
         mutationFn(data) {
-          return client.mutation(path, data, args)
+          return client.mutation(path, data, ...args)
         }
       }
 
       const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
-        ...params,
+        ...args[1],
         queryKey,
         queryFn({ pageParam }) {
-          const infiniteQueryInput = { ...input, cursor: pageParam }
-          return client.query(path, infiniteQueryInput, params)
+          const infiniteQueryInput = { ...args[0], cursor: pageParam }
+          return client.query(path, infiniteQueryInput, args[1])
         }
       }
 

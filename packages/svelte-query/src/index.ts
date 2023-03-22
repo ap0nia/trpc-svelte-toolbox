@@ -25,12 +25,12 @@ export function getArrayQueryKey(path: string[], input: unknown, type: QueryType
 	const hasInput = typeof input !== 'undefined';
 	const hasType = type && type !== 'any';
 
-	if (!hasInput && !hasType)
+  if (!hasInput && !hasType)
     /**
      * For `utils.invalidate()` to match all queries (including vanilla react-query),
      * we don't want nested array if path is empty, i.e. `[]` instead of `[[]]`.
      */
-		return path.length ? [path] : ([] as unknown as QueryKey);
+    return path.length ? [path] : ([] as unknown as QueryKey);
 
 	return [
     path, 

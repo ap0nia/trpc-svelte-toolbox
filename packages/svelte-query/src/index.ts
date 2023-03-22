@@ -32,7 +32,7 @@ export function getArrayQueryKey(path: string[], input: unknown, type: QueryType
      */
     return path.length ? [path] : ([] as unknown as QueryKey);
 
-	return [
+  return [
     path, 
     { ...(hasInput && { input: input }), ...(hasType && { type: type }) },
   ];

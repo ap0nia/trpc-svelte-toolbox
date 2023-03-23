@@ -10,22 +10,22 @@
 
 import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type {
-	AnyProcedure,
-	AnyRouter,
-	inferProcedureInput,
-	inferProcedureOutput,
-	Procedure,
+  AnyProcedure,
+  AnyRouter,
+  inferProcedureInput,
+  inferProcedureOutput,
+  Procedure,
 } from '@trpc/server'
 import type {
-	InvalidateQueryFilters,
-	InvalidateOptions,
-	FetchQueryOptions,
-	ResetOptions,
-	ResetQueryFilters,
-	QueryFilters,
-	Updater,
-	CancelOptions,
-	SetDataOptions,
+  InvalidateQueryFilters,
+  InvalidateOptions,
+  FetchQueryOptions,
+  ResetOptions,
+  ResetQueryFilters,
+  QueryFilters,
+  Updater,
+  CancelOptions,
+  SetDataOptions,
 } from '@tanstack/svelte-query'
 import type { AnyQueryType, QueryKey } from './getQueryKey'
 
@@ -38,7 +38,7 @@ type TODO<T> = T extends unknown ? 'TODO' : 'WIP'
  * Additional options on top of the default ones.
  */
 type AdditionalOptions = {
-	trpc?: TRPCRequestOptions
+  trpc?: TRPCRequestOptions
 }
 
 /**
@@ -50,55 +50,55 @@ type InfiniteQueryInput = { cursor: any }
  * Utilities available to infinite queries.
  */
 export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
-	inferProcedureInput<T> extends InfiniteQueryInput
-		? {
-				fetchInfinite(
-					opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-				): Promise<inferProcedureOutput<T>>
+  inferProcedureInput<T> extends InfiniteQueryInput
+    ? {
+        fetchInfinite(
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+        ): Promise<inferProcedureOutput<T>>
 
-				prefetchInfinite(
-					opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-				): Promise<void>
+        prefetchInfinite(
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+        ): Promise<void>
 
-				setInfiniteData(data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>): Promise<void>
+        setInfiniteData(data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>): Promise<void>
 
-				getInfiniteData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
-		  }
-		: object
+        getInfiniteData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+      }
+    : object
 
 /**
  * Utilities available query procedures.
  */
 export type QueryUtilsProcedure<T extends AnyProcedure> = {
-	getQueryKey(input: inferProcedureInput<T>, type?: AnyQueryType): QueryKey
+  getQueryKey(input: inferProcedureInput<T>, type?: AnyQueryType): QueryKey
 
-	fetch(
-		input: inferProcedureInput<T>,
-		opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-	): Promise<inferProcedureOutput<T>>
+  fetch(
+    input: inferProcedureInput<T>,
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+  ): Promise<inferProcedureOutput<T>>
 
-	prefetch(
-		input: inferProcedureInput<T>,
-		opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-	): Promise<void>
+  prefetch(
+    input: inferProcedureInput<T>,
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+  ): Promise<void>
 
-	invalidate(
-		filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
-		opts?: InvalidateOptions
-	): Promise<void>
+  invalidate(
+    filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
+    opts?: InvalidateOptions
+  ): Promise<void>
 
-	reset(filters?: ResetQueryFilters<inferProcedureInput<T>>, opts?: ResetOptions): Promise<void>
+  reset(filters?: ResetQueryFilters<inferProcedureInput<T>>, opts?: ResetOptions): Promise<void>
 
-	cancel(filters?: QueryFilters, options?: CancelOptions): Promise<void>
+  cancel(filters?: QueryFilters, options?: CancelOptions): Promise<void>
 
-	ensureData(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
+  ensureData(opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>): Promise<void>
 
-	setData(
-		data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>,
-		options?: SetDataOptions
-	): Promise<void>
+  setData(
+    data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>,
+    options?: SetDataOptions
+  ): Promise<void>
 
-	getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+  getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
@@ -126,26 +126,26 @@ export type UtilsProcedure<T> =
  * Properties available at the root utils.
  */
 type RootUtilsRouter = {
-	invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
 
 /**
  * Properties available at all levels of utils.
  */
 type SharedUtils = {
-	invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
 
 /**
  * Inner utils router has the shared properties, but not the root properties.
  */
 type InnerUtilsRouter<T extends AnyRouter> = {
-	[k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
+  [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
 } & SharedUtils
 
 /**
  * Map tRPC router to utils router.
  */
 export type UtilsRouter<T extends AnyRouter> = {
-	[k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
+  [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
 } & RootUtilsRouter

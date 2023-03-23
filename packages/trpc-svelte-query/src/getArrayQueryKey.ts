@@ -29,10 +29,6 @@ export const methodToQueryType: Record<string, QueryType> = {
 }
 
 /**
- * TODO: distinguish between tRPC options and svelte-query options for all methods.
- */
-
-/**
  * Construct a query key that is easy to destructure and flexible for partial selecting etc.
  * To allow easy interactions with groups of related queries,
  * such as invalidating all queries of a router,

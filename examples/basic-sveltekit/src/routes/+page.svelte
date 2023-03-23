@@ -3,7 +3,9 @@
   
   const countQuery = trpc.count.createQuery(1)
 
-  function invalidate() { }
+  function invalidate() {
+    trpc.context.count.invalidate()
+  }
 </script>
 
 <button on:click={invalidate}>Invalidate</button>

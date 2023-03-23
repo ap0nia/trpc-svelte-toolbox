@@ -1,10 +1,8 @@
 /**
  * `query`
  * Refers to both svelte-query and a type of tRPC procedure.
- * This file maps tRPC procedures to svelte-query functions, like `createQuery`, `createMutation`.
- *
- * `context` is traditionally available after requesting `useContext` from the root.
- * @see {@link https://trpc.io/docs/reactjs/usecontext}
+ * This file maps tRPC procedures to svelte-query functions, 
+ * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'
@@ -19,13 +17,12 @@ import type {
 } from '@tanstack/svelte-query'
 
 /**
- * An infinite query must have the "cursor" property required as input.
- * The procedure will acquire additional methods if it's an infinite query.
+ * Infinite queries must have the "cursor" property in the input.
  */
 type InfiniteQueryInput = { cursor: any }
 
 /**
- * Additional svelte-query methods if the procedure is an infinite query.
+ * svelte-query methods available to infinite queries.
  */
 type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
@@ -72,9 +69,8 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
 }
 
 /**
- * Map all tRPC procedures to svelte-query methods.
+ * Map tRPC procedure to svelte-query methods.
  */
-
 // prettier-ignore
 export type TRPCSvelteQueryProcedure<T> = 
   T extends Procedure<infer Type, infer _TParams> ? 

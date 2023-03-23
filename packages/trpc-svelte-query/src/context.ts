@@ -1,6 +1,6 @@
 /**
- * `context`:
- * A function that operates directly on data from the `QueryClient` for a tRPC procedure.
+ * `context`
+ * A function that operates directly on the `QueryClient`, usually on behalf of a tRPC procedure.
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'
@@ -23,26 +23,23 @@ import type {
   SetDataOptions,
   QueryKey,
 } from '@tanstack/svelte-query'
-import type { SSROpts } from './ssr'
 
 type QueryType = 'query' | 'infinite' | 'any'
 
 /**
- * An infinite query must have the "cursor" property required as input.
- * The procedure will acquire additional methods if it's an infinite query.
+ * Infinite queries must have the "cursor" property in the input.
  */
 type InfiniteQueryInput = { cursor: any }
 
 /**
- * Utilities from "context" for infinite queries.
+ * Utilities available to infinite queries.
  */
 export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         fetchInfinite(
-          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>,
-          ssrOpts?: SSROpts
-        ): Promise<void>
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+        ): Promise<inferProcedureOutput<T>>
 
         prefetchInfinite(
           opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
@@ -55,21 +52,20 @@ export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
     : object
 
 /**
- * Utilities from "context" that directly control the QueryClient for a query procedure.
+ * Utilities available query procedures.
  */
 export type QueryContextProcedure<T extends AnyProcedure> = {
   getQueryKey(input: inferProcedureInput<T>, type?: QueryType): QueryKey
 
   fetch(
     input: inferProcedureInput<T>,
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>,
-    ssrOpts?: SSROpts
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
   ): Promise<inferProcedureOutput<T>>
 
   prefetch(
     input: inferProcedureInput<T>,
     opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<inferProcedureOutput<T>>
+  ): Promise<void>
 
   invalidate(
     filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
@@ -91,19 +87,18 @@ export type QueryContextProcedure<T extends AnyProcedure> = {
 } & MaybeInfiniteContextProcedure<T>
 
 /**
- * Utilities from "context" that directly control the QueryClient for a mutation procedure.
+ * Utilities available to mutation procedures.
  */
 export type MutationContextProcedure<T extends AnyProcedure> = {}
 
 /**
- * Utilities from "context" that directly control the QueryClient for a subscription procedure.
+ * Utilities available to subscription procedures.
  */
 export type SubscriptionContextProcedure<T extends AnyProcedure> = {}
 
 /**
  * Map tRPC procedures to context.
  */
-
 // prettier-ignore
 export type ContextProcedure<T> = 
   T extends Procedure<infer Type, infer _TParams> ?
@@ -115,7 +110,9 @@ export type ContextProcedure<T> =
 /**
  * Properties available at the root context.
  */
-type RootContextRouter = {}
+type RootContextRouter = {
+  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+}
 
 /**
  * Properties available at all levels of context.
@@ -125,15 +122,15 @@ type SharedContext = {
 }
 
 /**
- * Context router has the shared properties, and not the root properties.
+ * Inner context router has the shared properties, but not the root properties.
  */
 type InnerContextRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
 } & SharedContext
 
 /**
- * Map tRPC router properties to context.
+ * Map tRPC router to context router.
  */
 export type ContextRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
-} & RootContextRouter 
+} & RootContextRouter

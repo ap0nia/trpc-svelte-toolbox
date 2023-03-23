@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "repository": "github:bevm0/trpc-svelte-toolbox",
+  "homepage": "https://github.com/bevm0/trpc-svelte-toolbox.git",
   "author": "Aponia",
   "scripts": {
     "prepare": "husky install"

@@ -1,8 +1,14 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bevm0/trpc-svelte-toolbox.git",
+    "directory": "packages/trpc-svelte-query"
+  },
+  "homepage": "https://github.com/bevm0/trpc-svelte-toolbox.git",
   "scripts": {
     "build": "tsup",
     "format": "prettier --write src",

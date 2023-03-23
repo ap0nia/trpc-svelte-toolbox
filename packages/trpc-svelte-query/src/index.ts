@@ -66,10 +66,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    * This proxy facilitates dynamic access to these non-existent properties.
    */
   const proxy = createFlatProxy<TRPCSvelteQueryProxy<T>>((initialKey) => {
-    //-------------------------------------------------------------------------------
-    // handle top level properties
-    //-------------------------------------------------------------------------------
-
     if (initialKey === 'client') return proxyClient
     if (initialKey === 'queryClient') return queryClient
 
@@ -78,10 +74,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
      * Mark as `undefined` and remove inside the recursive proxy.
      */
     const key = initialKey === 'context' ? undefined : initialKey
-
-    //-------------------------------------------------------------------------------
-    // handle nested properties
-    //-------------------------------------------------------------------------------
 
     const nestedProperties = createRecursiveProxy((opts) => {
       /**

@@ -95,7 +95,7 @@ import type { PageLoad } from './$types'
 export const load: PageLoad = async () => {
   return {
     // `fetch`, `prefetch`, `fetchInfinite`, `prefetchInfinite` 
-    // will do the request cache it in the queryClient during the load function, before page load
+    // will do the request and cache it in the queryClient during the load function, before page load
     count: trpc.utils.count.fetch()
   }
 }

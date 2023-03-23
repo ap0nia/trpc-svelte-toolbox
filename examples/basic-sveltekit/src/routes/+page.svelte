@@ -4,7 +4,7 @@
   const countQuery = trpc.count.createQuery(1)
 
   function invalidate() {
-    trpc.context.count.invalidate()
+    trpc.utils.count.invalidate()
   }
 </script>
 

@@ -3,7 +3,8 @@
   "version": "0.0.69",
   "license": "MIT",
   "scripts": {
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "build": "tsc"
   },
   "dependencies": {
     "@tanstack/svelte-query": "^4.27.0",

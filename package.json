@@ -1,7 +1,25 @@
 {
-  "name": "@bevm0/trpc-svelte-toolbox",
-  "description": "Aponia",
+  "name": "trpc-svelte-toolbox",
   "version": "0.1.0",
+  "description": "tRPC, svelte-query, Svelte, SvelteKit integrations",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "repository": "github:bevm0/trpc-svelte-toolbox",
+  "author": "Aponia",
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.5.0",
+    "@commitlint/config-conventional": "^17.4.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.0",
+    "turbo": "^1.8.5",
+    "typescript": "^5.0.2"
+  },
+  "packageManager": "pnpm@7.30.0",
+  "engines": {
+    "pnpm": "^7.0.0"
+  }
 }

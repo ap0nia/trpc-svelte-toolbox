@@ -1,3 +1,4 @@
 workspaces:
   - "packages/*"
   - "examples/*"
+  - "shared/*"

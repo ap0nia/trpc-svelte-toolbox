@@ -24,6 +24,11 @@ import type {
   QueryKey,
 } from '@tanstack/svelte-query'
 
+/**
+ * Dummy type that indicates WIP.
+ */
+type TODO<T> = T extends unknown ? 'TODO' : 'WIP'
+
 type QueryType = 'query' | 'infinite' | 'any'
 
 /**
@@ -89,19 +94,19 @@ export type QueryContextProcedure<T extends AnyProcedure> = {
 /**
  * Utilities available to mutation procedures.
  */
-export type MutationContextProcedure<T extends AnyProcedure> = {}
+export type MutationContextProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
  * Utilities available to subscription procedures.
  */
-export type SubscriptionContextProcedure<T extends AnyProcedure> = {}
+export type SubscriptionContextProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
  * Map tRPC procedures to context.
  */
 // prettier-ignore
 export type ContextProcedure<T> = 
-  T extends Procedure<infer Type, infer _TParams> ?
+  T extends Procedure<infer Type, any> ?
     Type extends 'query' ? QueryContextProcedure<T> : 
     Type extends 'mutation' ? MutationContextProcedure<T> :
     Type extends 'subscription' ? SubscriptionContextProcedure<T> : never 

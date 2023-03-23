@@ -1,13 +1,7 @@
 {
-  "extends": ["../../tsconfig.json"],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "declaration": true,
-    "lib": ["esnext", "DOM", "DOM.Iterable"],
-    "moduleResolution": "Node",
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "target": "ESNext",
   },
   "include": ["src"],
 }

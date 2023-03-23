@@ -1,7 +1,6 @@
 import { resolveHTTPResponse } from '@trpc/server/http'
 import type { AnyRouter, inferRouterContext } from '@trpc/server'
-import type { HTTPRequest } from '@trpc/server/dist/http/internals/types'
-import type { HTTPBaseHandlerOptions } from '@trpc/server/dist/http/internals/types'
+import type { HTTPRequest, HTTPBaseHandlerOptions } from '@trpc/server/dist/http/internals/types'
 import type { Handle, RequestEvent } from '@sveltejs/kit'
 
 export type MaybePromise<T> = T | Promise<T>
@@ -19,9 +18,8 @@ const defaultUrl: Url = '/trpc'
 export function createTRPCHandle<T extends AnyRouter>(options: Options<T>) {
   const handle: Handle = async ({ event, resolve }) => {
     if (!event.url.pathname.startsWith(options.url ?? defaultUrl)) {
-      return await resolve(event)
+      return resolve(event)
     }
-    const router = options.router
     const createContext = async () => options.createContext?.(event)
     const req = {
       method: event.request.method,
@@ -31,9 +29,7 @@ export function createTRPCHandle<T extends AnyRouter>(options: Options<T>) {
     }
     const path = event.url.pathname.slice((options.url ?? defaultUrl).length + 1)
 
-    const fullOptions = { ...options, router, createContext, req, path }
-
-    const httpResponse = await resolveHTTPResponse(fullOptions)
+    const httpResponse = await resolveHTTPResponse({ ...options, createContext, req, path })
 
     const response = new Response(httpResponse.body, {
       status: httpResponse.status,

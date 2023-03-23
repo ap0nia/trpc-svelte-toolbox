@@ -96,7 +96,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        * Only svelte-query options are currently available,
        * but they're passed into the tRPC method as a "proof of concept".
        */
-      const args: any = opts.args
+      const anyArgs: any = opts.args
 
       /**
        * The tRPC route as an array of strings, excluding input.
@@ -114,7 +114,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        * The key used to identify this query in the QueryClient.
        * @example [ [...pathArray], { input, type } ]
        */
-      const queryKey = getArrayQueryKey(pathArray, args[0], method)
+      const queryKey = getArrayQueryKey(pathArray, anyArgs[0], method)
 
       /**
        * The tRPC route represented as a string, exluding input.
@@ -123,21 +123,21 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const path = pathArray.join('.')
 
       const fetchArgs: CreateQueryOptions = {
-        ...args[1],
+        ...anyArgs[1],
         queryKey,
-        queryFn: () => client.query(path, args[0], args[1]),
+        queryFn: () => client.query(path, anyArgs[0], anyArgs[1]),
       }
 
       const mutationArgs: CreateMutationOptions = {
-        ...args[0],
+        ...anyArgs[0],
         mutationKey: [pathArray],
-        mutationFn: (data) => client.mutation(path, data, args[0]),
+        mutationFn: (data) => client.mutation(path, data, anyArgs[0]),
       }
 
       const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
-        ...args[1],
+        ...anyArgs[1],
         queryKey,
-        queryFn: ({ pageParam }) => client.query(path, { ...args[0], cursor: pageParam }, args[1]),
+        queryFn: ({ pageParam }) => client.query(path, { ...anyArgs[0], cursor: pageParam }, anyArgs[1]),
       }
 
       /**
@@ -146,7 +146,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       switch (method) {
         case 'getQueryKey':
-          return getArrayQueryKey(pathArray, args[0], args[1] ?? 'any')
+          return getArrayQueryKey(pathArray, anyArgs[0], anyArgs[1] ?? 'any')
 
         case 'createQuery':
           return createQuery(fetchArgs)
@@ -159,7 +159,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
         /** TODO: createSubscription */
         case 'createSubscription':
-          break
+          return 'TODO: not implemented'
 
         case 'fetchInfinite':
           return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
@@ -168,10 +168,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.prefetchInfiniteQuery(fetchInfiniteArgs)
 
         case 'setInfiniteData':
-          return queryClient.setQueryData(queryKey, args[0], args[1])
+          return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getInfiniteData':
-          return queryClient.getQueryData(queryKey, ...args)
+          return queryClient.getQueryData(queryKey, ...anyArgs)
 
         case 'fetch':
           return queryClient.fetchQuery(fetchArgs)
@@ -180,22 +180,22 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.prefetchQuery(fetchArgs)
 
         case 'invalidate':
-          return queryClient.invalidateQueries(queryKey, ...args)
+          return queryClient.invalidateQueries(queryKey, ...anyArgs)
 
         case 'reset':
-          return queryClient.resetQueries(queryKey, ...args)
+          return queryClient.resetQueries(queryKey, ...anyArgs)
 
         case 'cancel':
-          return queryClient.cancelQueries(queryKey, ...args)
+          return queryClient.cancelQueries(queryKey, ...anyArgs)
 
         case 'ensureData':
-          return queryClient.ensureQueryData(queryKey, ...args)
+          return queryClient.ensureQueryData(queryKey, ...anyArgs)
 
         case 'setData':
-          return queryClient.setQueryData(queryKey, args[0], args[1])
+          return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getData':
-          return queryClient.getQueryData(queryKey, ...args)
+          return queryClient.getQueryData(queryKey, ...anyArgs)
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)

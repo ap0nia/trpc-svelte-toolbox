@@ -1,7 +1,7 @@
 /**
  * `query`
  * Refers to both svelte-query and a type of tRPC procedure.
- * This file maps tRPC procedures to svelte-query functions, 
+ * This file maps tRPC procedures to svelte-query functions,
  * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 
@@ -54,7 +54,7 @@ type TRPCMutationProcedure<T extends AnyProcedure> = {
   ) => CreateMutationResult<
     inferProcedureOutput<T>,
     TRPCClientErrorLike<T>,
-    inferProcedureInput<T> /**, FIXME: context? */
+    inferProcedureInput<T> /** , FIXME: context? */
   >
 }
 
@@ -73,7 +73,7 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
  */
 // prettier-ignore
 export type TRPCSvelteQueryProcedure<T> = 
-  T extends Procedure<infer Type, infer _TParams> ? 
+  T extends Procedure<infer Type, any> ? 
     Type extends 'query' ? TRPCQueryProcedure<T> :
     Type extends 'mutation' ? TRPCMutationProcedure<T> :
     Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : never

@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.70",
+  "version": "0.0.80",
   "description": "Just a demo, not intended for serious use.",
   "license": "MIT",
   "scripts": {
@@ -10,7 +10,8 @@
   "module": "dist/index.mjs",
   "files": [
     "dist",
-    "src"
+    "src",
+    "README.md"
   ],
   "peerDependencies": {
     "@sveltejs/kit": "^1.13.0",

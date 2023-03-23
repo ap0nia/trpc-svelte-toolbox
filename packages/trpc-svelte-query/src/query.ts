@@ -22,7 +22,7 @@ import { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntype
  * Additional options on top of the default ones.
  */
 type AdditionalOptions = {
-  trpc: TRPCRequestOptions
+  trpc?: TRPCRequestOptions
 }
 
 /**

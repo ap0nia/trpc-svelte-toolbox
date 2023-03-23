@@ -1,24 +1,6 @@
-<p align="center">
-  <a href="https://trpc.io/"><img src="https://assets.trpc.io/icons/svgs/blue-bg-rounded.svg" alt="tRPC" height="75"/></a>
-</p>
-
-<h3 align="center">tRPC</h3>
-
-<p align="center">
-  <strong>End-to-end typesafe APIs made easy</strong>
-</p>
-
-<p align="center">
-  <img src="https://assets.trpc.io/www/v10/v10-dark-landscape.gif" alt="Demo" />
-</p>
-
 # `@bevm0/trpc-svelte-query`
 
 > A tRPC wrapper around @tanstack/svelte-query.
-
-## Documentation
-
-Full documentation for `@bevm0/trpc-svelte-query` can be found here...(WIP)
 
 ## Installation
 
@@ -35,56 +17,69 @@ pnpm add @bevm0/trpc-svelte-query @tanstack/svelte-query
 
 ## Basic Example
 
-1. Create a file that exports an initialized QueryClient and tRPC hooks.
+### Create your [tRPC router](https://trpc.io/docs/router):
+```ts
+// src/lib/trpc/router.ts
+import delay from 'delay';
+import { initTRPC } from '@trpc/server';
+import type { Context } from '$lib/trpc/context';
+
+const t = initTRPC.context<Context>().create();
+export const { router, procedure } = t
+
+export const appRouter = router({
+  greeting: procedure.query(async () => {
+    await delay(500); // 👈 simulate an expensive operation
+    return `Hello tRPC v10 @ ${new Date().toLocaleTimeString()}`;
+  })
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+### 2. Create the tRPC + svelte-query proxy client.
 
 ```ts
 // src/lib/trpc.ts
-import { QueryClient } from '@tanstack/react-query';
-import { createTRPCSvelte } from '@bevm0/trpc-svelte-query';
-import { httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '$lib/server/trpc';
+import { createTRPCProxyClient, httpBatchLink } from '@trpc/client'
+import type { AppRouter } from '$lib/trpc/router';
 
-export const queryClient = new QueryClient();
-
-export const trpc = createTRPCSvelte<AppRouter>({
-  links: [
-    httpBatchLink({ url: 'http://localhost:5173/trpc' }),
-  ],
-}, queryClient);
+export const trpc = createTRPCProxyClient<AppRouter>({
+  links: [ httpBatchLink({ url: 'http://localhost:5173/trpc' }) ]
+})
 ```
 
-2. Add the provider to the root layout to connect to your API.
+### 3. Add the provider to the root layout to connect to your API.
 
 ```html
 <!-- src/routes/+layout.svelte -->
 <script>
   import { QueryClientProvider } from '@tanstack/react-query';
-  import { queryClient } from '$lib/trpc'
+  import trpc from '$lib/trpc'
 </script>
 
-<QueryClientProvider client={queryClient}>
+<QueryClientProvider client={trpc.queryClient}>
   <slot />
 </QueryClientProvider>
 ```
 
-3. Now in any component, you can query your API using the trpc proxy exported from the trpc file.
+### 4. Now in any component, you can query your API using the trpc proxy exported from the trpc file.
 
 ```html
+<!-- src/routes/+page.svelte -->
 <script>
   import { trpc } from '$lib/trpc';
-  const query = trpc.count.createQuery()
+  const query = trpc.greeting.createQuery()
 </script>
 
-<div>
-  <p>Your number is: {$query.data}</p>
-</div>
+<p>Your greeting is: {$query.data}</p>
 ```
 
 ## SvelteKit Prefetch Example
 
-1-3. Follow the same steps as the basic example.
+1-4. Follow the same steps as the basic example.
 
-4. Directly fetch the query using `utils` in a `+layout.ts` or `+page.ts` above the desired route.
+### 5. Directly fetch the query using `utils` in a `+layout.ts` or `+page.ts` above the desired route.
 
 ```ts
 // src/routes/+page.ts
@@ -101,7 +96,7 @@ export const load: PageLoad = async () => {
 }
 ```
 
-5. Now the data is fetched and cached **prior** to the page loading.
+Now the data is fetched and cached **prior** to the page loading.
 - The data will be "undefined" at first if the prefetch step isn't done
 - Another fetch may occur on mount if you don't explictly tune the QueryClient settings,
   e.g. by turning "refetchOnMount" to false.

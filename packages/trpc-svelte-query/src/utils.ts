@@ -38,7 +38,7 @@ type TODO<T> = T extends unknown ? 'TODO' : 'WIP'
  * Additional options on top of the default ones.
  */
 type AdditionalOptions = {
-  trpc: TRPCRequestOptions
+  trpc?: TRPCRequestOptions
 }
 
 /**

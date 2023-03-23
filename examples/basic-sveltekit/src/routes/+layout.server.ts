@@ -5,7 +5,7 @@ import { queryClient } from '$lib/queryClient'
 import type { AppRouter } from '$lib/server/trpc'
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = async ({ locals, fetch }) => {
   const trpc = createTRPCSvelte<AppRouter>({
     transformer: superjson,
     links: [
@@ -13,5 +13,8 @@ export const load: LayoutServerLoad = async ({ fetch }) => {
     ],
   }, queryClient)
 
-  return { };
+  await trpc.context.count.fetch(1)
+  await trpc.context.hello.fetch('hh')
+
+  return { locals };
 };

@@ -86,8 +86,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        * `setData` accepts 2 arguments, so use args[0] for input and args[1] for params
        *
        * @remarks
-       * Only svelte-query options are currently available,
-       * but they're passed into the tRPC method as a "proof of concept".
+       * Depending on the method, additional tRPC-related options can also be provided
+       * among the default options available. Refer to the type definitions.
        */
       const anyArgs: any = opts.args
 
@@ -204,8 +204,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
 /**
  * Create a tRPC + svelte-query proxy.
- * @param opts Options for creating the tRPC clients.
- * @param queryClient Initialized `QueryClient` to use for the proxy.
+ * @param opts Options for creating the tRPC client.
+ * @param queryClient Initialized `QueryClient`, or options to initialize one.
  */
 export function createTRPCSvelte<T extends AnyRouter>(
   opts: CreateTRPCClientOptions<T>,

@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bevm0/trpc-svelte-toolbox.git",
-    "directory": "packages/trpc-svelte-query"
+    "directory": "packages/trpc-sveltekit"
   },
   "homepage": "https://github.com/bevm0/trpc-svelte-toolbox.git",
   "scripts": {

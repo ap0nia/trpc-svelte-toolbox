@@ -1,0 +1,26 @@
+{
+  "name": "@examples/db",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^2.0.0",
+    "@sveltejs/kit": "^1.13.0",
+    "@types/better-sqlite3": "^7.6.3",
+    "drizzle-kit": "^0.17.0",
+    "svelte": "^3.57.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.1"
+  },
+  "dependencies": {
+    "@bevm0/trpc-svelte-query": "*",
+    "@bevm0/trpc-sveltekit": "*",
+    "@tanstack/svelte-query": "^4.27.0",
+    "@trpc/client": "^10.17.0",
+    "@trpc/server": "^10.17.0",
+    "better-sqlite3": "^8.2.0",
+    "drizzle-orm": "^0.22.0"
+  }
+}

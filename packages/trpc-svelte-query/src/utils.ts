@@ -1,9 +1,14 @@
 /**
- * `context`
- * A function that operates directly on the `QueryClient`, usually on behalf of a tRPC procedure.
+ * `utils`
+ * Methods that operate directly on the `QueryClient`, usually on behalf of a tRPC procedure.
+ * They'll actually be directly accessible from the same path as `createQuery`,
+ * but splitting it up makes the autocomplete easier to work with.
+ *
+ * e.g. `trpc.utils.users.fetch()` and `trpc.users.fetch()` are both valid calls,
+ * but only the former is recognized by TypeScript.
  */
 
-import type { TRPCClientErrorLike } from '@trpc/client'
+import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyProcedure,
   AnyRouter,
@@ -21,15 +26,20 @@ import type {
   Updater,
   CancelOptions,
   SetDataOptions,
-  QueryKey,
 } from '@tanstack/svelte-query'
+import type { AnyQueryType, QueryKey } from './getQueryKey'
 
 /**
  * Dummy type that indicates WIP.
  */
 type TODO<T> = T extends unknown ? 'TODO' : 'WIP'
 
-type QueryType = 'query' | 'infinite' | 'any'
+/**
+ * Additional options on top of the default ones.
+ */
+type AdditionalOptions = {
+  trpc: TRPCRequestOptions
+}
 
 /**
  * Infinite queries must have the "cursor" property in the input.
@@ -43,11 +53,11 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         fetchInfinite(
-          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
         ): Promise<inferProcedureOutput<T>>
 
         prefetchInfinite(
-          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+          opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
         ): Promise<void>
 
         setInfiniteData(data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>): Promise<void>
@@ -60,16 +70,16 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
  * Utilities available query procedures.
  */
 export type QueryUtilsProcedure<T extends AnyProcedure> = {
-  getQueryKey(input: inferProcedureInput<T>, type?: QueryType): QueryKey
+  getQueryKey(input: inferProcedureInput<T>, type?: AnyQueryType): QueryKey
 
   fetch(
     input: inferProcedureInput<T>,
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
   ): Promise<inferProcedureOutput<T>>
 
   prefetch(
     input: inferProcedureInput<T>,
-    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
   ): Promise<void>
 
   invalidate(
@@ -102,7 +112,7 @@ export type MutationUtilsProcedure<T extends AnyProcedure> = TODO<T>
 export type SubscriptionUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
- * Map tRPC procedures to context.
+ * Map tRPC procedures to utils.
  */
 // prettier-ignore
 export type UtilsProcedure<T> = 

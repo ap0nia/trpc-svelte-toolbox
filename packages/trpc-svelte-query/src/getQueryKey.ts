@@ -1,16 +1,22 @@
-type QueryType = 'query' | 'infinite' | 'any'
-
-type QueryKey = [string[], { input?: unknown; type?: Exclude<QueryType, 'any'> }?]
+/**
+ * Part of the `QueryKey` used to identify queries in the QueryClient.
+ */
+export type QueryType = 'query' | 'infinite'
 
 /**
- * the type of key to use for svelte-query methods is described here:
- * @see {@link https://github.com/ottomated/trpc-svelte-query/blob/main/src/createTRPCSvelte.ts#L165}
- *
- * the type of key to use for query client methods is described here:
- * @see {@link https://github.com/ottomated/trpc-svelte-query/blob/main/src/shared/utils.ts#L164}
+ * A query without a relevant type can be 'any'.
  */
+export type AnyQueryType = QueryType | 'any'
 
-export const methodToQueryType: Record<string, QueryType> = {
+/**
+ * A key used to identify queries in the QueryClient.
+ */
+export type QueryKey = [string[], { input?: unknown; type?: QueryType }?]
+
+/**
+ * Translate arbitrary methods to a `QueryType`.
+ */
+export const methodToQueryType: Record<string, AnyQueryType> = {
   getQueryKey: 'any',
   createQuery: 'query',
   createInfiniteQuery: 'infinite',
@@ -37,15 +43,17 @@ export const methodToQueryType: Record<string, QueryType> = {
  *
  * @remarks This function doesn't need to convert legacy formats, unlike the one from react-query.
  *
- * @param path The path of the query as a string array.
- * @param input The input of the query.
- * @param method The svelte-query related method.
+ * @param path The tRPC path represented as a string array.
+ * @param input The query input.
+ * @param method The svelte-query method. i.e. The last key found during a `recursiveProxy`.
+ *
+ * Corresponds with [getArrayQueryKey](https://github.com/trpc/trpc/blob/main/packages/react-query/src/internals/getArrayQueryKey.ts)
  */
-export function getArrayQueryKey(pathArray: string[], input: unknown, method: string): QueryKey {
+export function getQueryKey(pathArray: string[], input: unknown, method: string): QueryKey {
   const type = methodToQueryType[method]
 
   /**
-   * Mutations don't have input; they return a function that will accept the input.
+   * Mutations don't have input because they return a function that will accept input.
    * They only have options, which aren't used for the query key.
    */
   const hasInput = typeof input !== 'undefined' && !method.toLowerCase().includes('mutation')

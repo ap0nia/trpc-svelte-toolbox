@@ -19,19 +19,27 @@ import { Unsubscribable } from '@trpc/server/observable'
 import { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
 
 /**
+ * Additional options on top of the default ones.
+ */
+type AdditionalOptions = {
+  trpc: TRPCRequestOptions
+}
+
+/**
  * Infinite queries must have the "cursor" property in the input.
  */
 type InfiniteQueryInput = { cursor: any }
 
 /**
- * svelte-query methods available to infinite queries.
+ * Additional svelte-query methods available to infinite queries.
  */
 type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         createInfiniteQuery: (
           input: inferProcedureInput<T>,
-          opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+          opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
+            AdditionalOptions
         ) => CreateInfiniteQueryResult
       }
     : object
@@ -42,7 +50,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
 type TRPCQueryProcedure<T extends AnyProcedure> = {
   createQuery: (
     input: inferProcedureInput<T>,
-    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
   ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
 } & MaybeInfiniteQueryProcedure<T>
 
@@ -52,11 +60,11 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
 type TRPCMutationProcedure<T extends AnyProcedure> = {
   createMutation: (
     input: inferProcedureInput<T>,
-    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
   ) => CreateMutationResult<
     inferProcedureOutput<T>,
     TRPCClientErrorLike<T>,
-    inferProcedureInput<T> /** , FIXME: context? */
+    inferProcedureInput<T> /** , FIXME: what is context? */
   >
 }
 
@@ -66,7 +74,8 @@ type TRPCMutationProcedure<T extends AnyProcedure> = {
 type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
   createSubscription: (
     input: inferProcedureInput<T>,
-    opts?: TRPCRequestOptions & Partial<TRPCSubscriptionObserver<inferProcedureOutput<T>, TRPCClientError<T>>>,
+    opts?: TRPCRequestOptions &
+      Partial<TRPCSubscriptionObserver<inferProcedureOutput<T>, TRPCClientError<T>>>
   ) => Unsubscribable
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.90",
-  "description": "Just a demo, not intended for serious use.",
+  "version": "0.0.91",
+  "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
   "scripts": {
     "build": "tsup",

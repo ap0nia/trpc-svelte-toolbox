@@ -5,7 +5,7 @@
  * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 
-import type { TRPCClientErrorLike } from '@trpc/client'
+import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { AnyProcedure, Procedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server'
 import type {
   CreateQueryOptions,
@@ -15,6 +15,8 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
+import { Unsubscribable } from '@trpc/server/observable'
+import { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
 
 /**
  * Infinite queries must have the "cursor" property in the input.
@@ -64,8 +66,8 @@ type TRPCMutationProcedure<T extends AnyProcedure> = {
 type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
   createSubscription: (
     input: inferProcedureInput<T>,
-    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    opts?: TRPCRequestOptions & Partial<TRPCSubscriptionObserver<inferProcedureOutput<T>, TRPCClientError<T>>>,
+  ) => Unsubscribable
 }
 
 /**

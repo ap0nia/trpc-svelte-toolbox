@@ -149,9 +149,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'createInfiniteQuery':
           return createInfiniteQuery(fetchInfiniteArgs)
 
-        /** TODO: createSubscription */
         case 'createSubscription':
-          return 'TODO: not implemented'
+          return client.subscription(path, anyArgs[0], anyArgs[1])
 
         case 'fetchInfinite':
           return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)

@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.0.80",
+  "version": "0.0.90",
   "license": "MIT",
   "scripts": {
     "format": "prettier --write src",

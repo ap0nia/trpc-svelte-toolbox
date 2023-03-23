@@ -17,6 +17,7 @@ import type {
 } from '@tanstack/svelte-query'
 import { Unsubscribable } from '@trpc/server/observable'
 import { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
+import { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 
 /**
  * Additional options on top of the default ones.
@@ -75,7 +76,7 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
   createSubscription: (
     input: inferProcedureInput<T>,
     opts?: TRPCRequestOptions &
-      Partial<TRPCSubscriptionObserver<inferProcedureOutput<T>, TRPCClientError<T>>>
+      Partial<TRPCSubscriptionObserver<inferTransformedSubscriptionOutput<T>, TRPCClientError<T>>>
   ) => Unsubscribable
 }
 

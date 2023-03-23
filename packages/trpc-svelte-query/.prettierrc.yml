@@ -1,3 +1,4 @@
 singleQuote: true
 printWidth: 105
 semi: false
+useTabs: true

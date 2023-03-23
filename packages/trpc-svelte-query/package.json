@@ -1,13 +1,13 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.0.71",
+  "version": "0.0.72",
   "license": "MIT",
   "scripts": {
     "format": "prettier --write src",
     "build": "tsc"
   },
+  "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "files": [
     "dist",
     "src"

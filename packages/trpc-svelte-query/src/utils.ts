@@ -39,7 +39,7 @@ type InfiniteQueryInput = { cursor: any }
 /**
  * Utilities available to infinite queries.
  */
-export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
+export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         fetchInfinite(
@@ -59,7 +59,7 @@ export type MaybeInfiniteContextProcedure<T extends AnyProcedure> =
 /**
  * Utilities available query procedures.
  */
-export type QueryContextProcedure<T extends AnyProcedure> = {
+export type QueryUtilsProcedure<T extends AnyProcedure> = {
   getQueryKey(input: inferProcedureInput<T>, type?: QueryType): QueryKey
 
   fetch(
@@ -89,53 +89,53 @@ export type QueryContextProcedure<T extends AnyProcedure> = {
   ): Promise<void>
 
   getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
-} & MaybeInfiniteContextProcedure<T>
+} & MaybeInfiniteUtilsProcedure<T>
 
 /**
  * Utilities available to mutation procedures.
  */
-export type MutationContextProcedure<T extends AnyProcedure> = TODO<T>
+export type MutationUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
  * Utilities available to subscription procedures.
  */
-export type SubscriptionContextProcedure<T extends AnyProcedure> = TODO<T>
+export type SubscriptionUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
  * Map tRPC procedures to context.
  */
 // prettier-ignore
-export type ContextProcedure<T> = 
+export type UtilsProcedure<T> = 
   T extends Procedure<infer Type, any> ?
-    Type extends 'query' ? QueryContextProcedure<T> : 
-    Type extends 'mutation' ? MutationContextProcedure<T> :
-    Type extends 'subscription' ? SubscriptionContextProcedure<T> : never 
+    Type extends 'query' ? QueryUtilsProcedure<T> : 
+    Type extends 'mutation' ? MutationUtilsProcedure<T> :
+    Type extends 'subscription' ? SubscriptionUtilsProcedure<T> : never 
   : never
 
 /**
- * Properties available at the root context.
+ * Properties available at the root utils.
  */
-type RootContextRouter = {
+type RootUtilsRouter = {
   invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
 
 /**
- * Properties available at all levels of context.
+ * Properties available at all levels of utils.
  */
-type SharedContext = {
+type SharedUtils = {
   invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
 
 /**
- * Inner context router has the shared properties, but not the root properties.
+ * Inner utils router has the shared properties, but not the root properties.
  */
-type InnerContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
-} & SharedContext
+type InnerUtilsRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
+} & SharedUtils
 
 /**
- * Map tRPC router to context router.
+ * Map tRPC router to utils router.
  */
-export type ContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
-} & RootContextRouter
+export type UtilsRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
+} & RootUtilsRouter

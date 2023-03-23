@@ -11,9 +11,9 @@ import {
 } from '@tanstack/svelte-query'
 import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
-import { getArrayQueryKey } from './getArrayQueryKey'
+import { getArrayQueryKey } from './getQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
-import type { ContextRouter } from './context'
+import type { UtilsRouter } from './utils'
 
 /**
  * Properties available at the tRPC + svelte-query proxy root.
@@ -30,9 +30,9 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
   queryClient: QueryClient
 
   /**
-   * Shadows the entire proxy, provides additional methods for controlling queries.
+   * Shadows the entire proxy, provides additional methods for greater control over queries.
    */
-  context: ContextRouter<T>
+  utils: UtilsRouter<T>
 }
 
 /**

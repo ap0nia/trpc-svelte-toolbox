@@ -18,7 +18,6 @@ const defaultUrl: Url = '/trpc'
 
 export function createTRPCHandle<T extends AnyRouter>(options: Options<T>) {
   const handle: Handle = async ({ event, resolve }) => {
-    console.log(event.url.pathname)
     if (!event.url.pathname.startsWith(options.url ?? defaultUrl)) {
       return await resolve(event)
     }

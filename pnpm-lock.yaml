@@ -58,6 +58,7 @@ importers:
       '@trpc/server': ^10.17.0
       prettier: ^2.8.6
       svelte: ^3.57.0
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@trpc/client': 10.17.0_@trpc+server@10.17.0
@@ -66,6 +67,7 @@ importers:
       '@sveltejs/kit': 1.13.0_svelte@3.57.0
       prettier: 2.8.6
       svelte: 3.57.0
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
 packages:

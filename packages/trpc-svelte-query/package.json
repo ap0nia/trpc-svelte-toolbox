@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.0.74",
+  "version": "0.0.75",
   "license": "MIT",
   "scripts": {
     "format": "prettier --write src",
@@ -12,12 +12,6 @@
     "dist",
     "src"
   ],
-  "peerDependencies": {
-    "@tanstack/svelte-query": "^4.27.0",
-    "@trpc/client": "^10.17.0",
-    "@trpc/server": "^10.17.0",
-    "svelte": "^3.57.0"
-  },
   "dependencies": {
     "@tanstack/svelte-query": "^4.27.0",
     "@trpc/client": "^10.17.0",

@@ -41,12 +41,15 @@ export type AppRouter = typeof appRouter;
 
 ```ts
 // src/lib/trpc.ts
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client'
+import { createTRPCSvelte } from '@bevm0/trpc-svelte-query';
+import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '$lib/trpc/router';
 
-export const trpc = createTRPCProxyClient<AppRouter>({
-  links: [ httpBatchLink({ url: 'http://localhost:5173/trpc' }) ]
-})
+export const trpc = createTRPCSvelte<AppRouter>({
+  links: [
+    httpBatchLink({ url: 'http://localhost:5173/trpc' }),
+  ],
+});
 ```
 
 ### 3. Add the provider to the root layout to connect to your API.
@@ -55,7 +58,7 @@ export const trpc = createTRPCProxyClient<AppRouter>({
 <!-- src/routes/+layout.svelte -->
 <script>
   import { QueryClientProvider } from '@tanstack/react-query';
-  import trpc from '$lib/trpc'
+  import { trpc } from '$lib/trpc'
 </script>
 
 <QueryClientProvider client={trpc.queryClient}>

@@ -1,11 +1,11 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "license": "MIT",
   "description": "tRPC integration with @tanstack/svelte-query",
   "scripts": {
+    "build": "tsup",
     "format": "prettier --write src",
-    "build": "tsc",
     "lint": "eslint src",
     "prepack": "rimraf dist && npm run build"
   },

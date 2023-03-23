@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.92",
+  "version": "0.0.93",
   "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
   "scripts": {

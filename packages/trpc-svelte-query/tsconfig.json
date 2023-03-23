@@ -8,5 +8,6 @@
     "skipLibCheck": true,
     "module": "ESNext",
     "target": "ESNext",
-  }
+  },
+  "include": ["src"],
 }

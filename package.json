@@ -1,6 +1,6 @@
 {
-  "name": "trpc-sveltekit-query",
-  "description": "integrated @tanstack/svelte-query into @trpc/react-query",
+  "name": "@bevm0/trpc-svelte-toolbox",
+  "description": "Aponia",
   "version": "0.1.0",
   "license": "MIT",
   "private": true

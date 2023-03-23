@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.69",
+  "version": "0.0.70",
   "description": "Just a demo, not intended for serious use.",
   "license": "MIT",
   "scripts": {

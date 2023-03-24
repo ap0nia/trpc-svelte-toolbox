@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.0.98",
+  "version": "0.0.99",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
   "repository": {
@@ -24,13 +24,13 @@
   ],
   "peerDependencies": {
     "@tanstack/svelte-query": "^4.27.0",
-    "@trpc/client": "^10.17.0",
-    "@trpc/server": "^10.17.0"
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0"
   },
   "dependencies": {
     "@tanstack/svelte-query": "^4.27.0",
-    "@trpc/client": "^10.17.0",
-    "@trpc/server": "^10.17.0"
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0"
   },
   "devDependencies": {
     "eslint": "^8.36.0",

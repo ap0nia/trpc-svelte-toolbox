@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.0.999",
+  "version": "0.1.0",
   "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
   "repository": {
@@ -12,8 +12,7 @@
   "scripts": {
     "build": "tsup",
     "format": "prettier --write src",
-    "lint": "eslint src",
-    "prepack": "rimraf dist && npm run build"
+    "lint": "eslint src"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",

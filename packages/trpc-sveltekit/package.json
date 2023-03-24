@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
   "repository": {
@@ -23,7 +23,8 @@
   ],
   "peerDependencies": {
     "@sveltejs/kit": "^1.13.0",
-    "@trpc/server": "^10.18.0"
+    "@trpc/server": "^10.18.0",
+    "svelte": "^3.57.0"
   },
   "dependencies": {
     "@trpc/server": "^10.18.0"

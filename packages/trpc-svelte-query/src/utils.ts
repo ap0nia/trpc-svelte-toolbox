@@ -12,9 +12,10 @@ import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyProcedure,
   AnyRouter,
+  Procedure,
+  ProcedureParams,
   inferProcedureInput,
   inferProcedureOutput,
-  Procedure,
 } from '@trpc/server'
 import type {
   InvalidateQueryFilters,
@@ -27,6 +28,7 @@ import type {
   CancelOptions,
   SetDataOptions,
 } from '@tanstack/svelte-query'
+
 import type { AnyQueryType, QueryKey } from './getQueryKey'
 
 /**
@@ -37,14 +39,12 @@ type TODO<T> = T extends unknown ? 'TODO!' : 'WIP!'
 /**
  * Additional tRPC options can be under a `tRPC` property.
  */
-type AdditionalOptions = {
-  trpc?: TRPCRequestOptions
-}
+type AdditionalOptions = { trpc?: TRPCRequestOptions }
 
 /**
  * Infinite queries must have the "cursor" property in the input.
  */
-type InfiniteQueryInput = { cursor: any }
+type InfiniteQueryInput = { cursor: unknown }
 
 /**
  * Additional utilities available to infinite queries.
@@ -112,11 +112,11 @@ export type MutationUtilsProcedure<T extends AnyProcedure> = TODO<T>
 export type SubscriptionUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
- * Map tRPC procedures to utilites.
+ * Map a tRPC procedure to utilites.
  */
 // prettier-ignore
 export type UtilsProcedure<T> = 
-  T extends Procedure<infer Type, any> ?
+  T extends Procedure<infer Type, ProcedureParams> ?
     Type extends 'query' ? QueryUtilsProcedure<T> : 
     Type extends 'mutation' ? MutationUtilsProcedure<T> :
     Type extends 'subscription' ? SubscriptionUtilsProcedure<T> : never 
@@ -139,12 +139,10 @@ type InnerUtilsRouter<T extends AnyRouter> = {
 /**
  * Properties available at the root utilities.
  */
-type RootUtilsRouter = {
-  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
-}
+type RootUtilsRouter = SharedUtils & object
 
 /**
- * Map tRPC router to utilities router.
+ * Convert tRPC router to utilities router.
  */
 export type UtilsRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>

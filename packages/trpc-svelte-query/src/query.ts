@@ -6,9 +6,15 @@
  */
 
 import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
-import type { AnyProcedure, Procedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server'
-import type { Unsubscribable } from '@trpc/server/observable'
 import type { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
+import type {
+  AnyProcedure,
+  Procedure,
+  ProcedureParams,
+  inferProcedureInput,
+  inferProcedureOutput,
+} from '@trpc/server'
+import type { Unsubscribable } from '@trpc/server/observable'
 import type { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 import type {
   CreateQueryOptions,
@@ -22,14 +28,12 @@ import type {
 /**
  * Additional tRPC options can be under a `tRPC` property.
  */
-type AdditionalOptions = {
-  trpc?: TRPCRequestOptions
-}
+type AdditionalOptions = { trpc?: TRPCRequestOptions }
 
 /**
  * Infinite queries must have the "cursor" property in the input.
  */
-type InfiniteQueryInput = { cursor: any }
+type InfiniteQueryInput = { cursor: unknown }
 
 /**
  * Additional svelte-query methods available to infinite queries.
@@ -41,7 +45,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
           input: inferProcedureInput<T>,
           opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
             AdditionalOptions
-        ) => CreateInfiniteQueryResult
+        ) => CreateInfiniteQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
       }
     : object
 
@@ -85,7 +89,7 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
  */
 // prettier-ignore
 export type TRPCSvelteQueryProcedure<T> = 
-  T extends Procedure<infer Type, any> ? 
+  T extends Procedure<infer Type, ProcedureParams> ? 
     Type extends 'query' ? TRPCQueryProcedure<T> :
     Type extends 'mutation' ? TRPCMutationProcedure<T> :
     Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : never

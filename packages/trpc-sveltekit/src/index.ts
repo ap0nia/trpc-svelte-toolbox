@@ -6,9 +6,9 @@ import type { Handle } from '@sveltejs/kit'
 const defaultEndpoint = '/trpc'
 
 /**
- * Make the specified properties of `T` optional.
+ * Make the specified keys of `T` optional.
  */
-type OptionalKeys<T, Key extends keyof T> = Omit<T, Key> & { [k in Key]?: T[k] }
+type OptionalKeys<T, Keys extends keyof T> = Omit<T, Keys> & Partial<Pick<T, Keys>>
 
 /**
  * Options for `createTRPCHandle`.
@@ -21,7 +21,7 @@ type Options<T extends AnyRouter> = OptionalKeys<FetchHandlerRequestOptions<T>, 
 function createTRPCHandle<T extends AnyRouter>(options: Options<T>): Handle {
   const endpoint = options.endpoint ?? defaultEndpoint
 
-  return async ({ event, resolve }) =>
+  return ({ event, resolve }) =>
     event.url.pathname.startsWith(endpoint)
       ? resolve(event)
       : fetchRequestHandler({ ...options, endpoint, req: event.request })

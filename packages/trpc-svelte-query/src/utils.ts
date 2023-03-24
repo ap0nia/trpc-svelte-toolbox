@@ -32,10 +32,10 @@ import type { AnyQueryType, QueryKey } from './getQueryKey'
 /**
  * Dummy type that indicates WIP.
  */
-type TODO<T> = T extends unknown ? 'TODO' : 'WIP'
+type TODO<T> = T extends unknown ? 'TODO!' : 'WIP!'
 
 /**
- * Additional options on top of the default ones.
+ * Additional tRPC options can be under a `tRPC` property.
  */
 type AdditionalOptions = {
   trpc?: TRPCRequestOptions
@@ -47,7 +47,7 @@ type AdditionalOptions = {
 type InfiniteQueryInput = { cursor: any }
 
 /**
- * Utilities available to infinite queries.
+ * Additional utilities available to infinite queries.
  */
 export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
@@ -67,7 +67,7 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
     : object
 
 /**
- * Utilities available query procedures.
+ * Map a tRPC `query` procedure to utilities.
  */
 export type QueryUtilsProcedure<T extends AnyProcedure> = {
   getQueryKey(input: inferProcedureInput<T>, type?: AnyQueryType): QueryKey
@@ -102,17 +102,17 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
- * Utilities available to mutation procedures.
+ * Map a tRPC `mutation` procedure to utilities.
  */
 export type MutationUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
- * Utilities available to subscription procedures.
+ * Map a tRPC `subscription` procedure to utilities.
  */
 export type SubscriptionUtilsProcedure<T extends AnyProcedure> = TODO<T>
 
 /**
- * Map tRPC procedures to utils.
+ * Map tRPC procedures to utilites.
  */
 // prettier-ignore
 export type UtilsProcedure<T> = 
@@ -123,28 +123,28 @@ export type UtilsProcedure<T> =
   : never
 
 /**
- * Properties available at the root utils.
- */
-type RootUtilsRouter = {
-  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
-}
-
-/**
- * Properties available at all levels of utils.
+ * Properties available at all levels of utilities.
  */
 type SharedUtils = {
   invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
 }
 
 /**
- * Inner utils router has the shared properties, but not the root properties.
+ * Inner utilities router has shared properties, but not root properties.
  */
 type InnerUtilsRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>
 } & SharedUtils
 
 /**
- * Map tRPC router to utils router.
+ * Properties available at the root utilities.
+ */
+type RootUtilsRouter = {
+  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+}
+
+/**
+ * Map tRPC router to utilities router.
  */
 export type UtilsRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerUtilsRouter<T[k]> : UtilsProcedure<T[k]>

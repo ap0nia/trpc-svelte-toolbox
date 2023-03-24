@@ -7,6 +7,9 @@
 
 import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { AnyProcedure, Procedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server'
+import type { Unsubscribable } from '@trpc/server/observable'
+import type { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
+import type { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 import type {
   CreateQueryOptions,
   CreateQueryResult,
@@ -15,12 +18,9 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
-import { Unsubscribable } from '@trpc/server/observable'
-import { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
-import { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 
 /**
- * Additional options on top of the default ones.
+ * Additional tRPC options can be under a `tRPC` property.
  */
 type AdditionalOptions = {
   trpc?: TRPCRequestOptions
@@ -60,17 +60,17 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
  */
 type TRPCMutationProcedure<T extends AnyProcedure> = {
   createMutation: (
-    input: inferProcedureInput<T>,
-    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-  ) => CreateMutationResult<
-    inferProcedureOutput<T>,
-    TRPCClientErrorLike<T>,
-    inferProcedureInput<T> /** , FIXME: what is context? */
-  >
+    opts?: CreateMutationOptions<
+      inferProcedureOutput<T>,
+      TRPCClientErrorLike<T>,
+      inferProcedureInput<T>
+    > &
+      AdditionalOptions
+  ) => CreateMutationResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>>
 }
 
 /**
- * Map a tRPC `subscription procedure to svelte-query methods.
+ * Map a tRPC `subscription` procedure to svelte-query methods.
  */
 type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
   createSubscription: (

@@ -17,11 +17,12 @@ import type { TRPCSvelteQueryProcedure } from './query'
 import type { UtilsRouter } from './utils'
 
 /**
- * Properties available at the tRPC + svelte-query proxy root.
+ * @internal
+ * Properties available at the proxy root.
  */
 type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
   /**
-   * tRPC proxy client that can be used to directly invoke request procedures.
+   * tRPC client that can be used to send requests directly.
    */
   client: CreateTRPCProxyClient<T>
 
@@ -31,15 +32,16 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
   queryClient: QueryClient
 
   /**
-   * Shadows the proxy, providing additional methods with greater control over queries.
+   * Shadows the proxy, providing methods with more control over queries.
    */
   utils: UtilsRouter<T>
 }
 
 /**
- * tRPC + svelte-query proxy without root properties.
+ * @internal
+ * Proxy without root properties.
  */
-export type InnerTRPCSvelteQueryProxy<T extends AnyRouter> = {
+type InnerTRPCSvelteQueryProxy<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter
     ? InnerTRPCSvelteQueryProxy<T[k]>
     : TRPCSvelteQueryProcedure<T[k]>
@@ -55,6 +57,7 @@ export type TRPCSvelteQueryProxy<T extends AnyRouter> = {
 } & TRPCSvelteQueryProxyRoot<T>
 
 /**
+ * @internal
  * Create a tRPC + svelte-query proxy.
  */
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
@@ -63,54 +66,50 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   queryClient: QueryClient
 ): TRPCSvelteQueryProxy<T> {
   /**
-   * The properties defined by TS don't actually exist during runtime.
-   * This proxy facilitates dynamic access to these non-existent properties.
+   * Properties indicated by the type information don't exist during runtime.
+   * Proxies allows dynamic access to these properties.
+   *
+   * `flatProxy` handles root level properties; `recursiveProxy` handles the query operations.
    */
   const proxy = createFlatProxy<TRPCSvelteQueryProxy<T>>((initialKey) => {
     if (initialKey === 'client') return proxyClient
     if (initialKey === 'queryClient') return queryClient
 
     /**
-     * `utils` uses the exact same proxy, but "utils" has to be removed from the path array.
+     * `utils` refers to the same proxy, but "utils" is not part of the tRPC path.
      * Mark as `undefined` and remove inside the recursive proxy.
      */
     const key = initialKey === 'utils' ? undefined : initialKey
 
     const nestedProperties = createRecursiveProxy((opts) => {
       /**
-       * `args` can vary depending on the call.
-       * Check the type definition of the function and index the args accordingly.
+       * Handle `args` based on the method.
        *
        * @example
-       * `createQuery` accepts 1 argument, so use args[0] for input
-       * `setData` accepts 2 arguments, so use args[0] for input and args[1] for params
-       *
-       * @remarks
-       * Depending on the method, additional tRPC-related options can also be provided
-       * among the default options available. Refer to the type definitions.
+       * `setData` has 2 arguments: args[0] -> input, args[1] -> params.
+       * `createMutation` has 1 argument: args[0] -> input, args[0]?.trpc -> tRPC options
        */
       const anyArgs: any = opts.args
 
       /**
-       * The tRPC route as an array of strings, excluding input.
-       * If initial key is `undefined`, omit it from the path array.
+       * The tRPC path as an array of strings; omit initial key if `undefined`.
        * @example `['post', 'byId']`
        */
       const pathArray = key != null ? [key, ...opts.path] : [...opts.path]
 
       /**
-       * @example `createQuery`, `createMutation`, etc.
+       * @example `createQuery`, `createMutation`, `fetch` etc.
        */
       const method = pathArray.pop() ?? ''
 
       /**
        * The key used to identify this query in the QueryClient.
-       * @example [ [...pathArray], { input, type } ]
+       * @example [ ['post', 'byId'], { input: 69, type: 'query' } ]
        */
       const queryKey = getQueryKey(pathArray, anyArgs[0], method)
 
       /**
-       * The tRPC route represented as a string, exluding input.
+       * The tRPC path as a string.
        * @example `post.byId`
        */
       const path = pathArray.join('.')
@@ -132,14 +131,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: ({ pageParam }) =>
-          client.query(path, { ...anyArgs[0], cursor: pageParam }, anyArgs[1]?.trpc),
+        queryFn: (context) =>
+          client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
         ...anyArgs[1],
       }
 
-      /**
-       * All proxy methods are always available; type information defines the interface.
-       */
       switch (method) {
         case 'getQueryKey':
           return getQueryKey(pathArray, anyArgs[0], anyArgs[1] ?? 'any')
@@ -205,30 +201,30 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 /**
  * Create a tRPC + svelte-query proxy.
  * @param opts Options for creating the tRPC client.
- * @param queryClient Initialized `QueryClient`, or options to initialize one.
+ * @param queryInit Initialized `QueryClient`, or options to initialize one.
  */
 export function createTRPCSvelte<T extends AnyRouter>(
   opts: CreateTRPCClientOptions<T>,
   queryInit?: QueryClient | QueryClientConfig
 ): TRPCSvelteQueryProxy<T> {
   /**
-   * An untyped tRPC client has `query`, `mutation`, etc. that use full paths to make the request.
+   * An untyped tRPC client has `query`, `mutation`, etc. that require full paths to make the request.
    * This is used inside a `recursiveProxy` to dynamically create the path and request.
    */
   const untypedClient = createTRPCUntypedClient<T>(opts)
 
   /**
-   * tRPC client that can be used to make direct requests to the API.
+   * tRPC client that can be used to send requests directly.
    */
   const proxyClient = createTRPCProxyClient<T>(opts)
 
   /**
-   * Use an arbitrary key that's only in the `QueryClient` to distinguish the type at runtime.
+   * Determine if `queryInit` is a `QueryClient` by checking for any unique key.
    */
   const isQueryClient = queryInit && 'clear' in queryInit
 
   /**
-   * Use an existing `QueryClient`, or initialize a new one with optionally provided options.
+   * Use the provided `QueryClient`, or initialize one with the options.
    */
   const queryClient = isQueryClient ? queryInit : new QueryClient(queryInit)
 

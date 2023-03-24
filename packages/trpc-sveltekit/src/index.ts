@@ -23,8 +23,8 @@ function createTRPCHandle<T extends AnyRouter>(options: Options<T>): Handle {
 
   return ({ event, resolve }) =>
     event.url.pathname.startsWith(endpoint)
-      ? resolve(event)
-      : fetchRequestHandler({ ...options, endpoint, req: event.request })
+      ? fetchRequestHandler({ ...options, endpoint, req: event.request })
+      : resolve(event)
 }
 
 export default createTRPCHandle

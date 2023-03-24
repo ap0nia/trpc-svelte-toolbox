@@ -26,8 +26,8 @@ importers:
       '@bevm0/trpc-sveltekit': '*'
       '@sveltejs/kit': ^1.13.0
       '@tanstack/svelte-query': ^4.27.0
-      '@trpc/client': ^10.17.0
-      '@trpc/server': ^10.17.0
+      '@trpc/client': ^10.18.0
+      '@trpc/server': ^10.18.0
       superjson: ^1.12.2
       svelte: ^3.57.0
       typescript: ^5.0.2
@@ -37,8 +37,8 @@ importers:
       '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
       '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
       '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
-      '@trpc/client': 10.17.0_@trpc+server@10.17.0
-      '@trpc/server': 10.17.0
+      '@trpc/client': 10.18.0_@trpc+server@10.18.0
+      '@trpc/server': 10.18.0
       superjson: 1.12.2
       zod: 3.21.4
     devDependencies:
@@ -132,8 +132,8 @@ importers:
   packages/trpc-svelte-query:
     specifiers:
       '@tanstack/svelte-query': ^4.27.0
-      '@trpc/client': ^10.17.0
-      '@trpc/server': ^10.17.0
+      '@trpc/client': ^10.18.0
+      '@trpc/server': ^10.18.0
       eslint: ^8.36.0
       eslint-config-airbnb-custom: '*'
       prettier: ^2.8.6
@@ -142,8 +142,8 @@ importers:
       typescript: ^5.0.2
     dependencies:
       '@tanstack/svelte-query': 4.27.0
-      '@trpc/client': 10.17.0_@trpc+server@10.17.0
-      '@trpc/server': 10.17.0
+      '@trpc/client': 10.18.0_@trpc+server@10.18.0
+      '@trpc/server': 10.18.0
     devDependencies:
       eslint: 8.36.0
       eslint-config-airbnb-custom: link:../../shared/eslint-config-airbnb-custom
@@ -155,7 +155,7 @@ importers:
   packages/trpc-sveltekit:
     specifiers:
       '@sveltejs/kit': ^1.13.0
-      '@trpc/server': ^10.17.0
+      '@trpc/server': ^10.18.0
       eslint: ^8.36.0
       eslint-config-airbnb-custom: '*'
       prettier: ^2.8.6
@@ -163,7 +163,7 @@ importers:
       tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
-      '@trpc/server': 10.17.0
+      '@trpc/server': 10.18.0
     devDependencies:
       '@sveltejs/kit': 1.13.0
       eslint: 8.36.0
@@ -858,8 +858,20 @@ packages:
       '@trpc/server': 10.17.0
     dev: false
 
+  /@trpc/client/10.18.0_@trpc+server@10.18.0:
+    resolution: {integrity: sha512-2d+6r2C/xygTjDWX9jT66defgHzbQP0Z8vrvyT3XtPjqU6JNlRNuS2ZtB8xDPdOQUUVnndzZ43BMr+Zu49K0OQ==}
+    peerDependencies:
+      '@trpc/server': 10.18.0
+    dependencies:
+      '@trpc/server': 10.18.0
+    dev: false
+
   /@trpc/server/10.17.0:
     resolution: {integrity: sha512-ZY8jUsJpyqyu80k7TbCcdAx7NsoQAnPK27lGS4/9R42yMKrt7KJdS0Ka2KF1KRRkr112qxTskVqUufVpRVLq7Q==}
+    dev: false
+
+  /@trpc/server/10.18.0:
+    resolution: {integrity: sha512-nVMqdDIF9YLOeC3g6RdAvdCPqkHFjpshSqZGThZ+fyjiWSUXj2ZKCduhJFnY77TjtgODojeaaghmzcnjxb+Onw==}
     dev: false
 
   /@tsconfig/node10/1.0.9:

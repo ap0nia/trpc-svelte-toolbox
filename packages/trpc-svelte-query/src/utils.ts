@@ -44,7 +44,7 @@ type AdditionalOptions = { trpc?: TRPCRequestOptions }
 /**
  * Infinite queries must have the "cursor" property in the input.
  */
-type InfiniteQueryInput = { cursor: unknown }
+type InfiniteQueryInput = { cursor?: unknown }
 
 /**
  * Additional utilities available to infinite queries.
@@ -119,7 +119,7 @@ export type UtilsProcedure<T> =
   T extends Procedure<infer Type, ProcedureParams> ?
     Type extends 'query' ? QueryUtilsProcedure<T> : 
     Type extends 'mutation' ? MutationUtilsProcedure<T> :
-    Type extends 'subscription' ? SubscriptionUtilsProcedure<T> : never 
+    Type extends 'subscription' ? SubscriptionUtilsProcedure<T> : 'Unknown procedure type'
   : never
 
 /**

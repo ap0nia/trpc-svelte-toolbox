@@ -1,23 +1,42 @@
+import { parse } from 'url';
 import { WebSocketServer } from 'ws';
-import { applyWSSHandler } from '@trpc/server/adapters/ws';
-import { createContext } from '../trpc/context';
-import { appRouter } from '../trpc/router'
+import type { Server,  WebSocket as WebSocketBase } from 'ws';
+import type { IncomingMessage } from 'http';
+import type { Duplex } from 'stream';
+import type { Handle } from '@sveltejs/kit';
 
-const wss = new WebSocketServer({ port: 3001 });
+export const GlobalThisWSS = Symbol.for('sveltekit.wss');
 
-const handler = applyWSSHandler({ wss, router: appRouter, createContext });
+export interface ExtendedWebSocket extends WebSocketBase {
+  socketId: string;
+};
 
-wss.on('connection', (ws) => {
-  console.log(`➕➕ Connection (${wss.clients.size})`);
-  ws.once('close', () => {
-    console.log(`➖➖ Connection (${wss.clients.size})`);
+export const onHttpServerUpgrade = (req: IncomingMessage, sock: Duplex, head: Buffer) => {
+    const pathname = parse(req.url ?? '').pathname;
+    if (pathname !== '/trpc') return;
+
+    const wss = globalThis[GlobalThisWSS] as Server;
+
+    wss.handleUpgrade(req, sock, head, function done(ws) {
+      wss.emit('connection', ws, req);
+    });
+};
+
+function createWSSHandle(): Handle {
+  const wss = new WebSocketServer({ noServer: true }) as Server<ExtendedWebSocket>;
+
+  wss.on('connection', (ws) => {
+    ws.socketId = '123';
+
+    console.log(`[wss:global] client connected (${ws.socketId})`);
+
+    ws.on('close', () => {
+      console.log(`[wss:global] client disconnected (${ws.socketId})`);
+    });
   });
-});
 
-console.log('✅ WebSocket Server listening on ws://localhost:3001');
-
-process.on('SIGTERM', () => {
-  console.log('SIGTERM');
-  handler.broadcastReconnectNotification();
-  wss.close();
-});
+  return async ({ event, resolve }) => {
+    event.locals.wss = wss
+    return resolve(event)
+  }
+}

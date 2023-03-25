@@ -33,7 +33,7 @@ type AdditionalOptions = { trpc?: TRPCRequestOptions }
 /**
  * Infinite queries must have the "cursor" property in the input.
  */
-type InfiniteQueryInput = { cursor: unknown }
+type InfiniteQueryInput = { cursor?: unknown }
 
 /**
  * Additional svelte-query methods available to infinite queries.
@@ -92,5 +92,5 @@ export type TRPCSvelteQueryProcedure<T> =
   T extends Procedure<infer Type, ProcedureParams> ? 
     Type extends 'query' ? TRPCQueryProcedure<T> :
     Type extends 'mutation' ? TRPCMutationProcedure<T> :
-    Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : never
+    Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : 'Unknown procedure type'
   : never

@@ -44,7 +44,7 @@ export const methodToQueryType: Record<string, AnyQueryType> = {
  *
  * @param path The tRPC path represented as a string array.
  * @param input The query input.
- * @param method The svelte-query method. i.e. The last key found during a `recursiveProxy`.
+ * @param method The svelte-query method. i.e. the last key found in a `recursiveProxy` path.
  */
 export function getQueryKey(pathArray: string[], input: unknown, method: string): QueryKey {
   const type = methodToQueryType[method]

@@ -21,7 +21,7 @@ export let wsClient: ReturnType<typeof createWSClient>
  * Can only initialize websockets in the browser.
  */
 if (browser) {
-  wsClient = createWSClient({ url: `ws://localhost:3001` });
+  wsClient = createWSClient({ url: `ws://localhost:5173` });
   wsTrpc = createTRPCSvelte<AppRouter>({
     links: [ wsLink({ client: wsClient }) ],
   });

@@ -4,7 +4,16 @@
 
   let messages: string[] = []
 
-  onMount(() => {
+  onMount(async () => {
+    const data = await fetch('/', {
+      headers: {
+        connection: 'Upgrade',
+        upgrade: 'websocket',
+      }
+    }).then(res => res.json())
+
+    console.log({ data })
+
     wsTrpc.receive.createSubscription(undefined, {
       onData(message) {
         messages = [...messages, message]

@@ -87,8 +87,8 @@ importers:
       '@sveltejs/adapter-auto': ^2.0.0
       '@sveltejs/kit': ^1.13.0
       '@tanstack/svelte-query': ^4.27.0
-      '@trpc/client': ^10.17.0
-      '@trpc/server': ^10.17.0
+      '@trpc/client': ^10.18.0
+      '@trpc/server': ^10.18.0
       '@types/body-parser': ^1.19.2
       '@types/cookie-parser': ^1.4.3
       '@types/cors': ^2.8.13
@@ -108,8 +108,8 @@ importers:
       '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
       '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
       '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
-      '@trpc/client': 10.17.0_@trpc+server@10.17.0
-      '@trpc/server': 10.17.0
+      '@trpc/client': 10.18.0_@trpc+server@10.18.0
+      '@trpc/server': 10.18.0
       body-parser: 1.20.2
       cookie-parser: 1.4.6
       cors: 2.8.5

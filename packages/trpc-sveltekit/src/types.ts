@@ -6,7 +6,17 @@ import type { AnyRouter, inferRouterContext } from '@trpc/server'
 import type { RequestEvent } from '@sveltejs/kit'
 
 /**
- * Modified `createContext` function gets the `RequestEvent` from SvelteKit
+ * Make the specified keys of `T` optional.
+ */
+type OptionalKeys<T, Keys extends keyof T> = Omit<T, Keys> & Partial<Pick<T, Keys>>
+
+/**
+ * Override properties of `T` with any from `U`.
+ */
+type Override<T, U> = Omit<T, keyof U> & U
+
+/**
+ * Modified `createContext` function gets event from SvelteKit `RequestEvent`
  * and opts from the `fetchRequestHandler` callback.
  */
 type CreateContext<T extends AnyRouter> = (
@@ -15,22 +25,12 @@ type CreateContext<T extends AnyRouter> = (
 ) => inferRouterContext<T>
 
 /**
- * Make the specified keys of `T` optional.
- */
-type OptionalKeys<T, Keys extends keyof T> = Omit<T, Keys> & Partial<Pick<T, Keys>>
-
-/**
  * Make some default tRPC fetch handler options optional.
  */
 type OptionalOptions<T extends AnyRouter> = OptionalKeys<
   FetchHandlerRequestOptions<T>,
   'req' | 'endpoint'
 >
-
-/**
- * Override properties of T with any from U.
- */
-type Override<T, U> = Omit<T, keyof U> & U
 
 /**
  * Options for `createTRPCHandle`.

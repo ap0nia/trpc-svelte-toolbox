@@ -1,18 +1,15 @@
 import { CreateTRPCProxyClient, createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import {
-  CreateInfiniteQueryOptions,
-  CreateMutationOptions,
-  CreateQueryOptions,
-  QueryClient,
-  createInfiniteQuery,
-  createMutation,
-  createQuery,
-} from '@tanstack/svelte-query'
+import { createInfiniteQuery, createMutation, createQuery, QueryClient } from '@tanstack/svelte-query'
 
 import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
-import type { QueryClientConfig } from '@tanstack/svelte-query'
+import type {
+  CreateInfiniteQueryOptions,
+  CreateMutationOptions,
+  CreateQueryOptions,
+  QueryClientConfig,
+} from '@tanstack/svelte-query'
 
 import { getQueryKey } from './getQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'

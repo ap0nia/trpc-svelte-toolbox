@@ -5,7 +5,7 @@ import Database from 'better-sqlite3';
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
-const sqlite = new Database(path.join(__dirname, '../../rizz/northwind.db'));
+const sqlite = new Database(path.join(__dirname, '../../../rizz/northwind.db'));
 
 const db = drizzle(sqlite);
 

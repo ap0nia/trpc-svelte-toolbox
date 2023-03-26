@@ -137,7 +137,7 @@ type InnerUtilsRouter<T extends AnyRouter> = {
 } & SharedUtils
 
 /**
- * Properties available at the root utilities.
+ * Root properties of a utilities router.
  */
 type RootUtilsRouter = SharedUtils & object
 

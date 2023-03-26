@@ -1,8 +1,8 @@
 <script lang="ts">
   import { QueryClientProvider } from '@tanstack/svelte-query'
-  import { queryClient } from '$lib/trpc/client'
+  import { trpc } from '$lib/trpc'
 </script>
 
-<QueryClientProvider client={queryClient}>
+<QueryClientProvider client={trpc.queryClient}>
   <slot />
 </QueryClientProvider>

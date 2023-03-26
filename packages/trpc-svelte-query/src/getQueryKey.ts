@@ -1,15 +1,15 @@
 /**
- * Identifies known query types.
+ * Specific query types.
  */
 export type QueryType = 'query' | 'infinite'
 
 /**
- * Unknown query types can be indicated with "any".
+ * General queries are indicated by "any".
  */
 export type AnyQueryType = QueryType | 'any'
 
 /**
- * Format of keys used to identify queries in the QueryClient.
+ * Key to identify query in the QueryClient.
  */
 export type QueryKey = [string[]?, { input?: unknown; type?: QueryType }?]
 

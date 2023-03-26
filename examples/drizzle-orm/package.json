@@ -18,8 +18,8 @@
     "@bevm0/trpc-svelte-query": "*",
     "@bevm0/trpc-sveltekit": "*",
     "@tanstack/svelte-query": "^4.27.0",
-    "@trpc/client": "^10.17.0",
-    "@trpc/server": "^10.17.0",
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0",
     "better-sqlite3": "^8.2.0",
     "drizzle-orm": "^0.22.0"
   }

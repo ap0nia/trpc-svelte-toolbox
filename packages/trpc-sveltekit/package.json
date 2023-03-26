@@ -13,7 +13,7 @@
     "build": "tsup",
     "format": "prettier --write src",
     "lint": "eslint src",
-    "prepackage": "rimraf dist && npm run build"
+    "prepublish": "rimraf dist && npm run build"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",

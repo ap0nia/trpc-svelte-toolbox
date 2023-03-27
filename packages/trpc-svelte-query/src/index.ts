@@ -227,8 +227,15 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getData':
           return queryClient.getQueryData(queryKey)
 
+        /**
+         * anyArgs[0] -> writable store created from the output of `getQueryOptions`.
+         * Get the input from `queryKey` to set the initial value of the `input` store.
+         * Whenever the `input` store changes, also update `anyArgs[0]`, the writable `queryOptions` store.
+         */
+
         case 'bindQueryInput': {
           const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
+
           const set = (newInput: any) => {
             anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
               return {
@@ -239,11 +246,26 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
             })
             input.set(newInput)
           }
-          return { ...input, set }
+
+          const update = (updater: any) => {
+            input.update(updater)
+
+            const newInput = get(input)
+            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
+              return {
+                ...opts,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: () => client.query(path, newInput, opts.trpc),
+              }
+            })
+          }
+
+          return { ...input, set, update }
         }
 
         case 'bindInfiniteQueryInput': {
           const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
+
           const set = (newInput: any) => {
             anyArgs[0].update(
               (opts: CreateInfiniteQueryOptions & AdditionalOptions): CreateInfiniteQueryOptions => {
@@ -257,7 +279,21 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
             )
             input.set(newInput)
           }
-          return { ...input, set }
+
+          const update = (updater: any) => {
+            input.update(updater)
+
+            const newInput = get(input)
+            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
+              return {
+                ...opts,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: () => client.query(path, newInput, opts.trpc),
+              }
+            })
+          }
+
+          return { ...input, set, update }
         }
 
         default:

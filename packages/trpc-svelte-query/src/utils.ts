@@ -119,10 +119,13 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
 
   getData(): inferProcedureOutput<T> | undefined
 
+  /**
+   * FIXME: alpha branch of svelte-query screwed up `CreateQueryOptions`
+   */
   getQueryOptions: (
     input: inferProcedureInput<T>,
     opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-  ) => CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+  ) => CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions & { initialData?: undefined }
 
   bindQueryInput: (
     opts: Writable<

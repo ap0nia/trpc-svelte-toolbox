@@ -205,17 +205,21 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'prefetch':
           return queryClient.prefetchQuery(queryOptions)
 
-        case 'invalidate':
-          return queryClient.invalidateQueries(queryKey, ...anyArgs)
+        case 'invalidate': {
+          return queryClient.invalidateQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+        }
 
-        case 'reset':
-          return queryClient.resetQueries(queryKey, ...anyArgs)
+        case 'reset': {
+          return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+        }
 
-        case 'cancel':
-          return queryClient.cancelQueries(queryKey, ...anyArgs)
+        case 'cancel': {
+          return queryClient.cancelQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+        }
 
-        case 'ensureData':
-          return queryClient.ensureQueryData(queryKey, ...anyArgs)
+        case 'ensureData': {
+          return queryClient.ensureQueryData({ queryKey, ...anyArgs[0] })
+        }
 
         case 'setData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])

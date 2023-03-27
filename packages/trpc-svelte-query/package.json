@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
   "repository": {

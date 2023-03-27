@@ -53,10 +53,12 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
   inferProcedureInput<T> extends InfiniteQueryInput
     ? {
         fetchInfinite(
+          input: inferProcedureInput<T>,
           opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
         ): Promise<inferProcedureOutput<T>>
 
         prefetchInfinite(
+          input: inferProcedureInput<T>,
           opts?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
         ): Promise<void>
 

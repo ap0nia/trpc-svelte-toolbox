@@ -20,33 +20,6 @@ importers:
       turbo: 1.8.5
       typescript: 5.0.2
 
-  examples/basic-sveltekit:
-    specifiers:
-      '@bevm0/trpc-svelte-query': '*'
-      '@bevm0/trpc-sveltekit': '*'
-      '@sveltejs/kit': ^1.13.0
-      '@tanstack/svelte-query': ^4.27.0
-      '@trpc/client': ^10.18.0
-      '@trpc/server': ^10.18.0
-      superjson: ^1.12.2
-      svelte: ^3.57.0
-      typescript: ^5.0.2
-      vite: ^4.2.1
-      zod: ^3.21.4
-    dependencies:
-      '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
-      '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
-      '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
-      '@trpc/client': 10.18.0_@trpc+server@10.18.0
-      '@trpc/server': 10.18.0
-      superjson: 1.12.2
-      zod: 3.21.4
-    devDependencies:
-      '@sveltejs/kit': 1.13.0_svelte@3.57.0+vite@4.2.1
-      svelte: 3.57.0
-      typescript: 5.0.2
-      vite: 4.2.1
-
   examples/drizzle-orm:
     specifiers:
       '@bevm0/trpc-svelte-query': '*'
@@ -71,6 +44,41 @@ importers:
       '@trpc/server': 10.18.0
       better-sqlite3: 8.2.0
       drizzle-orm: 0.22.0_bt4gsn5lapaoikflfkpz27ptty
+    devDependencies:
+      '@sveltejs/adapter-auto': 2.0.0_@sveltejs+kit@1.13.0
+      '@sveltejs/kit': 1.13.0_svelte@3.57.0+vite@4.2.1
+      '@types/better-sqlite3': 7.6.3
+      drizzle-kit: 0.17.0
+      svelte: 3.57.0
+      typescript: 5.0.2
+      vite: 4.2.1
+
+  examples/zod-form:
+    specifiers:
+      '@bevm0/trpc-svelte-query': '*'
+      '@bevm0/trpc-sveltekit': '*'
+      '@sveltejs/adapter-auto': ^2.0.0
+      '@sveltejs/kit': ^1.13.0
+      '@tanstack/svelte-query': ^4.27.0
+      '@trpc/client': ^10.18.0
+      '@trpc/server': ^10.18.0
+      '@types/better-sqlite3': ^7.6.3
+      better-sqlite3: ^8.2.0
+      drizzle-kit: ^0.17.0
+      drizzle-orm: ^0.22.0
+      svelte: ^3.57.0
+      typescript: ^5.0.2
+      vite: ^4.2.1
+      zod: ^3.21.4
+    dependencies:
+      '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
+      '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
+      '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
+      '@trpc/client': 10.18.0_@trpc+server@10.18.0
+      '@trpc/server': 10.18.0
+      better-sqlite3: 8.2.0
+      drizzle-orm: 0.22.0_bt4gsn5lapaoikflfkpz27ptty
+      zod: 3.21.4
     devDependencies:
       '@sveltejs/adapter-auto': 2.0.0_@sveltejs+kit@1.13.0
       '@sveltejs/kit': 1.13.0_svelte@3.57.0+vite@4.2.1
@@ -1488,13 +1496,6 @@ packages:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
     dev: true
-
-  /copy-anything/3.0.3:
-    resolution: {integrity: sha512-fpW2W/BqEzqPp29QS+MwwfisHCQZtiduTe/m8idFo0xbti9fIZ2WVhAsCv4ggFVH3AgCkVdpoOCtQC6gBrdhjw==}
-    engines: {node: '>=12.13'}
-    dependencies:
-      is-what: 4.1.8
-    dev: false
 
   /cosmiconfig-typescript-loader/4.3.0_5mk3bjopm3vql75kemvp43vb6q:
     resolution: {integrity: sha512-NTxV1MFfZDLPiBMjxbHRwSh5LaLcPMwNdCutmnHJCKoVnlvldPWlllonKwrsRJ5pYZBIBGRWWU2tfvzxgeSW5Q==}
@@ -3149,11 +3150,6 @@ packages:
       call-bind: 1.0.2
     dev: true
 
-  /is-what/4.1.8:
-    resolution: {integrity: sha512-yq8gMao5upkPoGEU9LsB2P+K3Kt8Q3fQFCGyNCWOAnJAMzEXVV9drYb0TXr42TTliLLhKIBvulgAXgtLLnwzGA==}
-    engines: {node: '>=12.13'}
-    dev: false
-
   /is-windows/1.0.2:
     resolution: {integrity: sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==}
     engines: {node: '>=0.10.0'}
@@ -4394,13 +4390,6 @@ packages:
       pirates: 4.0.5
       ts-interface-checker: 0.1.13
     dev: true
-
-  /superjson/1.12.2:
-    resolution: {integrity: sha512-ugvUo9/WmvWOjstornQhsN/sR9mnGtWGYeTxFuqLb4AiT4QdUavjGFRALCPKWWnAiUJ4HTpytj5e0t5HoMRkXg==}
-    engines: {node: '>=10'}
-    dependencies:
-      copy-anything: 3.0.3
-    dev: false
 
   /supports-color/5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}

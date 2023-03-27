@@ -1,4 +1,10 @@
-import { CreateTRPCProxyClient, createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
+import { get, writable } from 'svelte/store'
+import {
+  CreateTRPCProxyClient,
+  TRPCRequestOptions,
+  createTRPCProxyClient,
+  createTRPCUntypedClient,
+} from '@trpc/client'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import { createInfiniteQuery, createMutation, createQuery, QueryClient } from '@tanstack/svelte-query'
 
@@ -14,6 +20,11 @@ import type {
 import { getQueryKey } from './getQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
 import type { UtilsRouter } from './utils'
+
+/**
+ * Additional tRPC options can be under a `tRPC` property.
+ */
+type AdditionalOptions = { trpc?: TRPCRequestOptions }
 
 /**
  * @internal
@@ -113,21 +124,24 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const queryOptions: CreateQueryOptions = {
+      const queryOptions: CreateQueryOptions & AdditionalOptions = {
+        trpc: anyArgs[1]?.trpc,
         context: queryClient,
         queryKey,
         queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
         ...anyArgs[1],
       }
 
-      const mutationOptions: CreateMutationOptions = {
+      const mutationOptions: CreateMutationOptions & AdditionalOptions = {
+        trpc: anyArgs[1]?.trpc,
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: (data) => client.mutation(path, data, anyArgs[0]?.trpc),
         ...anyArgs[0],
       }
 
-      const infiniteQueryOptions: CreateInfiniteQueryOptions = {
+      const infiniteQueryOptions: CreateInfiniteQueryOptions & AdditionalOptions = {
+        trpc: anyArgs[1]?.trpc,
         context: queryClient,
         queryKey,
         queryFn: (context) =>
@@ -195,6 +209,39 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
         case 'getData':
           return queryClient.getQueryData(queryKey, ...anyArgs)
+
+        case 'bindQueryInput': {
+          const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
+          const set = (newInput: any) => {
+            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
+              return {
+                ...opts,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: () => client.query(path, newInput, opts.trpc),
+              }
+            })
+            input.set(newInput)
+          }
+          return { ...input, set }
+        }
+
+        case 'bindInfiniteQueryInput': {
+          const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
+          const set = (newInput: any) => {
+            anyArgs[0].update(
+              (opts: CreateInfiniteQueryOptions & AdditionalOptions): CreateInfiniteQueryOptions => {
+                return {
+                  ...opts,
+                  queryKey: getQueryKey(pathArray, newInput, method),
+                  queryFn: (context) =>
+                    client.query(path, { ...newInput, cursor: context.pageParam }, opts.trpc),
+                }
+              }
+            )
+            input.set(newInput)
+          }
+          return { ...input, set }
+        }
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)

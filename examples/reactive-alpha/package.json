@@ -1,0 +1,24 @@
+{
+  "name": "@examples/reactive-alpha",
+  "version": "0.1.0",
+  "description": "demo of reactive tRPC queries with svelte-query alpha",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@bevm0/trpc-svelte-query": "*",
+    "@bevm0/trpc-sveltekit": "*",
+    "@tanstack/svelte-query": "5.0.0-alpha.7",
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^1.2.3",
+    "@sveltejs/kit": "^1.13.0",
+    "svelte": "^3.57.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.1"
+  }
+}

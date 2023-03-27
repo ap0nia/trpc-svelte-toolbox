@@ -33,6 +33,7 @@ import type {
 } from '@tanstack/svelte-query'
 
 import type { AnyQueryType, QueryKey } from './getQueryKey'
+import { Writable } from 'svelte/store'
 
 /**
  * Dummy type that indicates WIP.
@@ -74,6 +75,13 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
           opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
             AdditionalOptions
         ) => CreateInfiniteQueryOptions
+
+        bindInfiniteQueryInput: (
+          opts: Writable<
+            CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
+              AdditionalOptions
+          >
+        ) => Writable<inferProcedureInput<T>>
       }
     : object
 
@@ -116,13 +124,18 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
     opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
   ) => CreateQueryOptions
 
+  bindQueryInput: (
+    opts: Writable<
+      CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+    >
+  ) => Writable<inferProcedureInput<T>>
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
  * Map a tRPC `mutation` procedure to utilities.
  */
 export type MutationUtilsProcedure<T extends AnyProcedure> = {
-  getMutationOptions:(
+  getMutationOptions: (
     opts?: CreateMutationOptions<
       inferProcedureOutput<T>,
       TRPCClientErrorLike<T>,

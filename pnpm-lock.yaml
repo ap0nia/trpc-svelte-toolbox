@@ -55,7 +55,7 @@ importers:
 
   examples/reactive-alpha:
     specifiers:
-      '@bevm0/trpc-svelte-query': '*'
+      '@bevm0/trpc-svelte-query-alpha': '*'
       '@bevm0/trpc-sveltekit': '*'
       '@sveltejs/adapter-node': ^1.2.3
       '@sveltejs/kit': ^1.13.0
@@ -67,7 +67,7 @@ importers:
       vite: ^4.2.1
       zod: ^3.21.4
     dependencies:
-      '@bevm0/trpc-svelte-query': link:../../packages/trpc-svelte-query
+      '@bevm0/trpc-svelte-query-alpha': link:../../packages/trpc-svelte-query-alpha
       '@bevm0/trpc-sveltekit': link:../../packages/trpc-sveltekit
       '@tanstack/svelte-query': 5.0.0-alpha.7_svelte@3.57.0
       '@trpc/client': 10.18.0_@trpc+server@10.18.0

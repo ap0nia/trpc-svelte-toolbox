@@ -1,5 +1,5 @@
 import { createTRPCUntypedClient, httpBatchLink } from '@trpc/client'
-import { createTRPCSvelte } from '@bevm0/trpc-svelte-query'
+import { createTRPCSvelte } from '@bevm0/trpc-svelte-query-alpha'
 import { QueryClient } from '@tanstack/svelte-query'
 import type { AppRouter } from './server/trpc/routes'
 

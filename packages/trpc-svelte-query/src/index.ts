@@ -14,6 +14,8 @@ import type {
   CreateInfiniteQueryOptions,
   CreateMutationOptions,
   CreateQueryOptions,
+  FetchQueryOptions,
+  FetchInfiniteQueryOptions,
   QueryClientConfig,
 } from '@tanstack/svelte-query'
 
@@ -124,7 +126,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const queryOptions: CreateQueryOptions = {
+      const queryOptions: FetchQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
@@ -138,7 +140,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         ...anyArgs[0],
       }
 
-      const infiniteQueryOptions: CreateInfiniteQueryOptions = {
+      const infiniteQueryOptions: FetchInfiniteQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: (context) =>
@@ -160,13 +162,22 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return { ...infiniteQueryOptions, trpc: anyArgs[1]?.trpc }
 
         case 'createQuery':
-          return createQuery(queryOptions)
+          return createQuery(queryKey, {
+            context: queryClient,
+            queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
+            ...anyArgs[1],
+          })
 
         case 'createMutation':
           return createMutation(mutationOptions)
 
         case 'createInfiniteQuery':
-          return createInfiniteQuery(infiniteQueryOptions)
+          return createInfiniteQuery(queryKey, {
+            context: queryClient,
+            queryFn: (context) =>
+              client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
+            ...anyArgs[1],
+          })
 
         case 'createSubscription':
           return client.subscription(path, anyArgs[0], anyArgs[1])

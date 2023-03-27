@@ -18,6 +18,8 @@ export type QueryKey = [string[]?, { input?: unknown; type?: QueryType }?]
  */
 export const methodToQueryType: Record<string, AnyQueryType> = {
   getQueryKey: 'any',
+  getQueryOptions: 'query',
+  getInfiniteQueryOptions: 'infinite',
   createQuery: 'query',
   createInfiniteQuery: 'infinite',
   invalidate: 'any',

@@ -8,6 +8,7 @@
  * but only the former is recognized by TypeScript.
  */
 
+import type { Writable } from 'svelte/store'
 import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyProcedure,
@@ -33,7 +34,6 @@ import type {
 } from '@tanstack/svelte-query'
 
 import type { AnyQueryType, QueryKey } from './getQueryKey'
-import { Writable } from 'svelte/store'
 
 /**
  * Dummy type that indicates WIP.
@@ -74,7 +74,8 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
           input: inferProcedureInput<T>,
           opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
             AdditionalOptions
-        ) => CreateInfiniteQueryOptions
+        ) => CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
+          AdditionalOptions
 
         bindInfiniteQueryInput: (
           opts: Writable<
@@ -122,7 +123,7 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
   getQueryOptions: (
     input: inferProcedureInput<T>,
     opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
-  ) => CreateQueryOptions
+  ) => CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
 
   bindQueryInput: (
     opts: Writable<
@@ -142,7 +143,8 @@ export type MutationUtilsProcedure<T extends AnyProcedure> = {
       inferProcedureInput<T>
     > &
       AdditionalOptions
-  ) => CreateMutationOptions
+  ) => CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> &
+    AdditionalOptions
 }
 
 /**

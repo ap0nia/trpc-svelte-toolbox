@@ -1,40 +1,26 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
-  import type { Writable } from 'svelte/store';
   import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
-  import type { CreateQueryOptions } from '@tanstack/svelte-query';
-  import { client, queryClient } from '$lib/trpc'
+  import { trpc } from '$lib/trpc'
 
   /**
-   * Create writable options for the query.
+   * Get the query options for this tRPC query as a regular object.
    */
-  const options = writable<CreateQueryOptions>({
-    context: queryClient,
-    queryKey: [[ '' ], { input: '', type: 'query' }],
-    queryFn: () => {
-      return client.query('', '')
-    },
-    placeholderData: keepPreviousData
-  })
+  const queryOptions = trpc.utils[''].getQueryOptions('', { placeholderData: keepPreviousData as any })
 
   /**
-   * Create a store for the input that updates the query options.
+   * Convert the query options to a writable store.
    */
-  function bindReactiveInput<T>(queryOptions: Writable<CreateQueryOptions>, input: T) {
-    const value = writable(input)
+  const options = writable(queryOptions)
 
-    const set = (input: T) => {
-      queryOptions.update(x => ({
-        ...x,
-        queryFn: () => client.query('', input),
-        queryKey: [[ '' ], { input, type: 'query' }],
-      }))
-      value.set(input)
-    }
-    return { ...value, set }
-  }
+  /**
+   * Create a store for the input, and "bind" it to the query options.
+   */
+  const input = trpc.utils[''].bindQueryInput(options)
 
-  const input = bindReactiveInput(options, '')
+  /**
+   * Manually create a new reactive query.
+   */
   const query = createQuery(options as any)
 </script>
 

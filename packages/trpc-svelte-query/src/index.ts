@@ -124,24 +124,21 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const queryOptions: CreateQueryOptions & AdditionalOptions = {
-        trpc: anyArgs[1]?.trpc,
+      const queryOptions: CreateQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
         ...anyArgs[1],
       }
 
-      const mutationOptions: CreateMutationOptions & AdditionalOptions = {
-        trpc: anyArgs[1]?.trpc,
+      const mutationOptions: CreateMutationOptions = {
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: (data) => client.mutation(path, data, anyArgs[0]?.trpc),
         ...anyArgs[0],
       }
 
-      const infiniteQueryOptions: CreateInfiniteQueryOptions & AdditionalOptions = {
-        trpc: anyArgs[1]?.trpc,
+      const infiniteQueryOptions: CreateInfiniteQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: (context) =>
@@ -154,13 +151,13 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return getQueryKey(pathArray, anyArgs[0], anyArgs[1] ?? 'any')
 
         case 'getQueryOptions':
-          return queryOptions
+          return { ...queryOptions, trpc: anyArgs[1]?.trpc }
 
         case 'getMutationOptions':
-          return mutationOptions
+          return { ...mutationOptions, trpc: anyArgs[0]?.trpc }
 
         case 'getInfiniteQueryOptions':
-          return infiniteQueryOptions
+          return { ...infiniteQueryOptions, trpc: anyArgs[1]?.trpc }
 
         case 'createQuery':
           return createQuery(queryOptions)

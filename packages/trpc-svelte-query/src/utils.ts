@@ -26,7 +26,6 @@ import type {
   InvalidateOptions,
   FetchQueryOptions,
   ResetOptions,
-  ResetQueryFilters,
   QueryFilters,
   Updater,
   CancelOptions,
@@ -103,11 +102,11 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
   ): Promise<void>
 
   invalidate(
-    filters?: InvalidateQueryFilters<inferProcedureInput<T>>,
+    filters?: InvalidateQueryFilters,
     opts?: InvalidateOptions
   ): Promise<void>
 
-  reset(filters?: ResetQueryFilters<inferProcedureInput<T>>, opts?: ResetOptions): Promise<void>
+  reset(filters?: QueryFilters, opts?: ResetOptions): Promise<void>
 
   cancel(filters?: QueryFilters, options?: CancelOptions): Promise<void>
 

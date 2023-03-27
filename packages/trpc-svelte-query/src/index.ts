@@ -161,23 +161,28 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getInfiniteQueryOptions':
           return { ...infiniteQueryOptions, trpc: anyArgs[1]?.trpc }
 
+        /**
+         * FIXME: the alpha branch of svelte-query screws up `CreateQueryOptions`
+         */
         case 'createQuery':
-          return createQuery(queryKey, {
+          return createQuery({
+            queryKey,
             context: queryClient,
             queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
             ...anyArgs[1],
-          })
+          } as CreateQueryOptions & { initialData: undefined })
 
         case 'createMutation':
           return createMutation(mutationOptions)
 
         case 'createInfiniteQuery':
-          return createInfiniteQuery(queryKey, {
+          return createInfiniteQuery({
+            queryKey,
             context: queryClient,
             queryFn: (context) =>
               client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
             ...anyArgs[1],
-          })
+          } as CreateInfiniteQueryOptions)
 
         case 'createSubscription':
           return client.subscription(path, anyArgs[0], anyArgs[1])

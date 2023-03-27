@@ -117,7 +117,7 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
     options?: SetDataOptions
   ): Promise<void>
 
-  getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+  getData(): inferProcedureOutput<T> | undefined
 
   getQueryOptions: (
     input: inferProcedureInput<T>,

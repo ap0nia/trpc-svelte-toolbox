@@ -192,7 +192,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getInfiniteData':
-          return queryClient.getQueryData(queryKey, ...anyArgs)
+          return queryClient.getQueryData(queryKey)
 
         case 'fetch':
           return queryClient.fetchQuery(queryOptions)
@@ -216,7 +216,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getData':
-          return queryClient.getQueryData(queryKey, ...anyArgs)
+          return queryClient.getQueryData(queryKey)
 
         case 'bindQueryInput': {
           const input = writable((get(anyArgs[0]) as any).queryKey[1].input)

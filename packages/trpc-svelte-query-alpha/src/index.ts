@@ -295,12 +295,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           const input = writable(anyArgs[0])
 
           const set = (newInput: any) => {
-            options.set({
-              context: queryClient,
+            options.update(original => ({
+              ...original,
               queryKey: getQueryKey(pathArray, newInput, method),
               queryFn: () => client.query(path, newInput, anyArgs[1]?.trpc),
-              ...anyArgs[1],
-            })
+            }))
             input.set(newInput)
           }
 
@@ -308,12 +307,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
             input.update(updater)
 
             const newInput = get(input)
-            options.set({
-              context: queryClient,
+            options.update(original => ({
+              ...original,
               queryKey: getQueryKey(pathArray, newInput, method),
               queryFn: () => client.query(path, newInput, anyArgs[1]?.trpc),
-              ...anyArgs[1],
-            })
+            }))
           }
 
           const query = createQuery(options)
@@ -326,13 +324,12 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           const input = writable(anyArgs[0])
 
           const set = (newInput: any) => {
-            options.set({
-              context: queryClient,
+            options.update(original => ({
+              ...original,
               queryKey: getQueryKey(pathArray, newInput, method),
               queryFn: (context) =>
                 client.query(path, { ...newInput, cursor: context.pageParam }, anyArgs[1]?.trpc),
-              ...anyArgs[1],
-            })
+            }))
             input.set(newInput)
           }
 
@@ -340,13 +337,12 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
             input.update(updater)
 
             const newInput = get(input)
-            options.set({
-              context: queryClient,
+            options.update(original => ({
+              ...original,
               queryKey: getQueryKey(pathArray, newInput, method),
               queryFn: (context) =>
                 client.query(path, { ...newInput, cursor: context.pageParam }, anyArgs[1]?.trpc),
-              ...anyArgs[1],
-            })
+            }))
           }
 
           const query = createInfiniteQuery(options as Writable<CreateInfiniteQueryOptions>)

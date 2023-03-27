@@ -82,7 +82,7 @@ importers:
 
   packages/trpc-svelte-query:
     specifiers:
-      '@tanstack/svelte-query': ^4.27.0
+      '@tanstack/svelte-query': 5.0.0-alpha.7
       '@trpc/client': ^10.18.0
       '@trpc/server': ^10.18.0
       eslint: ^8.36.0
@@ -93,7 +93,7 @@ importers:
       tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
-      '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
+      '@tanstack/svelte-query': 5.0.0-alpha.7_svelte@3.57.0
       '@trpc/client': 10.18.0_@trpc+server@10.18.0
       '@trpc/server': 10.18.0
     devDependencies:

@@ -217,6 +217,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getData':
           return queryClient.getQueryData(queryKey)
 
+        /**
+         * anyArgs[0] -> writable store created from the output of `getQueryOptions`.
+         * Get the input from `queryKey` to set the initial value of the `input` store.
+         * Whenever the `input` store changes, also update `anyArgs[0]`, the writable `queryOptions` store.
+         */
         case 'bindQueryInput': {
           const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
 
@@ -247,6 +252,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return { ...input, set, update }
         }
 
+        /**
+         * anyArgs[0] -> writable store created from the output of `getQueryOptions`.
+         * Get the input from `queryKey` to set the initial value of the `input` store.
+         * Whenever the `input` store changes, also update `anyArgs[0]`, the writable `queryOptions` store.
+         */
         case 'bindInfiniteQueryInput': {
           const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
 
@@ -279,12 +289,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
           return { ...input, set, update }
         }
-
-        /**
-         * anyArgs[0] -> writable store created from the output of `getQueryOptions`.
-         * Get the input from `queryKey` to set the initial value of the `input` store.
-         * Whenever the `input` store changes, also update `anyArgs[0]`, the writable `queryOptions` store.
-         */
 
         case 'createReactiveQuery': {
           const options = writable(queryOptions)

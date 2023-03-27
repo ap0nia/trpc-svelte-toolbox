@@ -55,7 +55,7 @@ importers:
 
   examples/reactive-alpha:
     specifiers:
-      '@bevm0/trpc-svelte-query': ^0.1.8-alpha
+      '@bevm0/trpc-svelte-query': '*'
       '@bevm0/trpc-sveltekit': '*'
       '@sveltejs/adapter-node': ^1.2.3
       '@sveltejs/kit': ^1.13.0
@@ -81,6 +81,31 @@ importers:
       vite: 4.2.1
 
   packages/trpc-svelte-query:
+    specifiers:
+      '@tanstack/svelte-query': 4.27.0
+      '@trpc/client': ^10.18.0
+      '@trpc/server': ^10.18.0
+      eslint: ^8.36.0
+      eslint-config-airbnb-custom: '*'
+      prettier: ^2.8.6
+      rimraf: ^4.4.1
+      svelte: ^3.57.0
+      tsup: ^6.7.0
+      typescript: ^5.0.2
+    dependencies:
+      '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
+      '@trpc/client': 10.18.0_@trpc+server@10.18.0
+      '@trpc/server': 10.18.0
+    devDependencies:
+      eslint: 8.36.0
+      eslint-config-airbnb-custom: link:../../shared/eslint-config-airbnb-custom
+      prettier: 2.8.6
+      rimraf: 4.4.1
+      svelte: 3.57.0
+      tsup: 6.7.0_typescript@5.0.2
+      typescript: 5.0.2
+
+  packages/trpc-svelte-query-alpha:
     specifiers:
       '@tanstack/svelte-query': 5.0.0-alpha.7
       '@trpc/client': ^10.18.0

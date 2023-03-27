@@ -251,10 +251,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
           const query = createQuery(options)
 
-          return { 
-            input: { ...input, set, update }, 
-            query
-          }
+          return [ { ...input, set, update }, query ]
         }
 
         case 'createReactiveInfiniteQuery': {
@@ -287,10 +284,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
           const query = createInfiniteQuery(options as Writable<CreateInfiniteQueryOptions>)
 
-          return { 
-            input: { ...input, set, update }, 
-            query
-          }
+          return [ { ...input, set, update }, query ]
         }
 
         default:

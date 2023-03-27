@@ -113,21 +113,21 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const fetchArgs: CreateQueryOptions = {
+      const queryOptions: CreateQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
         ...anyArgs[1],
       }
 
-      const mutationArgs: CreateMutationOptions = {
+      const mutationOptions: CreateMutationOptions = {
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: (data) => client.mutation(path, data, anyArgs[0]?.trpc),
         ...anyArgs[0],
       }
 
-      const fetchInfiniteArgs: CreateInfiniteQueryOptions = {
+      const infiniteQueryOptions: CreateInfiniteQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: (context) =>
@@ -139,23 +139,32 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getQueryKey':
           return getQueryKey(pathArray, anyArgs[0], anyArgs[1] ?? 'any')
 
+        case 'getQueryOptions':
+          return queryOptions
+
+        case 'getMutationOptions':
+          return mutationOptions
+
+        case 'getInfiniteQueryOptions':
+          return infiniteQueryOptions
+
         case 'createQuery':
-          return createQuery(fetchArgs)
+          return createQuery(queryOptions)
 
         case 'createMutation':
-          return createMutation(mutationArgs)
+          return createMutation(mutationOptions)
 
         case 'createInfiniteQuery':
-          return createInfiniteQuery(fetchInfiniteArgs)
+          return createInfiniteQuery(infiniteQueryOptions)
 
         case 'createSubscription':
           return client.subscription(path, anyArgs[0], anyArgs[1])
 
         case 'fetchInfinite':
-          return queryClient.fetchInfiniteQuery(fetchInfiniteArgs)
+          return queryClient.fetchInfiniteQuery(infiniteQueryOptions)
 
         case 'prefetchInfinite':
-          return queryClient.prefetchInfiniteQuery(fetchInfiniteArgs)
+          return queryClient.prefetchInfiniteQuery(infiniteQueryOptions)
 
         case 'setInfiniteData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
@@ -164,10 +173,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.getQueryData(queryKey, ...anyArgs)
 
         case 'fetch':
-          return queryClient.fetchQuery(fetchArgs)
+          return queryClient.fetchQuery(queryOptions)
 
         case 'prefetch':
-          return queryClient.prefetchQuery(fetchArgs)
+          return queryClient.prefetchQuery(queryOptions)
 
         case 'invalidate':
           return queryClient.invalidateQueries(queryKey, ...anyArgs)

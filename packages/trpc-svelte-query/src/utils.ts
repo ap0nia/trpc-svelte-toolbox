@@ -18,6 +18,9 @@ import type {
   inferProcedureOutput,
 } from '@trpc/server'
 import type {
+  CreateQueryOptions,
+  CreateInfiniteQueryOptions,
+  CreateMutationOptions,
   InvalidateQueryFilters,
   InvalidateOptions,
   FetchQueryOptions,
@@ -65,6 +68,12 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> =
         setInfiniteData(data: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>): Promise<void>
 
         getInfiniteData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+
+        getInfiniteQueryOptions: (
+          input: inferProcedureInput<T>,
+          opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
+            AdditionalOptions
+        ) => CreateInfiniteQueryOptions
       }
     : object
 
@@ -101,12 +110,27 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
   ): Promise<void>
 
   getData(filters?: QueryFilters): inferProcedureOutput<T> | undefined
+
+  getQueryOptions: (
+    input: inferProcedureInput<T>,
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+  ) => CreateQueryOptions
+
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
  * Map a tRPC `mutation` procedure to utilities.
  */
-export type MutationUtilsProcedure<T extends AnyProcedure> = TODO<T>
+export type MutationUtilsProcedure<T extends AnyProcedure> = {
+  getMutationOptions:(
+    opts?: CreateMutationOptions<
+      inferProcedureOutput<T>,
+      TRPCClientErrorLike<T>,
+      inferProcedureInput<T>
+    > &
+      AdditionalOptions
+  ) => CreateMutationOptions
+}
 
 /**
  * Map a tRPC `subscription` procedure to utilities.

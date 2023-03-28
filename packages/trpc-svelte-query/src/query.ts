@@ -7,13 +7,7 @@
 
 import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
-import type {
-  AnyProcedure,
-  Procedure,
-  ProcedureParams,
-  inferProcedureInput,
-  inferProcedureOutput,
-} from '@trpc/server'
+import type { AnyProcedure, Procedure, ProcedureParams, inferProcedureInput, inferProcedureOutput } from '@trpc/server'
 import type { Unsubscribable } from '@trpc/server/observable'
 import type { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 import type {
@@ -28,7 +22,7 @@ import type {
 /**
  * Additional tRPC options can be under a `tRPC` property.
  */
-type AdditionalOptions = { trpc?: TRPCRequestOptions }
+type trpcOptions = { trpc?: TRPCRequestOptions }
 
 /**
  * Infinite queries must have the "cursor" property in the input.
@@ -38,16 +32,14 @@ type InfiniteQueryInput = { cursor?: unknown }
 /**
  * Additional svelte-query methods available to infinite queries.
  */
-type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
-  inferProcedureInput<T> extends InfiniteQueryInput
-    ? {
-        createInfiniteQuery: (
-          input: inferProcedureInput<T>,
-          opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> &
-            AdditionalOptions
-        ) => CreateInfiniteQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-      }
-    : object
+type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput
+  ? {
+      createInfiniteQuery: (
+        input: inferProcedureInput<T>,
+        opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & trpcOptions
+      ) => CreateInfiniteQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+    }
+  : object
 
 /**
  * Map a tRPC `query` procedure to svelte-query methods.
@@ -55,7 +47,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> =
 type TRPCQueryProcedure<T extends AnyProcedure> = {
   createQuery: (
     input: inferProcedureInput<T>,
-    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & AdditionalOptions
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & trpcOptions
   ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
 } & MaybeInfiniteQueryProcedure<T>
 
@@ -64,12 +56,7 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
  */
 type TRPCMutationProcedure<T extends AnyProcedure> = {
   createMutation: (
-    opts?: CreateMutationOptions<
-      inferProcedureOutput<T>,
-      TRPCClientErrorLike<T>,
-      inferProcedureInput<T>
-    > &
-      AdditionalOptions
+    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & trpcOptions
   ) => CreateMutationResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>>
 }
 

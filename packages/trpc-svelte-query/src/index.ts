@@ -1,14 +1,15 @@
 import { get, writable } from 'svelte/store'
-import {
-  CreateTRPCProxyClient,
-  TRPCRequestOptions,
-  createTRPCProxyClient,
-  createTRPCUntypedClient,
-} from '@trpc/client'
+import type { Writable } from 'svelte/store'
+import { createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import { createInfiniteQuery, createMutation, createQuery, QueryClient } from '@tanstack/svelte-query'
 
-import type { CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
+import type {
+  CreateTRPCProxyClient,
+  TRPCRequestOptions,
+  CreateTRPCClientOptions,
+  TRPCUntypedClient,
+} from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import type {
   CreateInfiniteQueryOptions,
@@ -23,10 +24,7 @@ import { getQueryKey } from './getQueryKey'
 import type { TRPCSvelteQueryProcedure } from './query'
 import type { UtilsRouter } from './utils'
 
-/**
- * Additional tRPC options can be under a `tRPC` property.
- */
-type AdditionalOptions = { trpc?: TRPCRequestOptions }
+export const isWritable = <T>(obj: object): obj is Writable<T> => 'subscribe' in obj && 'set' in obj && 'update' in obj
 
 /**
  * @internal
@@ -54,18 +52,14 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
  * Proxy without root properties.
  */
 type InnerTRPCSvelteQueryProxy<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter
-    ? InnerTRPCSvelteQueryProxy<T[k]>
-    : TRPCSvelteQueryProcedure<T[k]>
+  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCSvelteQueryProxy<T[k]> : TRPCSvelteQueryProcedure<T[k]>
 }
 
 /**
  * Map a tRPC router to a tRPC + svelte-query proxy.
  */
 export type TRPCSvelteQueryProxy<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter
-    ? InnerTRPCSvelteQueryProxy<T[k]>
-    : TRPCSvelteQueryProcedure<T[k]>
+  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCSvelteQueryProxy<T[k]> : TRPCSvelteQueryProcedure<T[k]>
 } & TRPCSvelteQueryProxyRoot<T>
 
 /**
@@ -143,8 +137,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const infiniteQueryOptions: FetchInfiniteQueryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: (context) =>
-          client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
+        queryFn: (context) => client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
         ...anyArgs[1],
       }
 
@@ -179,8 +172,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return createInfiniteQuery({
             queryKey,
             context: queryClient,
-            queryFn: (context) =>
-              client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
+            queryFn: (context) => client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
             ...anyArgs[1],
           } as CreateInfiniteQueryOptions)
 
@@ -227,73 +219,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getData':
           return queryClient.getQueryData(queryKey)
 
-        /**
-         * anyArgs[0] -> writable store created from the output of `getQueryOptions`.
-         * Get the input from `queryKey` to set the initial value of the `input` store.
-         * Whenever the `input` store changes, also update `anyArgs[0]`, the writable `queryOptions` store.
-         */
-
         case 'bindQueryInput': {
-          const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
-
-          const set = (newInput: any) => {
-            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
-              return {
-                ...opts,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: () => client.query(path, newInput, opts.trpc),
-              }
-            })
-            input.set(newInput)
-          }
-
-          const update = (updater: any) => {
-            input.update(updater)
-
-            const newInput = get(input)
-            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
-              return {
-                ...opts,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: () => client.query(path, newInput, opts.trpc),
-              }
-            })
-          }
-
-          return { ...input, set, update }
         }
 
         case 'bindInfiniteQueryInput': {
-          const input = writable((get(anyArgs[0]) as any).queryKey[1].input)
-
-          const set = (newInput: any) => {
-            anyArgs[0].update(
-              (opts: CreateInfiniteQueryOptions & AdditionalOptions): CreateInfiniteQueryOptions => {
-                return {
-                  ...opts,
-                  queryKey: getQueryKey(pathArray, newInput, method),
-                  queryFn: (context) =>
-                    client.query(path, { ...newInput, cursor: context.pageParam }, opts.trpc),
-                }
-              }
-            )
-            input.set(newInput)
-          }
-
-          const update = (updater: any) => {
-            input.update(updater)
-
-            const newInput = get(input)
-            anyArgs[0].update((opts: CreateQueryOptions & AdditionalOptions): CreateQueryOptions => {
-              return {
-                ...opts,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: () => client.query(path, newInput, opts.trpc),
-              }
-            })
-          }
-
-          return { ...input, set, update }
         }
 
         default:

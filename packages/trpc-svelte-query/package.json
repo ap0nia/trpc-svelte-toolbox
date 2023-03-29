@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
   "repository": {
@@ -8,7 +8,7 @@
     "url": "https://github.com/bevm0/trpc-svelte-toolbox.git",
     "directory": "packages/trpc-svelte-query"
   },
-  "homepage": "https://github.com/bevm0/trpc-svelte-toolbox.git",
+  "homepage": "https://trpc-svelte-toolbox.vercel.app/",
   "scripts": {
     "build": "tsup",
     "format": "prettier --write src",

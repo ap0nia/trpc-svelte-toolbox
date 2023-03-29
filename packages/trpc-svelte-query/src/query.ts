@@ -31,11 +31,6 @@ import type { MaybeWritable } from './reactive'
 import { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
 
 /**
- * Whether the object is a svelte store.
- */
-// export const isWritable = <T>(obj: object): obj is Writable<T> => 'subscribe' in obj && 'set' in obj && 'update' in obj
-
-/**
  * Map a tRPC `query` procedure to svelte-query methods.
  */
 type TRPCQueryProcedure<T extends AnyProcedure> = {

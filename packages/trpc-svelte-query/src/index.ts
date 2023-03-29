@@ -99,10 +99,15 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const method = pathArray.pop() ?? ''
 
       /**
+       * Input for queries, can be writable store.
+       */
+      const input = isWritable(anyArgs[0]) ? get(anyArgs[0]) : anyArgs[0]
+
+      /**
        * The key used to identify this query in the QueryClient.
        * @example [ ['post', 'byId'], { input: 69, type: 'query' } ]
        */
-      const queryKey = getQueryKey(pathArray, anyArgs[0], method)
+      const queryKey = getQueryKey(pathArray, input, method)
 
       /**
        * The tRPC path as a string.
@@ -113,7 +118,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const queryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
+        queryFn: () => client.query(path, input, anyArgs[1]?.trpc),
         ...anyArgs[1],
       } satisfies CreateQueryOptions
 
@@ -127,7 +132,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const infiniteQueryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: (context) => client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
+        queryFn: (context) => client.query(path, { ...input, cursor: context.pageParam }, anyArgs[1]?.trpc),
         ...anyArgs[1],
       } satisfies CreateInfiniteQueryOptions
 
@@ -136,10 +141,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           if (isWritable(anyArgs[0])) {
             const options: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
 
-            const input = anyArgs[0]
-            const { set, update } = input
+            const inputStore = anyArgs[0]
+            const { set, update } = inputStore
 
-            input.set = (newInput) => {
+            inputStore.set = (newInput) => {
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
@@ -148,10 +153,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               set(newInput)
             }
 
-            input.update = (updater) => {
+            inputStore.update = (updater) => {
               update(updater)
 
-              const newInput = get(input)
+              const newInput = get(inputStore)
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
@@ -168,10 +173,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           if (isWritable(anyArgs[0])) {
             const options: Writable<CreateInfiniteQueryOptions & TRPCOptions> = writable(infiniteQueryOptions)
 
-            const input = anyArgs[0]
-            const { set, update } = input
+            const inputStore = anyArgs[0]
+            const { set, update } = inputStore
 
-            input.set = (newInput) => {
+            inputStore.set = (newInput) => {
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
@@ -180,10 +185,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               set(newInput)
             }
 
-            input.update = (updater) => {
+            inputStore.update = (updater) => {
               update(updater)
 
-              const newInput = get(input)
+              const newInput = get(inputStore)
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
@@ -276,8 +281,16 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       }
     })
 
+    if (initialKey === 'createQueries') {
+      return (callback: any) => {
+        const results = callback(proxy)
+        return createQueries(results)
+      }
+    }
+
     return nestedProperties
   })
+
   return proxy
 }
 
@@ -312,11 +325,5 @@ export function createTRPCSvelte<T extends AnyRouter>(
   const queryClient = isQueryClient ? queryInit : new QueryClient(queryInit)
 
   const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
-
-  proxy.createQueries = (callback) => {
-    const results: any = callback(proxy)
-    return createQueries(results)
-  }
-
   return proxy
 }

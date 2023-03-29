@@ -5,8 +5,9 @@ import type { QueryClient, QueryKey, CreateQueryResult, QueryObserverOptions } f
 
 export type MaybeWritable<T> = T | Writable<T>
 
-export const isWritable = <T extends object>(obj: MaybeWritable<T>): obj is Writable<T> =>
-  'subscribe' in obj && 'set' in obj && 'update' in obj
+export const isWritable = <T>(obj: MaybeWritable<T>): obj is Writable<T> => (
+  obj && typeof obj === 'object' && 'subscribe' in obj && 'set' in obj && 'update' in obj
+)
 
 export function createReactiveQuery<TQueryFnData, TError, TData, TQueryData, TQueryKey extends QueryKey>(
   options: MaybeWritable<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>>,

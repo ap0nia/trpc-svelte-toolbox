@@ -5,10 +5,9 @@
  * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 
-// import type { Writable } from 'svelte/store'
 import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
-import {
+import type {
   AnyMutationProcedure,
   AnyProcedure,
   AnyQueryProcedure,
@@ -26,9 +25,9 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
+import type { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
 import type { InfiniteQueryInput, TRPCOptions } from './types'
 import type { MaybeWritable } from './reactive'
-import { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
 
 /**
  * Map a tRPC `query` procedure to svelte-query methods.
@@ -40,13 +39,12 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
   ) => CreateQueryResult<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
 
   /**
-   * Used inside `createQueries` to get the options needed to create the query.
+   * Used inside `createQueries` to get options for each query.
    */
-  getQueryOptions: (
+  createOptions: (
     input: MaybeWritable<inferProcedureInput<T>>,
     opts?: CreateQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  ) => CreateQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  
+  ) => CreateQueryOptions<inferTransformedProcedureOutput<T>>
 } & MaybeInfiniteQueryProcedure<T>
 
 /**
@@ -66,7 +64,8 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T
  */
 type TRPCMutationProcedure<T extends AnyProcedure> = {
   createMutation: (
-    opts?: CreateMutationOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & TRPCOptions
+    opts?: CreateMutationOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> &
+      TRPCOptions
   ) => CreateMutationResult<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>>
 }
 
@@ -82,27 +81,24 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
 }
 
 /**
- * Map tRPC procedure to svelte-query methods.
+ * Map a tRPC procedure to svelte-query methods.
  */
-type TRPCSvelteQueryProcedure<T> = T extends AnyQueryProcedure
-  ? TRPCQueryProcedure<T>
-  : T extends AnyMutationProcedure
-  ? TRPCMutationProcedure<T>
-  : T extends AnySubscriptionProcedure
-  ? TRPCSubscriptionProcedure<T>
-  : never
+// prettier-ignore
+type TRPCSvelteQueryProcedure<T> = 
+  T extends AnyQueryProcedure ? TRPCQueryProcedure<T> :
+  T extends AnyMutationProcedure ? TRPCMutationProcedure<T> :
+  T extends AnySubscriptionProcedure ? TRPCSubscriptionProcedure<T> : never
 
 /**
- * Convert tRPC router to trpc + svelte-query router. This is the shape of the proxy.
+ * Convert tRPC router to tRPC + svelte-query router.
  */
 export type TRPCSvelteQueryRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? TRPCSvelteQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
 }
 
 /**
- * Create multiple queries.
+ * Create multiple tRPC queries.
  */
-export type CreateQueries<T extends AnyRouter> = <Options extends CreateQueryOptions<any, any>[]>(
-  callback: (t: TRPCSvelteQueryRouter<T>) => 
-    readonly [...Options]
-) => CreateQueriesResult<QueriesOptions<Options>>
+export type CreateQueries<T extends AnyRouter> = <Options extends any[]>(
+  callback: (t: TRPCSvelteQueryRouter<T>) => readonly [...QueriesOptions<Options>]
+) => CreateQueriesResult<Options>

@@ -5,8 +5,8 @@ import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import {
   createInfiniteQuery,
   createMutation,
-  createQueries,
   createQuery,
+  createQueries,
   CreateQueryOptions,
   InfiniteQueryObserver,
   QueryClient,
@@ -42,9 +42,9 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
   utils: UtilsRouter<T>
 
   /**
-   * Creates multiple queries.
+   * Invokes a callback function to use the `createQueries` API with tRPC.
    */
-   createQueries: CreateQueries<T>
+  createQueries: CreateQueries<T>
 }
 
 /**
@@ -99,7 +99,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const method = pathArray.pop() ?? ''
 
       /**
-       * Input for queries, can be writable store.
+       * Evaluate query input. Can be writable store. Ignore later if not a query.
        */
       const input = isWritable(anyArgs[0]) ? get(anyArgs[0]) : anyArgs[0]
 
@@ -130,7 +130,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       } satisfies CreateMutationOptions
 
       const infiniteQueryOptions = {
-        context: queryClient,
         queryKey,
         queryFn: (context) => client.query(path, { ...input, cursor: context.pageParam }, anyArgs[1]?.trpc),
         ...anyArgs[1],
@@ -165,7 +164,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
             }
             return createReactiveQuery(options, QueryObserver, queryClient)
           }
-
           return createQuery(queryOptions)
         }
 
@@ -195,7 +193,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
                 queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
               }))
             }
-
             return createReactiveQuery(options, InfiniteQueryObserver as typeof QueryObserver, queryClient)
           }
           return createInfiniteQuery(infiniteQueryOptions)
@@ -208,12 +205,18 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return client.subscription(path, anyArgs[0], anyArgs[1])
 
         case 'getQueryKey':
+          return queryKey
+
         case 'getInfiniteQueryKey':
+          return queryKey
+
         case 'getMutationKey':
+          return queryKey
+
         case 'getSubscriptionKey':
           return queryKey
 
-        case 'getQueryOptions':
+        case 'createOptions':
           return queryOptions
 
         case 'fetch':
@@ -282,10 +285,12 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
     })
 
     if (initialKey === 'createQueries') {
-      return (callback: any) => {
+      const customCreateQueries: CreateQueries<T> = (callback) => {
         const results = callback(proxy)
-        return createQueries(results)
+        const queries = createQueries(results)
+        return queries
       }
+      return customCreateQueries
     }
 
     return nestedProperties

@@ -86,7 +86,10 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    * @param input The procedure input or an updater function that transforms the previous input.
    * @param options Options forwarded to `setQueryData`.
    */
-  setData(input: Updater<inferProcedureInput<T>, inferTransformedProcedureOutput<T>>, options?: SetDataOptions): Promise<void>
+  setData(
+    input: Updater<inferProcedureInput<T>, inferTransformedProcedureOutput<T>>,
+    options?: SetDataOptions
+  ): Promise<void>
 
   /**
    * Get the state of a query procedure.
@@ -205,7 +208,7 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param filters Filters forwarded to `getQueryState`.
        */
       getInfiniteState(
-        input: inferProcedureInput<T>,
+        input: inferProcedureInput<T>
       ): QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
     }
   : object
@@ -240,9 +243,9 @@ export type SubscriptionUtilsProcedure = {
  */
 // prettier-ignore
 export type UtilsProcedure<T> = 
-    T extends AnyQueryProcedure ? QueryUtilsProcedure<T> : 
-    T extends AnyMutationProcedure ? MutationUtilsProcedure :
-    T extends AnySubscriptionProcedure ? SubscriptionUtilsProcedure  : never
+  T extends AnyQueryProcedure ? QueryUtilsProcedure<T> : 
+  T extends AnyMutationProcedure ? MutationUtilsProcedure :
+  T extends AnySubscriptionProcedure ? SubscriptionUtilsProcedure  : never
 
 /**
  * Properties available at all levels of utilities.

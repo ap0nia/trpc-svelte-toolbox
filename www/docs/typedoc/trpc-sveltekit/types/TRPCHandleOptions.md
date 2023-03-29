@@ -17,4 +17,4 @@ Options for `createTRPCHandle`.
 
 - `T` *extends* `AnyRouter`
 
-Defined in:  [types.ts:38](https://github.com/trpc/trpc/blob/3012b1b/packages/trpc-sveltekit/src/types.ts#L38)
+Defined in:  [types.ts:38](https://github.com/trpc/trpc/blob/6ffba67/packages/trpc-sveltekit/src/types.ts#L38)

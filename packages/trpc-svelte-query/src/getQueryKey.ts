@@ -1,40 +1,40 @@
 /**
- * Specific query types.
+ * Query types.
  */
 export type QueryType = 'query' | 'infinite'
 
 /**
- * General queries are indicated by "any".
- */
-export type AnyQueryType = QueryType | 'any'
-
-/**
- * Key to identify query in the QueryClient.
+ * Query key to identify procedure output data in the QueryClient.
  */
 export type QueryKey = [string[]?, { input?: unknown; type?: QueryType }?]
 
 /**
- * Translate methods to `AnyQueryType`.
+ * `QueryType` of each method. Unassigned methods don't have a query type.
  */
-export const methodToQueryType: Record<string, AnyQueryType> = {
-  getQueryKey: 'any',
-  getQueryOptions: 'query',
-  getInfiniteQueryOptions: 'infinite',
-  createQuery: 'query',
-  createInfiniteQuery: 'infinite',
-  invalidate: 'any',
-  prefetch: 'query',
-  prefetchInfinite: 'infinite',
+const MethodQueryTypes: Record<string, QueryType> = {
+  getQueryKey: 'query',
   fetch: 'query',
-  fetchInfinite: 'infinite',
-  refetch: 'any',
-  cancel: 'any',
-  reset: 'any',
-  setData: 'query',
-  setInfiniteData: 'infinite',
+  prefetch: 'query',
   getData: 'query',
+  ensureData: 'query',
+  setData: 'query',
+  getState: 'query',
+  createQuery: 'query',
+
+  getInfiniteQueryKey: 'infinite',
+  fetchInfinite: 'infinite',
+  prefetchInfinite: 'infinite',
   getInfiniteData: 'infinite',
+  ensureInfiniteData: 'infinite',
+  setInfiniteData: 'infinite',
+  getInfiniteState: 'infinite',
+  createInfiniteQuery: 'infinite',
 }
+
+/**
+ * Keys of `MethodQueryTypes` are methods that allow input.
+ */
+const MethodInputs = Object.keys(MethodQueryTypes)
 
 /**
  * Construct a `QueryKey` that is easy to destructure and flexible for partial selecting
@@ -49,14 +49,11 @@ export const methodToQueryType: Record<string, AnyQueryType> = {
  * @param method The svelte-query method. i.e. the last key found in a `recursiveProxy` path.
  */
 export function getQueryKey(pathArray: string[], input: unknown, method: string): QueryKey {
-  const type = methodToQueryType[method]
+  const hasInput = typeof input !== 'undefined' && MethodInputs.includes(method)
 
-  /**
-   * Mutations don't have input because they return a function that will accept input.
-   * They only have options, which aren't used for the query key.
-   */
-  const hasInput = typeof input !== 'undefined' && !method.toLowerCase().includes('mutation')
-  const hasType = type && type !== 'any'
+  const type = MethodQueryTypes[method]
+
+  const hasType = !!type
 
   /**
    * For `utils.invalidate()` to match all queries (including vanilla react-query),

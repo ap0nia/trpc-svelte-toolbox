@@ -1,30 +1,24 @@
-import { get, writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { createInfiniteQuery, createMutation, createQuery, QueryClient } from '@tanstack/svelte-query'
-
-import type {
-  CreateTRPCProxyClient,
-  TRPCRequestOptions,
-  CreateTRPCClientOptions,
-  TRPCUntypedClient,
-} from '@trpc/client'
-import type { AnyRouter } from '@trpc/server'
-import type {
-  CreateInfiniteQueryOptions,
-  CreateMutationOptions,
+import {
+  createInfiniteQuery,
+  createMutation,
+  createQuery,
   CreateQueryOptions,
-  FetchQueryOptions,
-  FetchInfiniteQueryOptions,
-  QueryClientConfig,
+  InfiniteQueryObserver,
+  QueryClient,
+  QueryObserver,
 } from '@tanstack/svelte-query'
-
+import type { CreateTRPCProxyClient, CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
+import type { AnyRouter } from '@trpc/server'
+import type { CreateInfiniteQueryOptions, CreateMutationOptions, QueryClientConfig } from '@tanstack/svelte-query'
 import { getQueryKey } from './getQueryKey'
-import type { TRPCSvelteQueryProcedure } from './query'
+import { createReactiveQuery, isWritable } from './reactive'
+import type { TRPCSvelteQueryRouter } from './query'
 import type { UtilsRouter } from './utils'
-
-export const isWritable = <T>(obj: object): obj is Writable<T> => 'subscribe' in obj && 'set' in obj && 'update' in obj
+import type { TRPCOptions } from './types'
 
 /**
  * @internal
@@ -48,19 +42,9 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
 }
 
 /**
- * @internal
- * Proxy without root properties.
- */
-type InnerTRPCSvelteQueryProxy<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCSvelteQueryProxy<T[k]> : TRPCSvelteQueryProcedure<T[k]>
-}
-
-/**
  * Map a tRPC router to a tRPC + svelte-query proxy.
  */
-export type TRPCSvelteQueryProxy<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerTRPCSvelteQueryProxy<T[k]> : TRPCSvelteQueryProcedure<T[k]>
-} & TRPCSvelteQueryProxyRoot<T>
+export type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T> & TRPCSvelteQueryProxyRoot<T>
 
 /**
  * @internal
@@ -95,7 +79,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        * `setData` has 2 arguments: args[0] -> input, args[1] -> params.
        * `createMutation` has 1 argument: args[0] -> input, args[0]?.trpc -> tRPC options
        */
-      const anyArgs: any = opts.args
+      const anyArgs: any[] = opts.args
 
       /**
        * The tRPC path as an array of strings; omit initial key if `undefined`.
@@ -120,61 +104,100 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const queryOptions: FetchQueryOptions = {
+      const queryOptions = {
         context: queryClient,
         queryKey,
         queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
         ...anyArgs[1],
-      }
+      } satisfies CreateQueryOptions
 
-      const mutationOptions: CreateMutationOptions = {
+      const mutationOptions = {
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: (data) => client.mutation(path, data, anyArgs[0]?.trpc),
         ...anyArgs[0],
-      }
+      } satisfies CreateMutationOptions
 
-      const infiniteQueryOptions: FetchInfiniteQueryOptions = {
+      const infiniteQueryOptions = {
         context: queryClient,
         queryKey,
         queryFn: (context) => client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
         ...anyArgs[1],
-      }
+      } satisfies CreateInfiniteQueryOptions
 
       switch (method) {
         case 'getQueryKey':
-          return getQueryKey(pathArray, anyArgs[0], anyArgs[1] ?? 'any')
+        case 'getInfiniteKey':
+        case 'getMutationKey':
+        case 'getSubscriptionKey':
+          return queryKey
 
-        case 'getQueryOptions':
-          return { ...queryOptions, trpc: anyArgs[1]?.trpc }
+        case 'createQuery': {
+          if (isWritable(anyArgs[0])) {
+            const options: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
 
-        case 'getMutationOptions':
-          return { ...mutationOptions, trpc: anyArgs[0]?.trpc }
+            const input = anyArgs[0]
+            const { set, update } = input
 
-        case 'getInfiniteQueryOptions':
-          return { ...infiniteQueryOptions, trpc: anyArgs[1]?.trpc }
+            input.set = (newInput) => {
+              options.update((previous) => ({
+                ...previous,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+              }))
+              set(newInput)
+            }
 
-        /**
-         * FIXME: the alpha branch of svelte-query screws up `CreateQueryOptions`
-         */
-        case 'createQuery':
-          return createQuery({
-            queryKey,
-            context: queryClient,
-            queryFn: () => client.query(path, anyArgs[0], anyArgs[1]?.trpc),
-            ...anyArgs[1],
-          } as CreateQueryOptions & { initialData: undefined })
+            input.update = (updater) => {
+              update(updater)
+
+              const newInput = get(input)
+              options.update((previous) => ({
+                ...previous,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: () => client.query(path, newInput, previous.trpc),
+              }))
+            }
+            return createReactiveQuery(options, QueryObserver, queryClient)
+          }
+
+          return createQuery(queryOptions)
+        }
+
+        case 'createInfiniteQuery': {
+          if (isWritable(anyArgs[0])) {
+            const options: Writable<CreateInfiniteQueryOptions & TRPCOptions> = writable(infiniteQueryOptions)
+
+            const input = anyArgs[0]
+            const { set, update } = input
+
+            input.set = (newInput) => {
+              options.update((previous) => ({
+                ...previous,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+              }))
+              set(newInput)
+            }
+
+            input.update = (updater) => {
+              update(updater)
+
+              const newInput = get(input)
+              options.update((previous) => ({
+                ...previous,
+                queryKey: getQueryKey(pathArray, newInput, method),
+                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+              }))
+            }
+
+            return createReactiveQuery(options, InfiniteQueryObserver as typeof QueryObserver, queryClient)
+          }
+          return createInfiniteQuery(infiniteQueryOptions)
+        }
 
         case 'createMutation':
           return createMutation(mutationOptions)
-
-        case 'createInfiniteQuery':
-          return createInfiniteQuery({
-            queryKey,
-            context: queryClient,
-            queryFn: (context) => client.query(path, { ...anyArgs[0], cursor: context.pageParam }, anyArgs[1]?.trpc),
-            ...anyArgs[1],
-          } as CreateInfiniteQueryOptions)
 
         case 'createSubscription':
           return client.subscription(path, anyArgs[0], anyArgs[1])
@@ -197,33 +220,23 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'prefetch':
           return queryClient.prefetchQuery(queryOptions)
 
-        case 'invalidate': {
+        case 'invalidate':
           return queryClient.invalidateQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
-        }
 
-        case 'reset': {
+        case 'reset':
           return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
-        }
 
-        case 'cancel': {
+        case 'cancel':
           return queryClient.cancelQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
-        }
 
-        case 'ensureData': {
+        case 'ensureData':
           return queryClient.ensureQueryData({ queryKey, ...anyArgs[0] })
-        }
 
         case 'setData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getData':
           return queryClient.getQueryData(queryKey)
-
-        case 'bindQueryInput': {
-        }
-
-        case 'bindInfiniteQueryInput': {
-        }
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)

@@ -5,9 +5,18 @@
  * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 
+// import type { Writable } from 'svelte/store'
 import type { TRPCClientError, TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { TRPCSubscriptionObserver } from '@trpc/client/dist/internals/TRPCUntypedClient'
-import type { AnyProcedure, Procedure, ProcedureParams, inferProcedureInput, inferProcedureOutput } from '@trpc/server'
+import type {
+  AnyMutationProcedure,
+  AnyProcedure,
+  AnyQueryProcedure,
+  AnyRouter,
+  AnySubscriptionProcedure,
+  inferProcedureInput,
+  inferProcedureOutput,
+} from '@trpc/server'
 import type { Unsubscribable } from '@trpc/server/observable'
 import type { inferTransformedSubscriptionOutput } from '@trpc/server/shared'
 import type {
@@ -18,16 +27,12 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
+import type { InfiniteQueryInput, TRPCOptions } from './types'
 
 /**
- * Additional tRPC options can be under a `tRPC` property.
+ * Whether the object is a svelte store.
  */
-type trpcOptions = { trpc?: TRPCRequestOptions }
-
-/**
- * Infinite queries must have the "cursor" property in the input.
- */
-type InfiniteQueryInput = { cursor?: unknown }
+// export const isWritable = <T>(obj: object): obj is Writable<T> => 'subscribe' in obj && 'set' in obj && 'update' in obj
 
 /**
  * Additional svelte-query methods available to infinite queries.
@@ -36,7 +41,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T
   ? {
       createInfiniteQuery: (
         input: inferProcedureInput<T>,
-        opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & trpcOptions
+        opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
       ) => CreateInfiniteQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
     }
   : object
@@ -47,7 +52,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T
 type TRPCQueryProcedure<T extends AnyProcedure> = {
   createQuery: (
     input: inferProcedureInput<T>,
-    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & trpcOptions
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
   ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
 } & MaybeInfiniteQueryProcedure<T>
 
@@ -56,7 +61,7 @@ type TRPCQueryProcedure<T extends AnyProcedure> = {
  */
 type TRPCMutationProcedure<T extends AnyProcedure> = {
   createMutation: (
-    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & trpcOptions
+    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & TRPCOptions
   ) => CreateMutationResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>>
 }
 
@@ -74,10 +79,46 @@ type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
 /**
  * Map tRPC procedure to svelte-query methods.
  */
-// prettier-ignore
-export type TRPCSvelteQueryProcedure<T> = 
-  T extends Procedure<infer Type, ProcedureParams> ? 
-    Type extends 'query' ? TRPCQueryProcedure<T> :
-    Type extends 'mutation' ? TRPCMutationProcedure<T> :
-    Type extends 'subscription' ? TRPCSubscriptionProcedure<T> : 'Unknown procedure type'
+type TRPCSvelteQueryProcedure<T> = T extends AnyQueryProcedure
+  ? TRPCQueryProcedure<T>
+  : T extends AnyMutationProcedure
+  ? TRPCMutationProcedure<T>
+  : T extends AnySubscriptionProcedure
+  ? TRPCSubscriptionProcedure<T>
   : never
+
+/**
+ * Convert tRPC router to trpc + svelte-query router. This is the shape of the proxy.
+ */
+export type TRPCSvelteQueryRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? TRPCSvelteQueryRouter<T[k]> : TRPCSvelteQueryProcedure<T[k]>
+}
+
+/**
+ * Parses an array to extract its types.
+ * @internal
+ */
+type ParseArray<Left extends unknown[], Right extends unknown[] = []> = Left extends []
+  ? []
+  : Left extends [infer Head]
+  ? [...Right, Head]
+  : Left extends [infer Head, ...infer Tail]
+  ? ParseArray<Tail, [...Right, Head]>
+  : Left
+
+/**
+ * Explicitly type each create query result.
+ * @internal
+ */
+type QueriesResults<T> = {
+  [k in keyof T]: T[k] extends CreateQueryResult<infer TOutput, infer TError>
+    ? CreateQueryResult<TOutput, TError>
+    : never
+}
+
+/**
+ * Create multiple queries.
+ */
+export type CreateQueries<T extends AnyRouter> = <Queries extends unknown[]>(
+  callback: (t: TRPCSvelteQueryRouter<T>) => readonly [...ParseArray<Queries>]
+) => QueriesResults<Queries>

@@ -6,7 +6,7 @@
   /**
    * Get the query options for this tRPC query as a regular object.
    */
-  const queryOptions = trpc.utils[''].getQueryOptions('', { placeholderData: keepPreviousData })
+  const queryOptions = trpc.utils.greeting.getQueryOptions('', { placeholderData: keepPreviousData })
 
   /**
    * Convert the query options to a writable store.
@@ -16,7 +16,7 @@
   /**
    * Create a store for the input, and "bind" it to the query options.
    */
-  const input = trpc.utils[''].bindQueryInput(options)
+  const input = trpc.utils.greeting.bindQueryInput(options)
 
   /**
    * Manually create a new reactive query.

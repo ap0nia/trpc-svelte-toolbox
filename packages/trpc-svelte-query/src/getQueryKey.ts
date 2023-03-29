@@ -33,7 +33,7 @@ const MethodQueryTypes: Record<string, QueryType> = {
 }
 
 /**
- * Keys of `MethodQueryTypes` are methods that allow input.
+ * Keys of `MethodQueryTypes` are methods that accept input.
  */
 const MethodInputs = Object.keys(MethodQueryTypes)
 

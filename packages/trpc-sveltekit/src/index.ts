@@ -1,4 +1,4 @@
 export * from './handle'
 export * from './requestHandler'
 
-export type * from './types'
+export * from './types'

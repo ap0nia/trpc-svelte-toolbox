@@ -1,7 +1,8 @@
 /**
  * `query`
+ *
  * Refers to both svelte-query and a type of tRPC procedure.
- * This file maps tRPC procedures to svelte-query functions,
+ * The tRPC router and its procedures are translated to svelte-query methods.
  * e.g. `query` to `createQuery`, `mutation` to `createMutation`, etc.
  */
 

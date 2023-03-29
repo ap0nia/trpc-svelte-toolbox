@@ -1,14 +1,12 @@
 /**
  * `utils`
- * Methods that operate directly on the `QueryClient`, usually on behalf of a tRPC procedure.
- * They'll actually be directly accessible from the same path as `createQuery`,
- * but splitting it up makes the autocomplete easier to work with.
  *
- * e.g. `trpc.utils.users.fetch()` and `trpc.users.fetch()` are both valid calls,
- * but only the former is recognized by TypeScript.
+ * Proxy that provides access to helpers that let you manage 
+ * the cached data of the queries you execute via @bevm0/trpc-svelte-query.
+ * These helpers are thin wrappers around @tanstack/svelte-query's `QueryClient` methods.
  *
- * It might seem that the infinite query has duplicate types with regular query;
- * the slightly different method names are used to construct different query keys during runtime.
+ * Internally uses the same proxy during runtime, 
+ * but the typed proxy is put under the "utils" key to make the interfaces easier to work with.
  */
 
 import type { TRPCClientErrorLike } from '@trpc/client'

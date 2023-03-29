@@ -19,8 +19,8 @@ import type {
   AnyRouter,
   AnySubscriptionProcedure,
   inferProcedureInput,
-  inferProcedureOutput,
 } from '@trpc/server'
+import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 import type {
   InvalidateQueryFilters,
   InvalidateOptions,
@@ -52,8 +52,8 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    */
   fetch(
     input: inferProcedureInput<T>,
-    options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  ): Promise<inferProcedureOutput<T>>
+    options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+  ): Promise<inferTransformedProcedureOutput<T>>
 
   /**
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientprefetchquery
@@ -62,14 +62,14 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    */
   prefetch(
     input: inferProcedureInput<T>,
-    options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+    options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
   ): Promise<void>
 
   /**
    * Get the cached procedure output if it exists.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
    */
-  getData(input: inferProcedureInput<T>): inferProcedureOutput<T> | undefined
+  getData(input: inferProcedureInput<T>): inferTransformedProcedureOutput<T> | undefined
 
   /**
    * Get the cached procedure output; call `fetchQuery` and return the results if cache miss.
@@ -77,8 +77,8 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    */
   ensureData(
     input: inferProcedureInput<T>,
-    options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<inferProcedureOutput<T>>
+    options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
+  ): Promise<inferTransformedProcedureOutput<T>>
 
   /**
    * Set a query procedure's cached data.
@@ -86,7 +86,7 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    * @param input The procedure input or an updater function that transforms the previous input.
    * @param options Options forwarded to `setQueryData`.
    */
-  setData(input: Updater<inferProcedureInput<T>, inferProcedureOutput<T>>, options?: SetDataOptions): Promise<void>
+  setData(input: Updater<inferProcedureInput<T>, inferTransformedProcedureOutput<T>>, options?: SetDataOptions): Promise<void>
 
   /**
    * Get the state of a query procedure.
@@ -96,7 +96,7 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    */
   getState(
     input: inferProcedureInput<T>
-  ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
+  ): QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
 
   /**
    * Invalidate all query procedures at the current level and below.
@@ -158,8 +158,8 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        */
       fetchInfinite(
         input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-      ): Promise<inferProcedureOutput<T>>
+        options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+      ): Promise<inferTransformedProcedureOutput<T>>
 
       /**
        * Fetch and cache the results of an infinite query.
@@ -169,14 +169,14 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        */
       prefetchInfinite(
         input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+        options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
       ): Promise<void>
 
       /**
        * Get the cached infinite query data if it exists.
        * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
        */
-      getInfiniteData(input: inferProcedureInput<T>): inferProcedureOutput<T> | undefined
+      getInfiniteData(input: inferProcedureInput<T>): inferTransformedProcedureOutput<T> | undefined
 
       /**
        * Get the cached infinite query procedure output; call `fetchInfiniteQuery` and return the results if cache miss.
@@ -184,8 +184,8 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        */
       ensureInfiniteData(
         input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-      ): Promise<inferProcedureOutput<T>>
+        options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
+      ): Promise<inferTransformedProcedureOutput<T>>
 
       /**
        * Set an infinite query procedure's cached data.
@@ -194,7 +194,7 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param options Options forwarded to `setQueryData`.
        */
       setInfiniteData(
-        input: Updater<inferProcedureOutput<T> | undefined, inferProcedureOutput<T> | undefined>,
+        input: Updater<inferTransformedProcedureOutput<T> | undefined, inferTransformedProcedureOutput<T> | undefined>,
         options?: SetDataOptions
       ): Promise<void>
 
@@ -206,7 +206,7 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        */
       getInfiniteState(
         input: inferProcedureInput<T>,
-      ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
+      ): QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
     }
   : object
 

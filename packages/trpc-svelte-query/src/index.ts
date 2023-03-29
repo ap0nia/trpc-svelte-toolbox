@@ -5,6 +5,7 @@ import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import {
   createInfiniteQuery,
   createMutation,
+  createQueries,
   createQuery,
   CreateQueryOptions,
   InfiniteQueryObserver,
@@ -16,7 +17,7 @@ import type { AnyRouter } from '@trpc/server'
 import type { CreateInfiniteQueryOptions, CreateMutationOptions, QueryClientConfig } from '@tanstack/svelte-query'
 import { getQueryKey } from './getQueryKey'
 import { createReactiveQuery, isWritable } from './reactive'
-import type { TRPCSvelteQueryRouter } from './query'
+import type { TRPCSvelteQueryRouter, CreateQueries } from './query'
 import type { UtilsRouter } from './utils'
 import type { TRPCOptions } from './types'
 
@@ -39,6 +40,11 @@ type TRPCSvelteQueryProxyRoot<T extends AnyRouter> = {
    * Shadows the proxy, providing methods with more control over queries.
    */
   utils: UtilsRouter<T>
+
+  /**
+   * Creates multiple queries.
+   */
+   createQueries: CreateQueries<T>
 }
 
 /**
@@ -202,6 +208,9 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'getSubscriptionKey':
           return queryKey
 
+        case 'getQueryOptions':
+          return queryOptions
+
         case 'fetch':
           return queryClient.fetchQuery(queryOptions)
 
@@ -303,5 +312,11 @@ export function createTRPCSvelte<T extends AnyRouter>(
   const queryClient = isQueryClient ? queryInit : new QueryClient(queryInit)
 
   const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
+
+  proxy.createQueries = (callback) => {
+    const results: any = callback(proxy)
+    return createQueries(results)
+  }
+
   return proxy
 }

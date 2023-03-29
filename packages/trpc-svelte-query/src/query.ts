@@ -28,6 +28,7 @@ import type {
   CreateMutationResult,
 } from '@tanstack/svelte-query'
 import type { InfiniteQueryInput, TRPCOptions } from './types'
+import type { MaybeWritable } from './reactive'
 
 /**
  * Whether the object is a svelte store.
@@ -35,26 +36,26 @@ import type { InfiniteQueryInput, TRPCOptions } from './types'
 // export const isWritable = <T>(obj: object): obj is Writable<T> => 'subscribe' in obj && 'set' in obj && 'update' in obj
 
 /**
+ * Map a tRPC `query` procedure to svelte-query methods.
+ */
+type TRPCQueryProcedure<T extends AnyProcedure> = {
+  createQuery: (
+    input: MaybeWritable<inferProcedureInput<T>>,
+    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+  ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+} & MaybeInfiniteQueryProcedure<T>
+
+/**
  * Additional svelte-query methods available to infinite queries.
  */
 type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput
   ? {
       createInfiniteQuery: (
-        input: inferProcedureInput<T>,
+        input: MaybeWritable<inferProcedureInput<T>>,
         opts?: CreateInfiniteQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
       ) => CreateInfiniteQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
     }
   : object
-
-/**
- * Map a tRPC `query` procedure to svelte-query methods.
- */
-type TRPCQueryProcedure<T extends AnyProcedure> = {
-  createQuery: (
-    input: inferProcedureInput<T>,
-    opts?: CreateQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  ) => CreateQueryResult<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-} & MaybeInfiniteQueryProcedure<T>
 
 /**
  * Map a tRPC `mutation` procedure to svelte-query methods.

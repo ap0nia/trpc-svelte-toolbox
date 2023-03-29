@@ -38,78 +38,6 @@ import type { QueryKey } from './getQueryKey'
 import type { InfiniteQueryInput, TRPCOptions } from './types'
 
 /**
- * Additional utilities available to infinite queries.
- */
-export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput
-  ? {
-      /**
-       * Get the automatically generated query key for the infinite query procedure.
-       */
-      getInfiniteQueryKey(input: inferProcedureInput<T>): QueryKey
-
-      /**
-       * Fetch, cache, and return the results of an infinite query.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientfetchinfinitequery
-       * @param input The input to the procedure.
-       * @param options Options forwarded to `fetchInfiniteQuery`.
-       * @returns The procedure response.
-       */
-      fetchInfinite(
-        input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-      ): Promise<inferProcedureOutput<T>>
-
-      /**
-       * Fetch and cache the results of an infinite query.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientprefetchinfinitequery
-       * @param input The input to the procedure.
-       * @param options Options forwarded to `fetchInfiniteQuery`.
-       */
-      prefetchInfinite(
-        input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-      ): Promise<void>
-
-      /**
-       * Get the cached infinite query data if it exists.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
-       */
-      getInfiniteData(input: inferProcedureInput<T>): inferProcedureOutput<T> | undefined
-
-      /**
-       * Get the cached infinite query procedure output; call `fetchInfiniteQuery` and return the results if cache miss.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientensurequerydata
-       */
-      ensureInfiniteData(
-        input: inferProcedureInput<T>,
-        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
-      ): Promise<inferProcedureOutput<T>>
-
-      /**
-       * Set an infinite query procedure's cached data.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientsetquerydata
-       * @param input The procedure input or an updater function that transforms the previous input.
-       * @param options Options forwarded to `setQueryData`.
-       */
-      setInfiniteData(
-        input: Updater<inferProcedureOutput<T> | undefined, inferProcedureOutput<T> | undefined>,
-        options?: SetDataOptions
-      ): Promise<void>
-
-      /**
-       * Get the state of an infinite query procedure.
-       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerystate
-       * @param input The procedure input.
-       * @param filters Filters forwarded to `getQueryState`.
-       */
-      getInfiniteState(
-        input: inferProcedureInput<T>,
-        filters?: QueryFilters
-      ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
-    }
-  : object
-
-/**
  * Map a tRPC `query` procedure to utilities.
  */
 export type QueryUtilsProcedure<T extends AnyProcedure> = {
@@ -185,12 +113,6 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
   refetch(filters?: QueryFilters, options?: RefetchOptions): Promise<void>
 
   /**
-   * Refetch all query procedures at the current level and below.
-   * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientrefetchqueries
-   */
-  refetch(filters?: QueryFilters, options?: RefetchOptions): Promise<void>
-
-  /**
    * Cancel all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientcancelqueries
    */
@@ -220,17 +142,85 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
+ * Additional utilities available to infinite queries.
+ */
+export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedureInput<T> extends InfiniteQueryInput
+  ? {
+      /**
+       * Get the automatically generated query key for the infinite query procedure.
+       */
+      getInfiniteQueryKey(input: inferProcedureInput<T>): QueryKey
+
+      /**
+       * Fetch, cache, and return the results of an infinite query.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientfetchinfinitequery
+       * @param input The input to the procedure.
+       * @param options Options forwarded to `fetchInfiniteQuery`.
+       * @returns The procedure response.
+       */
+      fetchInfinite(
+        input: inferProcedureInput<T>,
+        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+      ): Promise<inferProcedureOutput<T>>
+
+      /**
+       * Fetch and cache the results of an infinite query.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientprefetchinfinitequery
+       * @param input The input to the procedure.
+       * @param options Options forwarded to `fetchInfiniteQuery`.
+       */
+      prefetchInfinite(
+        input: inferProcedureInput<T>,
+        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
+      ): Promise<void>
+
+      /**
+       * Get the cached infinite query data if it exists.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
+       */
+      getInfiniteData(input: inferProcedureInput<T>): inferProcedureOutput<T> | undefined
+
+      /**
+       * Get the cached infinite query procedure output; call `fetchInfiniteQuery` and return the results if cache miss.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientensurequerydata
+       */
+      ensureInfiniteData(
+        input: inferProcedureInput<T>,
+        options?: FetchQueryOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>>
+      ): Promise<inferProcedureOutput<T>>
+
+      /**
+       * Set an infinite query procedure's cached data.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientsetquerydata
+       * @param input The procedure input or an updater function that transforms the previous input.
+       * @param options Options forwarded to `setQueryData`.
+       */
+      setInfiniteData(
+        input: Updater<inferProcedureOutput<T> | undefined, inferProcedureOutput<T> | undefined>,
+        options?: SetDataOptions
+      ): Promise<void>
+
+      /**
+       * Get the state of an infinite query procedure.
+       * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerystate
+       * @param input The procedure input.
+       * @param filters Filters forwarded to `getQueryState`.
+       */
+      getInfiniteState(
+        input: inferProcedureInput<T>,
+        filters?: QueryFilters
+      ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
+    }
+  : object
+
+/**
  * Map a tRPC `mutation` procedure to utilities.
  */
-export type MutationUtilsProcedure<T extends AnyProcedure> = {
+export type MutationUtilsProcedure = {
   /**
    * Get the automatically generated query key for the mutation procedure.
    */
   getMutationKey(): QueryKey
-
-  getMutationOptions: (
-    opts?: CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & TRPCOptions
-  ) => CreateMutationOptions<inferProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> & TRPCOptions
 
   /**
    * Number of mutations in progress for the current route.
@@ -246,11 +236,11 @@ export type MutationUtilsProcedure<T extends AnyProcedure> = {
 /**
  * Map a tRPC `subscription` procedure to utilities.
  */
-export type SubscriptionUtilsProcedure<T extends AnyProcedure> = {
+export type SubscriptionUtilsProcedure = {
   /**
    * Get the automatically generated query key for the subscription procedure.
    */
-  getSubscriptionKey(input: inferProcedureInput<T>): QueryKey
+  getSubscriptionKey(): QueryKey
 }
 
 /**
@@ -259,9 +249,8 @@ export type SubscriptionUtilsProcedure<T extends AnyProcedure> = {
 // prettier-ignore
 export type UtilsProcedure<T> = 
     T extends AnyQueryProcedure ? QueryUtilsProcedure<T> : 
-    T extends AnyMutationProcedure ? MutationUtilsProcedure<T> :
-    T extends AnySubscriptionProcedure ? SubscriptionUtilsProcedure<T>
-  : never
+    T extends AnyMutationProcedure ? MutationUtilsProcedure :
+    T extends AnySubscriptionProcedure ? SubscriptionUtilsProcedure  : never
 
 /**
  * Properties available at all levels of utilities.

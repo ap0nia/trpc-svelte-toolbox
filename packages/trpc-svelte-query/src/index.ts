@@ -126,12 +126,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       } satisfies CreateInfiniteQueryOptions
 
       switch (method) {
-        case 'getQueryKey':
-        case 'getInfiniteKey':
-        case 'getMutationKey':
-        case 'getSubscriptionKey':
-          return queryKey
-
         case 'createQuery': {
           if (isWritable(anyArgs[0])) {
             const options: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
@@ -202,17 +196,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'createSubscription':
           return client.subscription(path, anyArgs[0], anyArgs[1])
 
-        case 'fetchInfinite':
-          return queryClient.fetchInfiniteQuery(infiniteQueryOptions)
-
-        case 'prefetchInfinite':
-          return queryClient.prefetchInfiniteQuery(infiniteQueryOptions)
-
-        case 'setInfiniteData':
-          return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
-
-        case 'getInfiniteData':
-          return queryClient.getQueryData(queryKey)
+        case 'getQueryKey':
+        case 'getInfiniteQueryKey':
+        case 'getMutationKey':
+        case 'getSubscriptionKey':
+          return queryKey
 
         case 'fetch':
           return queryClient.fetchQuery(queryOptions)
@@ -220,14 +208,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'prefetch':
           return queryClient.prefetchQuery(queryOptions)
 
-        case 'invalidate':
-          return queryClient.invalidateQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
-
-        case 'reset':
-          return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
-
-        case 'cancel':
-          return queryClient.cancelQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+        case 'getData':
+          return queryClient.getQueryData(queryKey)
 
         case 'ensureData':
           return queryClient.ensureQueryData({ queryKey, ...anyArgs[0] })
@@ -235,8 +217,53 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         case 'setData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
-        case 'getData':
+        case 'getState':
+          return
+
+        case 'fetchInfinite':
+          return queryClient.fetchInfiniteQuery(infiniteQueryOptions)
+
+        case 'prefetchInfinite':
+          return queryClient.prefetchInfiniteQuery(infiniteQueryOptions)
+
+        case 'getInfiniteData':
           return queryClient.getQueryData(queryKey)
+
+        case 'ensureInfiniteData':
+          return
+
+        case 'setInfiniteData':
+          return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
+
+        case 'getInfiniteState':
+          return
+
+        case 'invalidate':
+          return queryClient.invalidateQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+
+        case 'refetch':
+          return
+
+        case 'cancel':
+          return queryClient.cancelQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+
+        case 'remove':
+          return
+
+        case 'reset':
+          return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
+
+        case 'isFetching':
+          return
+
+        case 'isFetchingRecursive':
+          return
+
+        case 'isMutating':
+          return
+
+        case 'isMutatingRecursive':
+          return
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)

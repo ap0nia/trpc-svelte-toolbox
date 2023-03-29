@@ -1,4 +1,3 @@
-import { setContext, getContext } from 'svelte'
 import { writable, get } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
@@ -12,10 +11,11 @@ import {
   InfiniteQueryObserver,
   QueryClient,
   QueryObserver,
+  useQueryClient,
 } from '@tanstack/svelte-query'
 import type { CreateTRPCProxyClient, CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
-import type { CreateInfiniteQueryOptions, CreateMutationOptions, QueryClientConfig } from '@tanstack/svelte-query'
+import type { CreateInfiniteQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import { getQueryKey } from './getQueryKey'
 import { createReactiveQuery, isWritable } from './reactive'
 import type { TRPCSvelteQueryRouter, CreateQueries } from './query'
@@ -60,8 +60,9 @@ export type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T>
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   proxyClient: CreateTRPCProxyClient<T>,
-  queryClient: QueryClient
+  externalQueryClient?: QueryClient
 ): TRPCSvelteQueryProxy<T> {
+
   /**
    * Properties indicated by the type information don't exist during runtime.
    * Proxies allows dynamic access to these properties.
@@ -70,7 +71,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    */
   const proxy = createFlatProxy<TRPCSvelteQueryProxy<T>>((initialKey) => {
     if (initialKey === 'client') return proxyClient
-    if (initialKey === 'queryClient') return queryClient
+    if (initialKey === 'queryClient') return externalQueryClient
 
     /**
      * `utils` refers to the same proxy, but "utils" is not part of the tRPC path.
@@ -79,6 +80,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
     const key = initialKey === 'utils' ? undefined : initialKey
 
     const nestedProperties = createRecursiveProxy((opts) => {
+      const queryClient = externalQueryClient ?? useQueryClient()
+
       /**
        * Handle `args` based on the method.
        *
@@ -307,7 +310,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
  */
 export function createTRPCSvelte<T extends AnyRouter>(
   opts: CreateTRPCClientOptions<T>,
-  queryInit?: QueryClient | QueryClientConfig
+  queryClient?: QueryClient
 ): TRPCSvelteQueryProxy<T> {
   /**
    * An untyped tRPC client has `query`, `mutation`, etc. that require full paths to make the request.
@@ -319,16 +322,6 @@ export function createTRPCSvelte<T extends AnyRouter>(
    * tRPC client that can be used to send requests directly.
    */
   const proxyClient = createTRPCProxyClient<T>(opts)
-
-  /**
-   * Determine if `queryInit` is a `QueryClient` by checking for any unique key.
-   */
-  const isQueryClient = queryInit && 'clear' in queryInit
-
-  /**
-   * Use the provided `QueryClient`, or initialize one with the options.
-   */
-  const queryClient = isQueryClient ? queryInit : new QueryClient(queryInit)
 
   const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
   return proxy

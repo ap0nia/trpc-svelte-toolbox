@@ -1,9 +1,9 @@
 <script lang="ts">
   import { QueryClientProvider } from '@tanstack/svelte-query'
-  import { queryClient } from '$lib/trpc'
+  export let data
 </script>
 
-<QueryClientProvider client={queryClient}>
+<QueryClientProvider client={data.trpc.queryClient}>
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/createQuery">Create Query</a></li>

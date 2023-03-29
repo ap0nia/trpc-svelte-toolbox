@@ -1,7 +1,6 @@
-import { trpc } from '$lib/trpc'
-import type { PageLoad } from './$types'
+export async function load({ parent }) {
+  const { trpc } = await parent()
 
-export const load: PageLoad = async () => {
   return {
     '': trpc.utils[''].prefetch('Elysia'),
     greeting: trpc.utils.greeting.fetch('Aponia'),

@@ -1,7 +1,7 @@
 {
-  "name": "@examples/reactive-alpha",
+  "name": "@examples/kitchen-sink",
   "version": "0.1.0",
-  "description": "demo of reactive tRPC queries with svelte-query alpha",
+  "description": "kitchen sink demo of tRPC integration with svelte-query",
   "type": "module",
   "scripts": {
     "dev": "vite"

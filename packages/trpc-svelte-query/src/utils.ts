@@ -22,7 +22,6 @@ import type {
   inferProcedureOutput,
 } from '@trpc/server'
 import type {
-  CreateMutationOptions,
   InvalidateQueryFilters,
   InvalidateOptions,
   FetchQueryOptions,
@@ -96,8 +95,7 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    * @param filters Filters forwarded to `getQueryState`.
    */
   getState(
-    input: inferProcedureInput<T>,
-    filters?: QueryFilters
+    input: inferProcedureInput<T>
   ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
 
   /**
@@ -208,7 +206,6 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        */
       getInfiniteState(
         input: inferProcedureInput<T>,
-        filters?: QueryFilters
       ): QueryState<inferProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
     }
   : object
@@ -223,14 +220,9 @@ export type MutationUtilsProcedure = {
   getMutationKey(): QueryKey
 
   /**
-   * Number of mutations in progress for the current route.
-   */
-  isMutating(): number
-
-  /**
    * Number of mutations in progress, for the current route and sub-routes.
    */
-  isMutatingRecursive(): number
+  isMutating(): number
 }
 
 /**

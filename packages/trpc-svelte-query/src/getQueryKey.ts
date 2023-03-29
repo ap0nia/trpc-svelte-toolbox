@@ -19,6 +19,7 @@ const MethodQueryTypes: Record<string, QueryType> = {
   ensureData: 'query',
   setData: 'query',
   getState: 'query',
+  isFetching: 'query',
   createQuery: 'query',
 
   getInfiniteQueryKey: 'infinite',

@@ -212,13 +212,13 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.getQueryData(queryKey)
 
         case 'ensureData':
-          return queryClient.ensureQueryData({ queryKey, ...anyArgs[0] })
+          return queryClient.ensureQueryData(queryOptions)
 
         case 'setData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getState':
-          return
+          return queryClient.getQueryState(queryKey)
 
         case 'fetchInfinite':
           return queryClient.fetchInfiniteQuery(infiniteQueryOptions)
@@ -230,40 +230,37 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           return queryClient.getQueryData(queryKey)
 
         case 'ensureInfiniteData':
-          return
+          return queryClient.ensureQueryData(infiniteQueryOptions)
 
         case 'setInfiniteData':
           return queryClient.setQueryData(queryKey, anyArgs[0], anyArgs[1])
 
         case 'getInfiniteState':
-          return
+          return queryClient.getQueryState(queryKey)
 
         case 'invalidate':
           return queryClient.invalidateQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
 
         case 'refetch':
-          return
+          return queryClient.refetchQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
 
         case 'cancel':
           return queryClient.cancelQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
 
         case 'remove':
-          return
+          return queryClient.removeQueries({ queryKey, ...anyArgs[0] })
 
         case 'reset':
           return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
 
         case 'isFetching':
-          return
+          return queryClient.isFetching({ queryKey, ...anyArgs[0] })
 
         case 'isFetchingRecursive':
-          return
+          return queryClient.isFetching({ queryKey, ...anyArgs[0] })
 
         case 'isMutating':
-          return
-
-        case 'isMutatingRecursive':
-          return
+          return queryClient.isMutating({ mutationKey: [pathArray], ...anyArgs[0] })
 
         default:
           throw new TypeError(`trpc.${path}.${method} is not a function`)

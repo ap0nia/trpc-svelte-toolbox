@@ -29,4 +29,4 @@ createTRPCHandle<T>(options: TRPCHandleOptions<T>): Handle;
 
 `Handle`
 
-Defined in:  [handle.ts:11](https://github.com/trpc/trpc/blob/6ffba67/packages/trpc-sveltekit/src/handle.ts#L11)
+Defined in:  [handle.ts:11](https://github.com/trpc/trpc/blob/a444bf8/packages/trpc-sveltekit/src/handle.ts#L11)

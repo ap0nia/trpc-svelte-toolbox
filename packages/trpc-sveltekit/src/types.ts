@@ -11,9 +11,9 @@ import type { RequestEvent } from '@sveltejs/kit'
 type OptionalKeys<T, Keys extends keyof T> = Omit<T, Keys> & Partial<Pick<T, Keys>>
 
 /**
- * Override properties of `T` with any from `U`.
+ * Override properties of `Left` with any from `Right`.
  */
-type Override<T, U> = Omit<T, keyof U> & U
+type Override<Left, Right> = Omit<Left, keyof Right> & Right
 
 /**
  * Modified `createContext` function gets event from SvelteKit `RequestEvent`

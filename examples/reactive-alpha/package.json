@@ -7,7 +7,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@bevm0/trpc-svelte-query-alpha": "*",
+    "@bevm0/trpc-svelte-query": "*",
     "@bevm0/trpc-sveltekit": "*",
     "@tanstack/svelte-query": "5.0.0-alpha.7",
     "@trpc/client": "^10.18.0",

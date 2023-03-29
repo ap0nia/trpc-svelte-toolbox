@@ -137,7 +137,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+                queryFn: () => client.query(path, newInput, previous.trpc),
               }))
               set(newInput)
             }

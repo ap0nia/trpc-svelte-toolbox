@@ -12,7 +12,7 @@ export function createReactiveQuery<TQueryFnData, TError, TData, TQueryData, TQu
   options: MaybeWritable<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>>,
   Observer: typeof QueryObserver,
   queryClient: QueryClient
-): CreateQueryResult {
+): CreateQueryResult<TData, TError> {
   const optionsStore = isWritable(options) ? options : writable(options)
 
   const defaultOptionsStore = derived(optionsStore, ($options) => {

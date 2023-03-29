@@ -30,4 +30,4 @@ createTRPCRequestHandler<T>(options: TRPCHandleOptions<T>): RequestHandler;
 
 `RequestHandler`
 
-Defined in:  [requestHandler.ts:12](https://github.com/trpc/trpc/blob/a444bf8/packages/trpc-sveltekit/src/requestHandler.ts#L12)
+Defined in:  [requestHandler.ts:12](https://github.com/bevm0/trpc-svelte-toolbox/blob/94bbd02/packages/trpc-sveltekit/src/requestHandler.ts#L12)

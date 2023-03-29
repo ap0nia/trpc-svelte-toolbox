@@ -1,45 +1,30 @@
-import Head from '@docusaurus/Head';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
 import React from 'react';
+import Layout from '@theme/Layout';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-const HomeContent: React.FC = () => {
-  return (
-    <main className="container px-6 mx-auto space-y-28">
-    hi
-    </main>
-  );
-};
+const description = 'Aponia is epic!';
 
-const HomeHead: React.FC = () => {
-  return (
-    <Head>
-      <body className="homepage" />
-      <script async src="https://platform.twitter.com/widgets.js" />
-      <link
-        rel="preload"
-        href="https://assets.trpc.io/www/v10/v10-dark-landscape.png"
-        as="image"
-      />
-      <link
-        rel="preload"
-        href="https://assets.trpc.io/www/v10/preview-dark.png"
-        as="image"
-      />
-    </Head>
-  );
-};
-
-const HomePage: React.FC = () => {
+export default function HomePage() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout
-      title={`${siteConfig.title} - ${siteConfig.tagline}`}
-      description="End-to-end typesafe APIs made easy. Automatic typesafety & autocompletion inferred from your API-paths, their input data, &amp; outputs 🧙‍♂️"
-    >
-      <HomeHead />
-      <HomeContent />
+    <Layout title={`${siteConfig.title} - ${siteConfig.tagline}`} description={description}>
+      <main className="mx-auto my-40 p-4">
+        <a href="/docs/svelte/introduction" style={{
+          background: '#317fb9',
+          color: 'white',
+          fontWeight: 600,
+          width: '15rem',
+          padding: '1rem',
+          borderRadius: '8px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginInline: 'auto',
+          marginBlock: '12rem',
+        }}>
+          Go to tRPC + Svelte Docs
+        </a>
+      </main>
     </Layout>
   );
 };
-export default HomePage;

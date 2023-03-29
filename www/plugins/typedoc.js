@@ -9,8 +9,6 @@ function generateTypedocDocusaurusPlugins(directories) {
       tsconfig: `../packages/${directory}/tsconfig.json`,
       out: `./typedoc/${directory}`,
       readme: 'none',
-      sourceLinkTemplate:
-        'https://github.com/trpc/trpc/blob/{gitRevision}/{path}#L{line}',
       excludeInternal: true,
       excludePrivate: true,
       excludeProtected: true,

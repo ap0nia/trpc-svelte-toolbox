@@ -1,3 +1,4 @@
+import { setContext, getContext } from 'svelte'
 import { writable, get } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'

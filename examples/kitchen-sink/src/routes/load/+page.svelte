@@ -1,8 +1,7 @@
 <script lang="ts">
   import { trpc } from '$lib/trpc'
 
-  import type { PageData } from './$types'
-  export let data: PageData
+  export let data
 
   const emptyQuery = trpc[''].createQuery('Elysia')
   const greetingQuery = trpc.greeting.createQuery('Aponia')

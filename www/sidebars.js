@@ -11,12 +11,13 @@ module.exports = {
       items: [
         'svelte/setup',
         'svelte/aborting-procedure-calls',
-        'svelte/useQuery',
-        'svelte/useMutation',
-        'svelte/useInfiniteQuery',
-        'svelte/useContext',
-        'svelte/useQueries',
+        'svelte/createQuery',
+        'svelte/createMutation',
+        'svelte/createInfiniteQuery',
+        'svelte/createQueries',
+        'svelte/createReactiveQuery',
         'svelte/getQueryKey',
+        'svelte/utils',
       ],
     },
     {

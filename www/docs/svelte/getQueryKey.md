@@ -5,56 +5,33 @@ sidebar_label: getQueryKey()
 slug: /svelte/getquerykey
 ---
 
-We provide a getQueryKey helper that accepts a `router` or `procedure` so that you can easily provide the native function the correct query key.
-
-```tsx
-// Queries
-function getQueryKey(
-  procedure: AnyQueryProcedure,
-  input?: DeepPartial<TInput>,
-  type?: QueryType; /** @default 'any' */
-): TRPCQueryKey;
-
-// Routers
-function getQueryKey(
-  router: AnyRouter,
-): TRPCQueryKey;
-
-// Mutations
-function getQueryKey(
-  procedure: AnyMutationProcedure,
-): TRPCQueryKey;
-
-type QueryType = "query" | "infinite" | "any";
-// for useQuery ──┘         │            │
-// for useInfiniteQuery ────┘            │
-// will match all ───────────────────────┘
-```
+We provide a getQueryKey helper that accepts a `router` or `procedure` 
+so that you can easily provide the native function the correct query key.
 
 :::note
-
-The query type `any` will match all queries in the cache only if the `react query` method where it's used uses fuzzy matching. See [TanStack/query#5111 (comment)](https://github.com/TanStack/query/issues/5111#issuecomment-1464864361) for more context.
-
+Currently, `getQueryKey` is exposed per procedure in the `utils` proxy,
+instead of being a general purpose function like @trpc/react-query's implementation.
 :::
 
-```tsx
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { getQueryKey } from '@trpc/react-query';
-import { trpc } from '~/utils/trpc';
+```html
+<script lang="ts">
+  import { useIsFetching, useQueryClient } from '@tanstack/svelte-query';
+  import { getQueryKey } from '@trpc/react-query';
+  import { trpc } from '$lib/trpc';
 
-function MyComponent() {
   const queryClient = useQueryClient();
 
-  const posts = trpc.post.list.useQuery();
+  const posts = trpc.post.list.createQuery();
 
   // See if a query is fetching
-  const postListKey = getQueryKey(trpc.post.list, undefined, 'query');
+  const postListKey = trpc.utils.post.list.getQueryKey()
   const isFetching = useIsFetching(postListKey);
 
   // Set some query defaults for an entire router
-  const postKey = getQueryKey(trpc.post);
+  const postKey = trpc.utils.post.getQueryKey()
   queryClient.setQueryDefaults(postKey, { staleTime: 30 * 60 * 1000 });
+</script>
 
-  // ...
-}
+{...}
+
 ```

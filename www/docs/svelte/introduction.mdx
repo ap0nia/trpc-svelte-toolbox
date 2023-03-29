@@ -1,42 +1,50 @@
 ---
 id: introduction
-title: React Query Integration
-sidebar_label: React Query Integration
-description: React Query Integration
+title: Svelte Query Integration
+sidebar_label: Svelte Query Integration
+description: Svelte Query Integration
 slug: /svelte/introduction
 ---
 
-tRPC offers a first class integration with React. Under the hood this is simply a wrapper around the very popular [@tanstack/react-query](https://tanstack.com/query/latest), so we recommend that you familiarise yourself with React Query, as their docs go in to much greater depth on its usage.
+tRPC + svelte-query is a wrapper around 
+[@tanstack/svelte-query](https://tanstack.com/query/latest/docs/svelte/overview),
+so we recommend that you familiarize yourself with Svelte Query, 
+as their docs go in much greater depth on its usage.
 
 :::tip
-If you are using SvelteKit we recommend using [our integration with that](/docs/sveltekit/introduction) too.
+If you are using SvelteKit, try using [the custom integration](/docs/sveltekit/introduction).
 :::
 
-### The tRPC React Query Integration
+### The tRPC Svelte Query Integration
 
-This library enables usage directly within React components
+This library enables usage directly within Svelte components
 
-```tsx title='pages/IndexPage.tsx'
-import { trpc } from '../utils/trpc';
+```html title='src/routes/+page.svelte'
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
 
-export default function IndexPage() {
-  const helloQuery = trpc.hello.useQuery({ name: 'Bob' });
-  const goodbyeMutation = trpc.goodbye.useMutation();
+  const helloQuery = trpc.hello.createQuery({ name: 'Bob' })
+  const goodbyeMutation = trpc.goodbye.createMutation();
 
-  return (
-    <div>
-      <p>{helloQuery.data?.greeting}</p>
+  function handleClick() {
+    $goodbyteMutation.mutate()
+  }
+</script>
 
-      <button onClick={() => goodbyteMutation.mutate()}>Say Goodbye</button>
-    </div>
-  );
-}
+<div>
+  <p>{$helloQuery.data?.greeting}</p>
+  <button on:click={handleClick}>Say Goodbye</button>
+</div>
 ```
 
-### Differences to vanilla React Query
+### Differences to vanilla Svelte Query
 
-The wrapper abstracts some aspects of React Query for you:
+The wrapper abstracts some aspects of Svelte Query for you:
 
-- Query Keys - these are generated and managed by tRPC on your behalf, based on the procedure inputs you provide
-  - If you need the query key which tRPC calculates, you can use [getQueryKey](/docs/svelte/getquerykey)
-- Type safe by default - the types you provide in your tRPC Backend also drive the types of your React Query client, providing safety throughout your React app
+- Query Keys - these are generated and managed by tRPC on your behalf,
+  based on the procedure inputs you provide
+  - If you need the query key which tRPC calculates,
+    you can use [getQueryKey](/docs/svelte/getquerykey)
+- Type safe by default - 
+  the types you provide in your tRPC Backend also drive the types of your Svelte Query client,
+  providing safety throughout your Svelte app

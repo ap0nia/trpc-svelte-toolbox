@@ -41,7 +41,7 @@ pnpm add @trpc/client @trpc/server @trpc/react-query @tanstack/react-query
 
 ### 2. Import your `AppRouter`
 
-```twoslash include router
+```include router
 // @filename: server/router.ts
 import { initTRPC } from '@trpc/server';
 import { z } from "zod";
@@ -58,7 +58,7 @@ export type AppRouter = typeof appRouter;
 
 Create a set of strongly-typed React hooks from your `AppRouter` type signature with `createTRPCReact`.
 
-```ts twoslash title='utils/trpc.ts'
+```ts title='utils/trpc.ts'
 // @include: router
 // @filename: utils/trpc.ts
 // ---cut---
@@ -119,7 +119,7 @@ The reason for using `useState` in the creation of the `queryClient` and the `TR
 
 You can now use the tRPC React Query integration to call queries and mutations on your API.
 
-```tsx twoslash title='pages/IndexPage.tsx'
+```tsx title='pages/IndexPage.tsx'
 // @include: router
 // @filename: utils/trpc.ts
 // ---cut---

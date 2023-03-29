@@ -1,23 +1,22 @@
 ---
-id: useInfiniteQuery
-title: useInfiniteQuery
-sidebar_label: useInfiniteQuery()
-slug: /svelte/useinfinitequery
+id: createInfiniteQuery
+title: createInfiniteQuery
+sidebar_label: createInfiniteQuery()
+slug: /svelte/createinfinitequery
 ---
 
 :::info
 
 - Your procedure needs to accept a `cursor` input of any type (`string`, `number`, etc) to expose this hook.
-- For more details on infinite queries read the [react-query docs](https://react-query.tanstack.com/reference/useInfiniteQuery)
+- For more details on infinite queries read the [svelte-query docs](https://tanstack.com/query/v4/docs/svelte/examples/svelte/load-more-infinite-scroll)
 - In this example we're using Prisma - see their docs on [cursor-based pagination](https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination)
 
 :::
 
 ## Example Procedure
 
-```tsx title='server/routers/_app.ts'
+```tsx title='src/lib/server/trpc.ts'
 import { initTRPC } from '@trpc/server'
-import { Context } from './[trpc]';
 
 export const t = initTRPC.create()
 
@@ -57,12 +56,11 @@ export const appRouter = t.router({
 })
 ```
 
-## Example React Component
+## Example Svelte Component
 
-```tsx title='components/MyComponent.tsx'
-import { trpc } from '../utils/trpc';
-
-export function MyComponent() {
+```html title='src/lib/MyComponent.svelte'
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
   const myQuery = trpc.infinitePosts.useInfiniteQuery(
     {
       limit: 10,
@@ -72,8 +70,21 @@ export function MyComponent() {
       // initialCursor: 1, // <-- optional you can pass an initialCursor
     },
   );
-  // [...]
-}
+
+  function nextPage() {
+    $myQuery.fetchNextPage()
+  }
+</script>
+
+<ul>
+  {#each $myQuery.data?.pages ?? [] as page}
+    {#each page as myPage}
+      <li>{ ... }</li>
+    {/each}
+  {/each}
+</ul>
+
+<button on:click={nextPage>Fetch More!</button>
 ```
 
 ## Helpers
@@ -82,11 +93,12 @@ export function MyComponent() {
 
 This helper gets the currently cached data from an existing infinite query
 
-```tsx title='components/MyComponent.tsx'
-import { trpc } from '../utils/trpc';
+```html title='src/components/MyComponent.svelte'
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
 
-export function MyComponent() {
-  const utils = trpc.useContext();
+  // utils is a special key at the root of the tRPC + svelte-query proxy with helper methods
+  const utils = trpc.utils
 
   const myMutation = trpc.infinitePosts.add.useMutation({
     async onMutate({ post }) {
@@ -95,18 +107,21 @@ export function MyComponent() {
       // [...]
     },
   });
-}
+</script>
+
+{ ... }
 ```
 
 ### `setInfiniteData()`
 
 This helper allows you to update a query's cached data
 
-```tsx title='components/MyComponent.tsx'
-import { trpc } from '../utils/trpc';
+```html title='src/components/MyComponent.svelte'
+<script lang="ts">
+  import { trpc } from '../utils/trpc';
 
-export function MyComponent() {
-  const utils = trpc.useContext();
+  // utils is a special key at the root of the tRPC + svelte-query proxy with helper methods
+  const utils = trpc.utils
 
   const myMutation = trpc.infinitePosts.delete.useMutation({
     async onMutate({ post }) {
@@ -130,7 +145,7 @@ export function MyComponent() {
       });
     },
   });
+</script>
 
-  // [...]
-}
+{ ... }
 ```

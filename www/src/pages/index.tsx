@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-const description = 'tRPC + Svelte Query 🚀)';
+const description = 'tRPC + Svelte Query 🚀';
 
 export default function HomePage() {
   const { siteConfig } = useDocusaurusContext();

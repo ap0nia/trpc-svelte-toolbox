@@ -3,9 +3,9 @@
 
   const queries = trpc.createQueries(t => {
     return [
-      t[''].getQueryOptions('Elysia'),
-      t.greeting.getQueryOptions('Aponia'),
-      t.goodbye.getQueryOptions('Kiana'),
+      t[''].createOptions('Elysia'),
+      t.greeting.createOptions('Aponia'),
+      t.goodbye.createOptions('Kiana'),
     ]
   })
 </script>

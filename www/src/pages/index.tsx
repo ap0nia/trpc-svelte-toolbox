@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-const description = 'Aponia is epic!';
+const description = 'tRPC + Svelte Query 🚀)';
 
 export default function HomePage() {
   const { siteConfig } = useDocusaurusContext();
@@ -13,7 +13,7 @@ export default function HomePage() {
           background: '#317fb9',
           color: 'white',
           fontWeight: 600,
-          width: '15rem',
+          width: '20rem',
           padding: '1rem',
           borderRadius: '8px',
           display: 'flex',
@@ -22,7 +22,7 @@ export default function HomePage() {
           marginInline: 'auto',
           marginBlock: '12rem',
         }}>
-          Go to tRPC + Svelte Docs
+          Go to tRPC + Svelte Query Docs
         </a>
       </main>
     </Layout>

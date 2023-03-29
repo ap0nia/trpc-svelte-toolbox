@@ -32,7 +32,7 @@ We also have some `trpc` specific options that let you opt in or out of certain 
 
 From `TRPCRequestOptions`
 - **`trpc.context`:** Forwarded to the `client.query` call
-- **`trpc.abortOnUnmount`:** Forwarded to the `client.query` call
+- **`trpc.signal`:** Forwarded to the `client.query` call
 
 Custom
 - **`trpc.abortOnUnmount`**: WIP

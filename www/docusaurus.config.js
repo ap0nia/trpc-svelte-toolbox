@@ -3,7 +3,7 @@ const { generateTypedocDocusaurusPlugins } = require('./plugins/typedoc');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'tRPC',
-  tagline: 'Aponia is cool!',
+  tagline: 'Unofficial documentation for tRPC + svelte',
   url: 'https://trpc-svelte-toolbox.vercel.app',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
@@ -78,12 +78,6 @@ const config = {
         },
       },
     ],
-    [
-     'docusaurus-preset-shiki-twoslash',
-     {
-       themes: ["min-light", "nord"],
-     },
-    ]
   ],
 
   plugins: [

@@ -1,149 +1,318 @@
 ---
 id: setup
-title: Set up the React Query Integration
+title: Set up with SvelteKit
 sidebar_label: Setup
-description: How to use and setup tRPC in React
 slug: /sveltekit/setup
 ---
 
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 
-### 1. Install dependencies
+## Recommended file structure
 
-The following dependencies should be installed
+Try using a file structure like this one!
+
+```graphql
+.
+├── prisma  # <-- if prisma is added
+│   └── [..]
+├── src
+│   ├── routes
+│   │   ├── +layout.svelte  # <-- load query client
+│   │   ├── api
+│   │   │   └── trpc
+│   │   │       └── [...trpc]
+│   │   │           └── +server.ts  # <-- tRPC HTTP handler (GET + POST)
+│   │   └── [..]
+│   └── lib
+│       ├── server
+│       │   ├── context      # <-- create app context
+│       │   ├── trpc         # <-- tRPC server init + procedure helpers
+│       │   └── routers 
+│       │       ├── post.ts  # <-- sub routers
+│       │       └── index.ts # <-- exports a merged router
+│       │
+│       ├── trpc.ts <-- tRPC + Svelte-Query proxy (typesafe hooks)
+│       └── [..]
+└── [..]
+```
+
+## Add tRPC to existing Next.js project
+
+### 1. Install deps
 
 <Tabs>
   <TabItem value="npm" label="npm" default>
 
-```bash
-npm install @trpc/client @trpc/server @trpc/react-query @tanstack/react-query
+```sh
+npm install @trpc/server @trpc/client @tanstack/react-query zod @bevm0/trpc-svelte-query @bevm0/trpc-sveltekit
 ```
 
   </TabItem>
 
-  <TabItem value="yarn" label="yarn">
+<TabItem value="yarn" label="yarn">
 
-```bash
-yarn add @trpc/client @trpc/server @trpc/react-query @tanstack/react-query
+```sh
+yarn add @trpc/server @trpc/client @tanstack/react-query zod @bevm0/trpc-svelte-query @bevm0/trpc-sveltekit
 ```
 
-  </TabItem>
+</TabItem>
 
-  <TabItem value="pnpm" label="pnpm">
+<TabItem value="pnpm" label="pnpm">
 
-```bash
-pnpm add @trpc/client @trpc/server @trpc/react-query @tanstack/react-query
+```sh
+pnpm add @trpc/server @trpc/client @tanstack/react-query zod @bevm0/trpc-svelte-query @bevm0/trpc-sveltekit
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-### 2. Import your `AppRouter`
+### 2. Enable strict mode
 
-```include router
-// @filename: server/router.ts
+If you want to use Zod for input validation, make sure you have enabled strict mode in your `tsconfig.json`:
+
+```diff title="tsconfig.json"
+"compilerOptions": {
++   "strict": true
+}
+```
+
+If strict mode is too harsh, you'll at least want to enable `strictNullChecks`:
+
+```diff title="tsconfig.json"
+"compilerOptions": {
++   "strictNullChecks": true
+}
+```
+
+### 3. Create a tRPC router
+
+Initialize your tRPC backend in `src/lib/server/trpc.ts` 
+using the `initTRPC` function, and create your first router.
+We're going to make a simple "hello world" router and procedure here -
+but for deeper information on creating your tRPC API you should refer to:
+
+- the [Quickstart guide](https://trpc.io/docs/quickstart) and [Backend usage docs](https://trpc.io/docs/server/introduction) for tRPC information
+
+<details>
+<summary>View sample backend</summary>
+
+```ts title='src/lib/server/trpc.ts'
 import { initTRPC } from '@trpc/server';
-import { z } from "zod";
+
+// Avoid exporting the entire t-object
+// since it's not very descriptive.
+// For instance, the use of a t variable
+// is common in i18n libraries.
 const t = initTRPC.create();
 
-const appRouter = t.router({
-  getUser: t.procedure.input(z.object({ id: z.string() })).query(() => ({ name: 'foo' })),
-  createUser: t.procedure.input(z.object({ name: z.string() })).mutation(() => 'bar'),
+// Base router and procedure helpers
+export const router = t.router;
+export const procedure = t.procedure;
+```
+
+<br />
+
+```ts title='src/lib/server/trpc/routers/index.ts'
+import { z } from 'zod';
+import { procedure, router } from '../trpc';
+
+export const appRouter = router({
+  hello: procedure
+    .input(
+      z.object({
+        text: z.string(),
+      }),
+    )
+    .query(({ input }) => {
+      return {
+        greeting: `hello ${input.text}`,
+      };
+    }),
 });
+
+// export type definition of API
 export type AppRouter = typeof appRouter;
 ```
 
-### 3. Create tRPC hooks
+<br />
 
-Create a set of strongly-typed React hooks from your `AppRouter` type signature with `createTRPCReact`.
+```ts title='src/routes/api/trpc/[...trpc]/+server.ts'
+import { createTRPCRequestHandler } from '@bevm0/trpc-sveltekit'
+import { appRouter } from '$lib/server/trpc/routers';
 
-```ts title='utils/trpc.ts'
-// @include: router
-// @filename: utils/trpc.ts
-// ---cut---
-import { createTRPCReact } from '@trpc/react-query';
-import type { AppRouter } from '../server/router';
+// export GET and POST SvelteKit request handler
+// @see https://trpc.io/docs/api-handler
+// @see https://kit.svelte.dev/docs/routing#server
 
-export const trpc = createTRPCReact<AppRouter>();
+const requestHandler = createTRPCRequestHandler({
+  router: appRouter,
+  createContext: () => ({})
+})
+
+export const GET = requestHandler
+export const POST = requestHandler
 ```
 
-### 4. Add tRPC providers
-
-Create a tRPC client, and wrap your application in the tRPC Provider, as below. You will also need to set up and connect React Query, which [they document in more depth](https://tanstack.com/query/latest/docs/react/quick-start).
-
-:::tip
-If you already use React Query in your application, you **should** re-use the `QueryClient` and `QueryClientProvider` you already have.
-:::
-
-```tsx title='App.tsx'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { httpBatchLink } from '@trpc/client';
-import React, { useState } from 'react';
-import { trpc } from './utils/trpc';
-
-export function App() {
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: 'http://localhost:3000/trpc',
-
-          // You can pass any HTTP headers you wish here
-          async headers() {
-            return {
-              authorization: getAuthCookie(),
-            };
-          },
-        }),
-      ],
-    }),
-  );
-
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        {/* Your app here */}
-      </QueryClientProvider>
-    </trpc.Provider>
-  );
-}
-```
+</details>
 
 :::note
-The reason for using `useState` in the creation of the `queryClient` and the `TRPCClient`, as opposed to declaring them outside of the component, is to ensure that each request gets a unique client when using SSR. If you use client side rendering then you can move them if you wish.
+The backend above is using the [recommended file structure](#recommended-file-structure), but you can keep it simple and put everything in [an API handler directly](https://github.com/trpc/trpc/blob/main/examples/next-minimal-starter/src/pages/api/trpc/%5Btrpc%5D.ts) if you prefer.
 :::
 
-#### 5. Fetch data
+### 4. Create tRPC hooks
 
-You can now use the tRPC React Query integration to call queries and mutations on your API.
+use the `createTRPCSvelte` function to create a set of strongly-typed hooks from your API's type signature.
 
-```tsx title='pages/IndexPage.tsx'
-// @include: router
-// @filename: utils/trpc.ts
-// ---cut---
-import { createTRPCReact } from '@trpc/react-query';
-import type { AppRouter } from '../server/router';
+:::note
+This tRPC client should only be used in components because it wasn't assigned a queryClient.
+It will invoke `useQueryClient` in order to find it.
 
-export const trpc = createTRPCReact<AppRouter>();
-// @filename: pages/IndexPage.tsx
-import React from "react";
-// ---cut---
-import { trpc } from '../utils/trpc';
+Keep on reading to see how to initialize a tRPC client for load functions.
+:::
 
-export default function IndexPage() {
-  const userQuery = trpc.getUser.useQuery({ id: 'id_bilbo' });
-  const userCreator = trpc.createUser.useMutation();
+```tsx title='utils/trpc.ts'
+import { httpBatchLink } from '@trpc/client';
+import { createTRPCSvelte } from '@bevm0/trpc-svelte';
+import type { AppRouter } from '$lib/server/trpc/routers';
 
-  return (
-    <div>
-      <p>{userQuery.data?.name}</p>
+export const trpc = createTRPCSvelte<AppRouter>({
+  links: [
+    httpBatchLink({ url: 'http://localhost:5173/api/trpc' }),
+  ],
+});
+```
 
-      <button onClick={() => userCreator.mutate({ name: 'Frodo' })}>
-        Create Frodo
-      </button>
-    </div>
-  );
+### 5. Configure `+layout.ts`
+
+:::tip
+The app's query client should be created per user, i.e. when they load the website for the first time.
+Creating it in `+layout.ts` ensures that we don't initialize a query client
+on the server and repeatedly share the same query client with **all users**.
+
+Furthermore, the client initialized in `+layout.ts` will use SvelteKit's special
+fetch function (which fixes buggy double fetching for some reason), 
+and since we explicitly provided a query client, it will directly
+invoke that query client instead of calling `useQueryClient`.
+:::
+
+```ts title='src/routes/+layout.ts'
+import { httpBatchLink } from '@trpc/client';
+import { createTRPCSvelte } from '@bevm0/trpc-svelte';
+import { QueryClient } from '@tanstack/svelte-query'
+import type { AppRouter } from '$lib/server/trpc/routers';
+
+export const load: LayoutLoad = async (event) => {
+  const queryClient = new QueryClient()
+
+  const trpc = createTRPCSvelte<AppRouter>({
+    links: [
+      httpBatchLink({ 
+        url: 'http://localhost:5173/api/trpc',
+        fetch: event.fetch
+      }),
+    ],
+  });
+
+  return { trpc }
 }
+
+```
+
+### 6. Setup `+layout.svelte`
+
+```html title='src/routes/+layout.svelte'
+<script lang="ts">
+  import { QueryClientProvider } from '@tanstack/svelte-query'
+  import type { PageData } from './$types'
+
+  export let data: PageData 
+</script>
+
+<QueryClientProvider client={data.trpc.queryClient}>
+  <slot />
+</QueryClientProvider>
+
+```
+
+### 7. Make an API request from a component
+
+You're all set!
+
+You can now use the hooks you have just created to invoke your API.
+
+:::note
+1. We initialized a new query client for the user in +layout.ts
+   -> When load functions invoke this tRPC client, 
+      it will be caching directly to the newly initialized query client
+
+2. We used that query client in the QueryClientProvider in +layout.svelte
+   -> When fetching within components, the tRPC client was initialized without a query client,
+      so it uses `useQueryClient` to pick up the same query client that was passed into `+layout.svelte`
+:::
+
+```html title='src/routes/+page.svelte'
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
+
+  const hello = trpc.hello.createQuery({ text: 'client' });
+</script>
+
+{#if $hello.data}
+  <div>
+    <p>{$hello.data.greeting}</p>
+  </div>
+  {:else}
+    <div>Loading...</div>;
+{/if}
+
+```
+
+### 8. Prefetch an API request from a load function
+
+:::note
+I don't think you can initialize a tRPC + svelte-query client in `+layout.server.ts` or `+page.server.ts`
+:::
+
+```html title='src/routes/+page.ts'
+import type { PageLoad } from './$types'
+
+export const load: PageLoad = async ({ parent }) => {
+  /**
+   * use the initialized tRPC client from the parent +layout.ts
+   */
+  const { trpc } = await parent()
+
+  return {
+    greeting: trpc.utils.hello.fetch({ text: 'client' });
+  }
+}
+```
+
+Usage in the component can vary:
+1. Create a matching query -> since this was already fetched and cached, no initial fetch needs to occur
+2. Just use the data without any query -> depending on the helper function invoked, you can just use the returned data
+
+```html title='src/routes/+page.svelte'
+<script lang="ts">
+  import { trpc } from '$lib/trpc'
+  import { PageData } from './$types'
+
+  export let data: PageData
+
+  const hello = trpc.hello.createQuery({ text: 'client' });
+</script>
+
+<!-- You can also just use the data -->
+<p>The greeting was {data.greeting}</p>
+
+<!-- Since the data was already fectched, the "else" block should never appear -->
+{#if $hello.data}
+  <div>
+    <p>{$hello.data.greeting}</p>
+  </div>
+  {:else}
+    <div>Loading...</div>;
+{/if}
+
 ```

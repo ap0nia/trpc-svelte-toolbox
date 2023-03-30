@@ -141,7 +141,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         queryFn: async (context) =>
           await client.query(path, input, {
             ...trpcOptions,
-            ...(abortOnUnmount && { signal: context.signal }),
+            signal: abortOnUnmount ? context.signal : undefined,
           }),
         ...anyArgs[1],
       } satisfies CreateQueryOptions
@@ -167,7 +167,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           await client.query(
             path,
             { ...input, cursor: context.pageParam },
-            { ...trpcOptions, ...(abortOnUnmount && { signal: context.signal }) }
+            { ...trpcOptions, signal: abortOnUnmount ? context.signal : undefined }
           ),
         ...anyArgs[1],
       } satisfies CreateInfiniteQueryOptions

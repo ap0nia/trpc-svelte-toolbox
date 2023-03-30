@@ -7,13 +7,15 @@ import {
   createMutation,
   createQuery,
   createQueries,
-  type CreateQueryOptions,
   InfiniteQueryObserver,
-  type QueryClient,
   QueryObserver,
   useQueryClient,
-  type CreateInfiniteQueryOptions,
-  type CreateMutationOptions,
+} from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  QueryClient,
+  CreateInfiniteQueryOptions,
+  CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { CreateTRPCProxyClient, CreateTRPCClientOptions, TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'

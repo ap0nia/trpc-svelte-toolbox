@@ -1,11 +1,11 @@
 /**
  * `utils`
  *
- * Proxy that provides access to helpers that let you manage 
+ * Proxy that provides access to helpers that let you manage
  * the cached data of the queries you execute via @bevm0/trpc-svelte-query.
  * These helpers are thin wrappers around @tanstack/svelte-query's `QueryClient` methods.
  *
- * Internally uses the same proxy during runtime, 
+ * Internally uses the same proxy during runtime,
  * but the typed proxy is put under the "utils" key to make the interfaces easier to work with.
  */
 

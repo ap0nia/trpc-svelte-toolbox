@@ -62,7 +62,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   proxyClient: CreateTRPCProxyClient<T>,
   externalQueryClient?: QueryClient
 ): TRPCSvelteQueryProxy<T> {
-
   /**
    * Properties indicated by the type information don't exist during runtime.
    * Proxies allows dynamic access to these properties.
@@ -122,7 +121,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       const queryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: () => client.query(path, input, anyArgs[1]?.trpc),
+        queryFn: (_context) => client.query(path, input, { ...anyArgs[1]?.trpc }),
         ...anyArgs[1],
       } satisfies CreateQueryOptions
 
@@ -135,7 +134,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
       const infiniteQueryOptions = {
         queryKey,
-        queryFn: (context) => client.query(path, { ...input, cursor: context.pageParam }, anyArgs[1]?.trpc),
+        queryFn: (context) => client.query(path, { ...input, cursor: context.pageParam }, { ...anyArgs[1]?.trpc }),
         ...anyArgs[1],
       } satisfies CreateInfiniteQueryOptions
 
@@ -151,7 +150,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: () => client.query(path, newInput, previous.trpc),
+                queryFn: (_context) => client.query(path, newInput, { ...previous.trpc }),
               }))
               set(newInput)
             }
@@ -163,7 +162,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: () => client.query(path, newInput, previous.trpc),
+                queryFn: (_context) => client.query(path, newInput, { ...previous.trpc }),
               }))
             }
             return createReactiveQuery(options, QueryObserver, queryClient)
@@ -182,7 +181,8 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+                queryFn: (context) =>
+                  client.query(path, { ...newInput, cursor: context.pageParam }, { ...previous.trpc }),
               }))
               set(newInput)
             }
@@ -194,7 +194,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, previous.trpc),
+                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, { ...previous.trpc }),
               }))
             }
             return createReactiveQuery(options, InfiniteQueryObserver as typeof QueryObserver, queryClient)

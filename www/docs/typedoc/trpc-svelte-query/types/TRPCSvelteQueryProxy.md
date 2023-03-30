@@ -15,4 +15,4 @@ Map a tRPC router to a tRPC + svelte-query proxy.
 
 - `T` *extends* `AnyRouter`
 
-Defined in:  [index.ts:54](https://github.com/bevm0/trpc-svelte-toolbox/blob/003683b/packages/trpc-svelte-query/src/index.ts#L54)
+Defined in:  [index.ts:55](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-svelte-query/src/index.ts#L55)

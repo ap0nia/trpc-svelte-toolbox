@@ -30,7 +30,7 @@ const appRouter = t.router({
     byId: t.procedure
       .input(z.object({ id: z.string() }))
       .query(async ({input}) => {
-        return { id: input.id, title: 'Hello' };
+        return { id: input.id, title: 'Kiana' };
       }),
   })
 });
@@ -47,7 +47,7 @@ import type { AppRouter } from './server/trpc';
 
 export const trpc = createTRPCSvelte<AppRouter>({
   links: [ 
-    httpBatchLink({ url: 'http://localhost:5173/trpc' })
+    httpBatchLink({ url: 'http://localhost:5173/api/trpc' })
   ]
 }, {
   abortOnUnmount: true

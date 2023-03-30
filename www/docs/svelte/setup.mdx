@@ -48,8 +48,8 @@ import { initTRPC } from '@trpc/server';
 const t = initTRPC.create();
 
 const appRouter = t.router({
-  getUser: t.procedure.input(z.object({ id: z.string() })).query(() => ({ name: 'foo' })),
-  createUser: t.procedure.input(z.object({ name: z.string() })).mutation(() => 'bar'),
+  getUser: t.procedure.input(z.object({ id: z.string() })).query(() => ({ name: 'Pardo' })),
+  createUser: t.procedure.input(z.object({ name: z.string() })).mutation(() => 'Felis'),
 });
 
 export type AppRouter = typeof appRouter;
@@ -67,11 +67,11 @@ These are meant to be used **in components only**.
 ```ts title='src/lib/trpc.ts'
 import { createTRPCSvelte } from '@bevm0/trpc-svelte-query';
 import { httpBatchLink } from '@trpc/client';
-import type { AppRouter } from './server/trpc';
+import type { AppRouter } from '$lib/server/trpc';
 
 export const trpc = createTRPCSvelte<AppRouter>({
   links: [ 
-    httpBatchLink({ url: 'http://localhost:5173/trpc' })
+    httpBatchLink({ url: 'http://localhost:5173/api/trpc' })
   ]
 });
 ```
@@ -79,7 +79,7 @@ export const trpc = createTRPCSvelte<AppRouter>({
 ### 4. Add Svelte-Query providers
 
 Set up and connect Svelte Query,
-which [they document in more depth here](https://tanstack.com/query/latest/docs/svelte/overview#example).
+which [is documented in more depth here](https://tanstack.com/query/latest/docs/svelte/overview#example).
 
 :::tip
 If you already use Svelte Query in your application, you **should** re-use the `QueryClient` and `QueryClientProvider` you already have.

@@ -61,6 +61,7 @@ export const appRouter = t.router({
 ```html title='src/lib/MyComponent.svelte'
 <script lang="ts">
   import { trpc } from '$lib/trpc';
+
   const myQuery = trpc.infinitePosts.useInfiniteQuery(
     {
       limit: 10,

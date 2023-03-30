@@ -12,16 +12,12 @@ refer to their docs on [queries](https://tanstack.com/query/v4/docs/svelte/overv
 :::
 
 ```tsx
-function createQuery(
-  input: TInput,
-  opts?: CreateTRPCQueryOptions;
-)
+function createQuery(input: TInput, opts?: CreateTRPCQueryOptions)
 
 interface CreateTRPCQueryOptions extends CreateQueryOptions {
   trpc: {
     context?: OperationContext;
-    signal?: AbortSignal; 
-    // abortOnUnmount: boolean;  WIP
+    abortOnUnmount?: boolean;
   }
 }
 ```
@@ -32,13 +28,15 @@ We also have some `trpc` specific options that let you opt in or out of certain 
 
 From `TRPCRequestOptions`
 - **`trpc.context`:** Forwarded to the `client.query` call
-- **`trpc.signal`:** Forwarded to the `client.query` call
 
 Custom
-- **`trpc.abortOnUnmount`**: WIP
+- **`trpc.abortOnUnmount`**: Indicates that the `queryFn`'s `context.signal` should be forwarded to 
+  trpc's `query` function to enabling aborting the request.
 
 :::tip
-If you need to set any options but don't want to pass any input, you can pass `undefined` instead.
+If you need to set any options but don't want to pass any input, you can pass `undefined` as the input.
+
+e.g. trpc.hello.createQuery(undefined, {...})
 :::
 
 You'll notice that you get autocompletion on the `input` based on what you have set in your `input` schema on your backend.
@@ -58,11 +56,7 @@ export const appRouter = t.router({
   hello: t.procedure
     // using zod schema to validate and infer input values
     .input(
-      z
-        .object({
-          text: z.string().nullish(),
-        })
-        .nullish(),
+      z.object({ text: z.string().nullish() }).nullish(),
     )
     .query(({ input }) => {
       return {

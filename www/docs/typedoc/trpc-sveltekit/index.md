@@ -13,7 +13,9 @@ custom_edit_url: null
 
 ### Type Aliases
 
+- [TRPCHandle](types/TRPCHandle.md)
 - [TRPCHandleOptions](types/TRPCHandleOptions.md)
+- [TRPCRequestHandler](types/TRPCRequestHandler.md)
 
 ### Functions
 

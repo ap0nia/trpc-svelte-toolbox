@@ -12,7 +12,7 @@ Create a tRPC + svelte-query proxy.
 ## Signature
 
 ```ts
-createTRPCSvelte<T>(opts: CreateTRPCClientOptions<T>, queryClient?: QueryClient): TRPCSvelteQueryProxy<T>;
+createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOptions?: CreateTRPCSvelteOptions): TRPCSvelteQueryProxy<T>;
 ```
 
 ## Type parameters
@@ -23,11 +23,11 @@ createTRPCSvelte<T>(opts: CreateTRPCClientOptions<T>, queryClient?: QueryClient)
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `opts` | `CreateTRPCClientOptions`<`T`\> | Options for creating the tRPC client. |
-| `queryClient?` | `QueryClient` | - |
+| `trpcClientOptions` | `CreateTRPCClientOptions`<`T`\> | Options for creating the tRPC client. |
+| `svelteQueryOptions?` | `CreateTRPCSvelteOptions` | Options that affect svelte-query behavior. |
 
 ## Returns
 
 [`TRPCSvelteQueryProxy`](../types/TRPCSvelteQueryProxy.md)<`T`\>
 
-Defined in:  [index.ts:311](https://github.com/bevm0/trpc-svelte-toolbox/blob/003683b/packages/trpc-svelte-query/src/index.ts#L311)
+Defined in:  [index.ts:357](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-svelte-query/src/index.ts#L357)

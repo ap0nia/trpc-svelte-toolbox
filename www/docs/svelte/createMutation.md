@@ -30,12 +30,10 @@ export const appRouter = t.router({
   login: t.procedure
     // using zod schema to validate and infer input values
     .input(
-      z.object({
-        name: z.string(),
-      }),
+      z.object({ name: z.string() }),
     )
     .mutation(({ input }) => {
-      // Here some login stuff would happen
+      // Here, some login stuff would happen
       return {
         user: {
           name: input.name,
@@ -52,12 +50,12 @@ export const appRouter = t.router({
 <script lang="ts">
   import { trpc } from '$lib/trpc';
 
-  // This can either be a tuple ['login'] or string 'login'
+  // This can either be a keyed access ['login'] or property access .login
+  // const mutation = trpc['login'].useMutation()
   const mutation = trpc.login.useMutation();
 
   const handleLogin = () => {
     const name = 'John Doe';
-
     mutation.mutate({ name });
   };
 </script>

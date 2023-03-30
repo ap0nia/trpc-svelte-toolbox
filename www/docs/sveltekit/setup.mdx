@@ -100,10 +100,8 @@ but for deeper information on creating your tRPC API you should refer to:
 ```ts title='src/lib/server/trpc.ts'
 import { initTRPC } from '@trpc/server';
 
-// Avoid exporting the entire t-object
-// since it's not very descriptive.
-// For instance, the use of a t variable
-// is common in i18n libraries.
+// Avoid exporting the entire t-object since it's not very descriptive.
+// For instance, the use of a t variable is common in i18n libraries.
 const t = initTRPC.create();
 
 // Base router and procedure helpers
@@ -120,9 +118,7 @@ import { procedure, router } from '../trpc';
 export const appRouter = router({
   hello: procedure
     .input(
-      z.object({
-        text: z.string(),
-      }),
+      z.object({ text: z.string() }),
     )
     .query(({ input }) => {
       return {
@@ -146,6 +142,7 @@ import { appRouter } from '$lib/server/trpc/routers';
 // @see https://kit.svelte.dev/docs/routing#server
 
 const requestHandler = createTRPCRequestHandler({
+  endpoint: '/api/trpc',
   router: appRouter,
   createContext: () => ({})
 })

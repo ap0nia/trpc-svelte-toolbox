@@ -176,9 +176,7 @@ export const appRouter = t.router({
     }),
     byId: t.procedure
       .input(
-        z.object({
-          id: z.string(),
-        }),
+        z.object({ id: z.string() }),
       )
       .query(({ input }) => {
         return {
@@ -247,7 +245,7 @@ We have added a feature to help with this:
 ```ts
 export const trpc = createTRPCSvelte<AppRouter, SSRContext>({
   overrides: {
-    useMutation: {
+    createMutation: {
       /**
        * This function is called whenever a `.useMutation` succeeds
        **/

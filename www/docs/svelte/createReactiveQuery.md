@@ -6,12 +6,6 @@ slug: /svelte/createreactivequery
 ---
 
 :::note
-The hooks provided by `@bevm0/trpc-svelte-query` are a thin wrapper around @tanstack/svelte-query.
-For in-depth information about options and usage patterns,
-refer to their docs on [queries](https://tanstack.com/query/v4/docs/svelte/overview#available-functions).
-:::
-
-:::note
 This implementation is based on the 
 [alpha-branch of svelte-query](https://github.com/TanStack/query/blob/alpha/packages/svelte-query/src/createBaseQuery.ts)
 :::
@@ -31,11 +25,7 @@ export const appRouter = t.router({
   hello: t.procedure
     // using zod schema to validate and infer input values
     .input(
-      z
-        .object({
-          text: z.string().nullish(),
-        })
-        .nullish(),
+      z.object({ text: z.string().nullish() }).nullish(),
     )
     .query(({ input }) => {
       return {
@@ -47,8 +37,8 @@ export const appRouter = t.router({
 </details>
 
 :::tip
-Same API as the regular `createQuery`, just pass in a writable version of your input,
-and the query will be reactive.
+Same API as the regular `createQuery`,
+just pass in a writable (store) version of your input and the query will be reactive.
 :::
 
 :::note

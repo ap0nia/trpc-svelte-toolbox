@@ -28,7 +28,7 @@ export async function load(event) {
     links: [ 
       httpBatchLink({ url, fetch: event.fetch })
     ],
-  }, queryClient)
+  }, { svelteQueryContext: queryClient })
 
   return { trpc }
 }

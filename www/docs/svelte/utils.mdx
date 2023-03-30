@@ -236,7 +236,7 @@ export const appRouter = t.router({
 
 ```
 
-### Invalidate full cache on every mutation -- NOT IMPLEMENTED
+### Invalidate full cache on every mutation
 
 Keeping track of exactly what queries a mutation should invalidate is hard, therefore,
 it can be a pragmatic solution to invalidate the _full cache_ as a side-effect on any mutation.
@@ -245,8 +245,8 @@ Since we have request batching, this invalidation will simply refetch all querie
 We have added a feature to help with this:
 
 ```ts
-export const trpc = createTRPCReact<AppRouter, SSRContext>({
-  unstable_overrides: {
+export const trpc = createTRPCSvelte<AppRouter, SSRContext>({
+  overrides: {
     useMutation: {
       /**
        * This function is called whenever a `.useMutation` succeeds
@@ -267,39 +267,4 @@ export const trpc = createTRPCReact<AppRouter, SSRContext>({
     },
   },
 });
-```
-
-## Additional Options -- NOT IMPLEMENTED
-
-Aside from the query helpers, the proxy `utils` returns also contains the following properties:
-
-```ts
-interface ProxyTRPCContextProps<TRouter extends AnyRouter, TSSRContext> {
-  /**
-   * The `TRPCClient`
-   */
-  client: TRPCProxyClient<TRouter>;
-
-  /**
-   * The SSR context when server-side rendering
-   * @default null
-   */
-  ssrContext?: TSSRContext | null;
-
-  /**
-   * State of SSR hydration.
-   * - `false` if not using SSR.
-   * - `prepass` when doing a prepass to fetch queries' data
-   * - `mounting` before TRPCProvider has been rendered on the client
-   * - `mounted` when the TRPCProvider has been rendered on the client
-   * @default false
-   */
-  ssrState?: SSRState;
-
-  /**
-   * Abort loading query calls when unmounting a component - usually when navigating to a new page
-   * @default false
-   */
-  abortOnUnmount?: boolean;
-}
 ```

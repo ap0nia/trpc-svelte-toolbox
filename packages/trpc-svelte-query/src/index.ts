@@ -61,7 +61,7 @@ export type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T>
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   proxyClient: CreateTRPCProxyClient<T>,
-  options: CreateTRPCSvelteOptions
+  options?: CreateTRPCSvelteOptions
 ): TRPCSvelteQueryProxy<T> {
   /**
    * Properties indicated by the type information don't exist during runtime.
@@ -71,7 +71,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    */
   const proxy = createFlatProxy<TRPCSvelteQueryProxy<T>>((initialKey) => {
     if (initialKey === 'client') return proxyClient
-    if (initialKey === 'queryClient') return options.svelteQueryContext
+    if (initialKey === 'queryClient') return options?.svelteQueryContext
 
     /**
      * `utils` refers to the same proxy, but "utils" is not part of the tRPC path.
@@ -80,7 +80,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
     const key = initialKey === 'utils' ? undefined : initialKey
 
     const nestedProperties = createRecursiveProxy((opts) => {
-      const queryClient = options.svelteQueryContext ?? useQueryClient()
+      const queryClient = options?.svelteQueryContext ?? useQueryClient()
 
       /**
        * Handle `args` based on the method.
@@ -119,7 +119,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const abortOnUnmount = options.abortOnUnmount ?? anyArgs[1]?.trpc?.abortOnUnmount
+      const abortOnUnmount = options?.abortOnUnmount ?? anyArgs[1]?.trpc?.abortOnUnmount
 
       const queryOptions = {
         context: queryClient,
@@ -137,7 +137,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         mutationKey: [pathArray],
         mutationFn: async (data) => await client.mutation(path, data, anyArgs[0]?.trpc),
         onSuccess(data, variables, context) {
-          options.overrides?.createMutation?.onSuccess?.({
+          options?.overrides?.createMutation?.onSuccess?.({
             queryClient,
             meta: anyArgs[0]?.meta,
             originalFn: () => anyArgs[0]?.onSuccess?.(data, variables, context),
@@ -356,7 +356,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
  */
 export function createTRPCSvelte<T extends AnyRouter>(
   trpcClientOptions: CreateTRPCClientOptions<T>,
-  svelteQueryOptions: CreateTRPCSvelteOptions
+  svelteQueryOptions?: CreateTRPCSvelteOptions
 ): TRPCSvelteQueryProxy<T> {
   /**
    * An untyped tRPC client has `query`, `mutation`, etc. that require full paths to make the request.

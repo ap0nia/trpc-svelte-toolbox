@@ -212,7 +212,7 @@ export const load: LayoutLoad = async (event) => {
         fetch: event.fetch
       }),
     ],
-  });
+  }, { svelteQueryContext: queryClient });
 
   return { trpc }
 }
@@ -316,3 +316,19 @@ Usage in the component can vary:
 {/if}
 
 ```
+
+### Experimental
+Since tRPC is initialized in `+layout.ts` and returned.
+You should actually be able to access it via the page store.
+```html
+<script lang="ts">
+  import { page } from '$app/stores'
+
+  const trpc = $page.data.trpc
+</script>
+
+{...}
+
+```
+
+Now you can completely ditch the `src/lib/trpc.ts` file!

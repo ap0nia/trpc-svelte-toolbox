@@ -54,13 +54,13 @@ export function getQueryKey(pathArray: string[], input: unknown, method: string)
 
   const type = MethodQueryTypes[method]
 
-  const hasType = !!type
+  const hasType = Boolean(type)
 
   /**
    * For `utils.invalidate()` to match all queries (including vanilla react-query),
    * we don't want nested array if path is empty, i.e. `[]` instead of `[[]]`.
    */
-  if (!hasInput && !hasType) return pathArray.length ? [pathArray] : []
+  if (!hasInput && !hasType) return pathArray.length > 0 ? [pathArray] : []
 
   return [pathArray, { ...(hasInput && { input }), ...(hasType && { type }) }]
 }

@@ -12,11 +12,13 @@ const defaultEndpoint = '/trpc'
 export function createTRPCRequestHandler<T extends AnyRouter>(
   options: TRPCHandleOptions<T>
 ): RequestHandler {
-  return (event) =>
-    fetchRequestHandler({
+  return async (event) =>
+    await fetchRequestHandler({
       ...options,
       req: event.request,
       endpoint: options.endpoint ?? defaultEndpoint,
       createContext: (opts) => options?.createContext(opts, event),
     })
 }
+
+export type TRPCRequestHandler = ReturnType<typeof createTRPCRequestHandler>

@@ -63,7 +63,7 @@ type MaybeInfiniteQueryProcedure<T extends AnyProcedure> = inferProcedureInput<T
 /**
  * Map a tRPC `mutation` procedure to svelte-query methods.
  */
-type TRPCMutationProcedure<T extends AnyProcedure> = {
+interface TRPCMutationProcedure<T extends AnyProcedure> {
   createMutation: (
     opts?: CreateMutationOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>, inferProcedureInput<T>> &
       TRPCOptions
@@ -73,7 +73,7 @@ type TRPCMutationProcedure<T extends AnyProcedure> = {
 /**
  * Map a tRPC `subscription` procedure to svelte-query methods.
  */
-type TRPCSubscriptionProcedure<T extends AnyProcedure> = {
+interface TRPCSubscriptionProcedure<T extends AnyProcedure> {
   createSubscription: (
     input: inferProcedureInput<T>,
     opts?: TRPCRequestOptions &
@@ -100,6 +100,6 @@ export type TRPCSvelteQueryRouter<T extends AnyRouter> = {
 /**
  * Create multiple tRPC queries.
  */
-export type CreateQueries<T extends AnyRouter> = <Options extends any[]>(
+export type CreateQueries<T extends AnyRouter> = <Options extends unknown[]>(
   callback: (t: TRPCSvelteQueryRouter<T>) => readonly [...QueriesOptions<Options>]
 ) => CreateQueriesResult<Options>

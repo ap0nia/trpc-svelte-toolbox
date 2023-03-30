@@ -1,5 +1,5 @@
 import type { TRPCRequestOptions } from '@trpc/client'
-import type { AnyRouter, MaybePromise } from '@trpc/server'
+import type { MaybePromise } from '@trpc/server'
 import type { QueryClient } from '@tanstack/svelte-query'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
@@ -12,13 +12,20 @@ interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
 /**
  * Additional tRPC options can appended to svelte-query options under a `tRPC` property.
  */
-export type TRPCOptions = { trpc?: TRPCSvelteRequestOptions }
+export interface TRPCOptions {
+  trpc?: TRPCSvelteRequestOptions
+}
 
 /**
  * Infinite queries must have the "cursor" property in the input.
  */
-export type InfiniteQueryInput = { cursor?: unknown }
+export interface InfiniteQueryInput {
+  cursor?: unknown
+}
 
+/**
+ * Override properites for all mutations
+ */
 export interface CreateMutationOverride {
   onSuccess: (opts: {
     /**
@@ -30,7 +37,10 @@ export interface CreateMutationOverride {
   }) => MaybePromise<unknown>
 }
 
-export interface CreateTRPCSvelteOptions<_T extends AnyRouter> {
+/**
+ * TODO: make generic interface when applicable in the future.
+ */
+export interface CreateTRPCSvelteOptions {
   /**
    * Override behaviors of the built-in hooks
    */

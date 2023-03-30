@@ -41,42 +41,42 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
   /**
    * Get the automatically generated query key for the query procedure.
    */
-  getQueryKey(input: inferProcedureInput<T>): QueryKey
+  getQueryKey: (input: inferProcedureInput<T>) => QueryKey
 
   /**
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientfetchquery
    * @param input The procedure input.
    * @param options Options forwarded to `fetchQuery`.
    */
-  fetch(
+  fetch: (
     input: inferProcedureInput<T>,
     options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  ): Promise<inferTransformedProcedureOutput<T>>
+  ) => Promise<inferTransformedProcedureOutput<T>>
 
   /**
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientprefetchquery
    * @param input The procedure input.
    * @param options Options forwarded to `prefetchQuery`.
    */
-  prefetch(
+  prefetch: (
     input: inferProcedureInput<T>,
     options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-  ): Promise<void>
+  ) => Promise<void>
 
   /**
    * Get the cached procedure output if it exists.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
    */
-  getData(input: inferProcedureInput<T>): inferTransformedProcedureOutput<T> | undefined
+  getData: (input: inferProcedureInput<T>) => inferTransformedProcedureOutput<T> | undefined
 
   /**
    * Get the cached procedure output; call `fetchQuery` and return the results if cache miss.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientensurequerydata
    */
-  ensureData(
+  ensureData: (
     input: inferProcedureInput<T>,
     options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
-  ): Promise<inferTransformedProcedureOutput<T>>
+  ) => Promise<inferTransformedProcedureOutput<T>>
 
   /**
    * Set a query procedure's cached data.
@@ -84,10 +84,10 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    * @param input The procedure input or an updater function that transforms the previous input.
    * @param options Options forwarded to `setQueryData`.
    */
-  setData(
+  setData: (
     input: Updater<inferProcedureInput<T>, inferTransformedProcedureOutput<T>>,
     options?: SetDataOptions
-  ): Promise<void>
+  ) => Promise<void>
 
   /**
    * Get the state of a query procedure.
@@ -95,49 +95,49 @@ export type QueryUtilsProcedure<T extends AnyProcedure> = {
    * @param input The procedure input.
    * @param filters Filters forwarded to `getQueryState`.
    */
-  getState(
+  getState: (
     input: inferProcedureInput<T>
-  ): QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
+  ) => QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
 
   /**
    * Invalidate all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientinvalidatequeries
    */
-  invalidate(filters?: InvalidateQueryFilters, options?: InvalidateOptions): Promise<void>
+  invalidate: (filters?: InvalidateQueryFilters, options?: InvalidateOptions) => Promise<void>
 
   /**
    * Refetch all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientrefetchqueries
    */
-  refetch(filters?: QueryFilters, options?: RefetchOptions): Promise<void>
+  refetch: (filters?: QueryFilters, options?: RefetchOptions) => Promise<void>
 
   /**
    * Cancel all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientcancelqueries
    */
-  cancel(filters?: QueryFilters, options?: CancelOptions): Promise<void>
+  cancel: (filters?: QueryFilters, options?: CancelOptions) => Promise<void>
 
   /**
    * Remove all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientremovequeries
    */
-  remove(filters?: QueryFilters): void
+  remove: (filters?: QueryFilters) => void
 
   /**
    * Reset all query procedures at the current level and below.
    * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientresetqueries
    */
-  reset(filters?: QueryFilters, options?: ResetOptions): Promise<void>
+  reset: (filters?: QueryFilters, options?: ResetOptions) => Promise<void>
 
   /**
    * Number of queries in progress, for the specified input and current route.
    */
-  isFetching(input: inferProcedureInput<T>): number
+  isFetching: (input: inferProcedureInput<T>) => number
 
   /**
    * Number of queries in progress, for the current route and sub-routes.
    */
-  isFetchingRecursive(): number
+  isFetchingRecursive: () => number
 } & MaybeInfiniteUtilsProcedure<T>
 
 /**
@@ -148,7 +148,7 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
       /**
        * Get the automatically generated query key for the infinite query procedure.
        */
-      getInfiniteQueryKey(input: inferProcedureInput<T>): QueryKey
+      getInfiniteQueryKey: (input: inferProcedureInput<T>) => QueryKey
 
       /**
        * Fetch, cache, and return the results of an infinite query.
@@ -157,10 +157,10 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param options Options forwarded to `fetchInfiniteQuery`.
        * @returns The procedure response.
        */
-      fetchInfinite(
+      fetchInfinite: (
         input: inferProcedureInput<T>,
         options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-      ): Promise<inferTransformedProcedureOutput<T>>
+      ) => Promise<inferTransformedProcedureOutput<T>>
 
       /**
        * Fetch and cache the results of an infinite query.
@@ -168,25 +168,25 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param input The input to the procedure.
        * @param options Options forwarded to `fetchInfiniteQuery`.
        */
-      prefetchInfinite(
+      prefetchInfinite: (
         input: inferProcedureInput<T>,
         options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> & TRPCOptions
-      ): Promise<void>
+      ) => Promise<void>
 
       /**
        * Get the cached infinite query data if it exists.
        * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientgetquerydata
        */
-      getInfiniteData(input: inferProcedureInput<T>): inferTransformedProcedureOutput<T> | undefined
+      getInfiniteData: (input: inferProcedureInput<T>) => inferTransformedProcedureOutput<T> | undefined
 
       /**
        * Get the cached infinite query procedure output; call `fetchInfiniteQuery` and return the results if cache miss.
        * @link https://tanstack.com/query/v4/docs/react/reference/QueryClient#queryclientensurequerydata
        */
-      ensureInfiniteData(
+      ensureInfiniteData: (
         input: inferProcedureInput<T>,
         options?: FetchQueryOptions<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
-      ): Promise<inferTransformedProcedureOutput<T>>
+      ) => Promise<inferTransformedProcedureOutput<T>>
 
       /**
        * Set an infinite query procedure's cached data.
@@ -194,10 +194,10 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param input The procedure input or an updater function that transforms the previous input.
        * @param options Options forwarded to `setQueryData`.
        */
-      setInfiniteData(
+      setInfiniteData: (
         input: Updater<inferTransformedProcedureOutput<T> | undefined, inferTransformedProcedureOutput<T> | undefined>,
         options?: SetDataOptions
-      ): Promise<void>
+      ) => Promise<void>
 
       /**
        * Get the state of an infinite query procedure.
@@ -205,35 +205,35 @@ export type MaybeInfiniteUtilsProcedure<T extends AnyProcedure> = inferProcedure
        * @param input The procedure input.
        * @param filters Filters forwarded to `getQueryState`.
        */
-      getInfiniteState(
+      getInfiniteState: (
         input: inferProcedureInput<T>
-      ): QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
+      ) => QueryState<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>> | undefined
     }
   : object
 
 /**
  * Map a tRPC `mutation` procedure to utilities.
  */
-export type MutationUtilsProcedure = {
+export interface MutationUtilsProcedure {
   /**
    * Get the automatically generated query key for the mutation procedure.
    */
-  getMutationKey(): QueryKey
+  getMutationKey: () => QueryKey
 
   /**
    * Number of mutations in progress, for the current route and sub-routes.
    */
-  isMutating(): number
+  isMutating: () => number
 }
 
 /**
  * Map a tRPC `subscription` procedure to utilities.
  */
-export type SubscriptionUtilsProcedure = {
+export interface SubscriptionUtilsProcedure {
   /**
    * Get the automatically generated query key for the subscription procedure.
    */
-  getSubscriptionKey(): QueryKey
+  getSubscriptionKey: () => QueryKey
 }
 
 /**
@@ -248,8 +248,8 @@ export type UtilsProcedure<T> =
 /**
  * Properties available at all levels of utilities.
  */
-type SharedUtils = {
-  invalidate(filters?: InvalidateQueryFilters, opts?: InvalidateOptions): Promise<void>
+interface SharedUtils {
+  invalidate: (filters?: InvalidateQueryFilters, opts?: InvalidateOptions) => Promise<void>
 }
 
 /**

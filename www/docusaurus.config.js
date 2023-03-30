@@ -21,12 +21,12 @@ const config = {
       logo: { src: 'img/logo.png' }, 
       items: [
         {
-          to: 'docs/svelte/setup',
+          to: '/svelte/setup',
           label: 'Svelte',
           activeBaseRegex: 'docs(/?)$',
         },
         {
-          to: 'docs/sveltekit/introduction',
+          to: '/sveltekit/introduction',
           label: 'SvelteKit',
         },
         {
@@ -45,11 +45,11 @@ const config = {
           items: [
             {
               label: 'Usage with Svelte',
-              to: 'docs/svelte/introduction',
+              to: '/svelte/introduction',
             },
             {
               label: 'Usage with SvelteKit',
-              to: 'docs/sveltekit/introduction',
+              to: '/sveltekit/introduction',
             },
           ],
         },
@@ -72,9 +72,7 @@ const config = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-        },
-        theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          routeBasePath: '/',
         },
       },
     ],

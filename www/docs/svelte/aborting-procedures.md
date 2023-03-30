@@ -10,6 +10,13 @@ If you want to opt into this behaviour, you can provide `abortOnUnmount` in your
 
 :::note
 @tanstack/svelte-query only supports aborting queries.
+
+You might want to opt into this behavior if you prefetch queries in load functions.
+When changing pages, the current page will refetch all of its queries in addition to
+any prefetches on the next page.
+
+It's currently implemented like @trpc/react-query by forwarding the queryFn's `context.signal` to trpc's query function. 
+But, it doesn't look like it's working and I'm not sure how to properly enable cancelling on page change in SvelteKit.
 :::
 
 ```ts title='src/lib/server/trpc.ts'

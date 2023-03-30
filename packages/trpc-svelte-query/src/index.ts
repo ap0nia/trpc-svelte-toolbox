@@ -20,7 +20,7 @@ import { getQueryKey } from './getQueryKey'
 import { createReactiveQuery, isWritable } from './reactive'
 import type { TRPCSvelteQueryRouter, CreateQueries } from './query'
 import type { UtilsRouter } from './utils'
-import type { TRPCOptions } from './types'
+import type { CreateTRPCSvelteOptions, TRPCOptions } from './types'
 
 /**
  * @internal
@@ -60,7 +60,7 @@ export type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T>
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   proxyClient: CreateTRPCProxyClient<T>,
-  externalQueryClient?: QueryClient
+  options: CreateTRPCSvelteOptions<T>
 ): TRPCSvelteQueryProxy<T> {
   /**
    * Properties indicated by the type information don't exist during runtime.
@@ -70,7 +70,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
    */
   const proxy = createFlatProxy<TRPCSvelteQueryProxy<T>>((initialKey) => {
     if (initialKey === 'client') return proxyClient
-    if (initialKey === 'queryClient') return externalQueryClient
+    if (initialKey === 'queryClient') return options.svelteQueryContext
 
     /**
      * `utils` refers to the same proxy, but "utils" is not part of the tRPC path.
@@ -79,7 +79,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
     const key = initialKey === 'utils' ? undefined : initialKey
 
     const nestedProperties = createRecursiveProxy((opts) => {
-      const queryClient = externalQueryClient ?? useQueryClient()
+      const queryClient = options.svelteQueryContext ?? useQueryClient()
 
       /**
        * Handle `args` based on the method.
@@ -118,10 +118,13 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
+      let abortOnUnmount = options.abortOnUnmount ?? anyArgs[1]?.trpc?.abortOnUnmount
+
       const queryOptions = {
         context: queryClient,
         queryKey,
-        queryFn: (_context) => client.query(path, input, { ...anyArgs[1]?.trpc }),
+        queryFn: (context) =>
+          client.query(path, input, { ...anyArgs[1]?.trpc, ...(abortOnUnmount && { signal: context.signal }) }),
         ...anyArgs[1],
       } satisfies CreateQueryOptions
 
@@ -134,7 +137,12 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
       const infiniteQueryOptions = {
         queryKey,
-        queryFn: (context) => client.query(path, { ...input, cursor: context.pageParam }, { ...anyArgs[1]?.trpc }),
+        queryFn: (context) =>
+          client.query(
+            path,
+            { ...input, cursor: context.pageParam },
+            { ...anyArgs[1]?.trpc, ...(abortOnUnmount && { signal: context.signal }) }
+          ),
         ...anyArgs[1],
       } satisfies CreateInfiniteQueryOptions
 
@@ -150,7 +158,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (_context) => client.query(path, newInput, { ...previous.trpc }),
+                queryFn: (context) =>
+                  client.query(path, newInput, {
+                    ...previous.trpc,
+                    signal: previous.trpc?.abortOnUnmount ? context.signal : undefined,
+                  }),
               }))
               set(newInput)
             }
@@ -162,7 +174,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (_context) => client.query(path, newInput, { ...previous.trpc }),
+                queryFn: (context) =>
+                  client.query(path, newInput, {
+                    ...previous.trpc,
+                    signal: previous.trpc?.abortOnUnmount ? context.signal : undefined,
+                  }),
               }))
             }
             return createReactiveQuery(options, QueryObserver, queryClient)
@@ -182,7 +198,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
                 queryFn: (context) =>
-                  client.query(path, { ...newInput, cursor: context.pageParam }, { ...previous.trpc }),
+                  client.query(
+                    path,
+                    { ...newInput, cursor: context.pageParam },
+                    { ...previous.trpc, signal: previous.trpc?.abortOnUnmount ? context.signal : undefined }
+                  ),
               }))
               set(newInput)
             }
@@ -194,7 +214,12 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
               options.update((previous) => ({
                 ...previous,
                 queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: (context) => client.query(path, { ...newInput, cursor: context.pageParam }, { ...previous.trpc }),
+                queryFn: (context) =>
+                  client.query(
+                    path,
+                    { ...newInput, cursor: context.pageParam },
+                    { ...previous.trpc, signal: previous.trpc?.abortOnUnmount ? context.signal : undefined }
+                  ),
               }))
             }
             return createReactiveQuery(options, InfiniteQueryObserver as typeof QueryObserver, queryClient)
@@ -305,24 +330,24 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
 /**
  * Create a tRPC + svelte-query proxy.
- * @param opts Options for creating the tRPC client.
- * @param queryInit Initialized `QueryClient`, or options to initialize one.
+ * @param trpcClientOptions Options for creating the tRPC client.
+ * @param svelteQueryOptions Options that affect svelte-query behavior.
  */
 export function createTRPCSvelte<T extends AnyRouter>(
-  opts: CreateTRPCClientOptions<T>,
-  queryClient?: QueryClient
+  trpcClientOptions: CreateTRPCClientOptions<T>,
+  svelteQueryOptions: CreateTRPCSvelteOptions<T>
 ): TRPCSvelteQueryProxy<T> {
   /**
    * An untyped tRPC client has `query`, `mutation`, etc. that require full paths to make the request.
    * This is used inside a `recursiveProxy` to dynamically create the path and request.
    */
-  const untypedClient = createTRPCUntypedClient<T>(opts)
+  const untypedClient = createTRPCUntypedClient<T>(trpcClientOptions)
 
   /**
    * tRPC client that can be used to send requests directly.
    */
-  const proxyClient = createTRPCProxyClient<T>(opts)
+  const proxyClient = createTRPCProxyClient<T>(trpcClientOptions)
 
-  const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, queryClient)
+  const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, svelteQueryOptions)
   return proxy
 }

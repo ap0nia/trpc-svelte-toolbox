@@ -4,13 +4,13 @@
 
 import { derived, get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
-import {
-  notifyManager,
-  type QueryObserver,
-  type QueryClient,
-  type QueryKey,
-  type CreateQueryResult,
-  type QueryObserverOptions,
+import { notifyManager } from '@tanstack/svelte-query'
+import type {
+  QueryObserver,
+  QueryClient,
+  QueryKey,
+  CreateQueryResult,
+  QueryObserverOptions,
 } from '@tanstack/svelte-query'
 
 export type MaybeWritable<T> = T | Writable<T>

@@ -80,6 +80,10 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
     const key = initialKey === 'utils' ? undefined : initialKey
 
     const nestedProperties = createRecursiveProxy((opts) => {
+      /**
+       * In load functions, query client should be provided explicitly.
+       * In components, query client should be retrieved with `useQueryClient`.
+       */
       const queryClient = options?.svelteQueryContext ?? useQueryClient()
 
       /**
@@ -119,15 +123,23 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
        */
       const path = pathArray.join('.')
 
-      const abortOnUnmount = options?.abortOnUnmount ?? anyArgs[1]?.trpc?.abortOnUnmount
+      /**
+       * Additional tRPC options may be provided for queries.
+       */
+      const trpcOptions = anyArgs[1]?.trpc
+
+      /**
+       * `abortOnUnmount` is either set globally or per query.
+       */
+      const abortOnUnmount = Boolean(options?.abortOnUnmount) || Boolean(trpcOptions?.abortOnUnmount)
 
       const queryOptions = {
         context: queryClient,
         queryKey,
         queryFn: async (context) =>
           await client.query(path, input, {
-            ...anyArgs[1]?.trpc,
-            ...(Boolean(abortOnUnmount) && { signal: context.signal }),
+            ...trpcOptions,
+            ...(abortOnUnmount && { signal: context.signal }),
           }),
         ...anyArgs[1],
       } satisfies CreateQueryOptions
@@ -136,13 +148,14 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: async (data) => await client.mutation(path, data, anyArgs[0]?.trpc),
-        onSuccess(data, variables, context) {
-          options?.overrides?.createMutation?.onSuccess?.({
-            queryClient,
-            meta: anyArgs[0]?.meta,
-            originalFn: () => anyArgs[0]?.onSuccess?.(data, variables, context),
-          })
-        },
+        onSuccess: (data, variables, context) =>
+          options?.overrides?.createMutation?.onSuccess != null
+            ? options.overrides.createMutation.onSuccess({
+                queryClient,
+                meta: anyArgs[0]?.meta,
+                originalFn: () => anyArgs[0]?.onSuccess?.(data, variables, context),
+              })
+            : anyArgs[0]?.onSuccess?.(data, variables, context),
         ...anyArgs[0],
       } satisfies CreateMutationOptions
 
@@ -152,100 +165,104 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
           await client.query(
             path,
             { ...input, cursor: context.pageParam },
-            { ...anyArgs[1]?.trpc, ...(Boolean(abortOnUnmount) && { signal: context.signal }) }
+            { ...trpcOptions, ...(abortOnUnmount && { signal: context.signal }) }
           ),
         ...anyArgs[1],
       } satisfies CreateInfiniteQueryOptions
 
       switch (method) {
         case 'createQuery': {
-          if (isWritable(anyArgs[0])) {
-            const optionsStore: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
+          if (!isWritable(anyArgs[0])) return createQuery(queryOptions)
 
-            const inputStore = anyArgs[0]
-            const { set, update } = inputStore
+          const optionsStore: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
+          const inputStore = anyArgs[0]
 
-            inputStore.set = (newInput) => {
-              optionsStore.update((previous) => ({
-                ...previous,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: async (context) =>
-                  await client.query(path, newInput, {
-                    ...previous.trpc,
-                    signal:
-                      Boolean(abortOnUnmount) || Boolean(previous.trpc?.abortOnUnmount) ? context.signal : undefined,
-                  }),
-              }))
-              set(newInput)
-            }
+          /**
+           * Save the original `set` and `update` methods.
+           */
+          const { set, update } = inputStore
 
-            inputStore.update = (updater) => {
-              update(updater)
+          inputStore.set = (newInput) => {
+            optionsStore.update(() => ({
+              ...queryOptions,
+              queryKey: getQueryKey(pathArray, newInput, method),
+              queryFn: async (context) =>
+                await client.query(path, newInput, {
+                  ...trpcOptions,
+                  signal: abortOnUnmount ? context.signal : undefined,
+                }),
+            }))
 
-              const newInput = get(inputStore)
-              optionsStore.update((previous) => ({
-                ...previous,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: async (context) =>
-                  await client.query(path, newInput, {
-                    ...previous.trpc,
-                    signal:
-                      Boolean(abortOnUnmount) || Boolean(previous.trpc?.abortOnUnmount) ? context.signal : undefined,
-                  }),
-              }))
-            }
-            return createReactiveQuery(optionsStore, QueryObserver, queryClient)
+            set(newInput)
           }
-          return createQuery(queryOptions)
+
+          inputStore.update = (updaterFn) => {
+            update(updaterFn)
+
+            const newInput = get(inputStore)
+
+            optionsStore.update(() => ({
+              ...queryOptions,
+              queryKey: getQueryKey(pathArray, newInput, method),
+              queryFn: async (context) =>
+                await client.query(path, newInput, {
+                  ...trpcOptions,
+                  signal: abortOnUnmount ? context.signal : undefined,
+                }),
+            }))
+          }
+          return createReactiveQuery(optionsStore, QueryObserver, queryClient)
         }
 
         case 'createInfiniteQuery': {
-          if (isWritable(anyArgs[0])) {
-            const optionsStore: Writable<CreateInfiniteQueryOptions & TRPCOptions> = writable(infiniteQueryOptions)
+          if (!isWritable(anyArgs[0])) return createInfiniteQuery(infiniteQueryOptions)
 
-            const inputStore = anyArgs[0]
-            const { set, update } = inputStore
+          const optionsStore: Writable<CreateInfiniteQueryOptions & TRPCOptions> = writable(infiniteQueryOptions)
+          const inputStore = anyArgs[0]
 
-            inputStore.set = (newInput) => {
-              optionsStore.update((previous) => ({
-                ...previous,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: async (context) =>
-                  await client.query(
-                    path,
-                    { ...newInput, cursor: context.pageParam },
-                    {
-                      ...previous.trpc,
-                      signal:
-                        Boolean(abortOnUnmount) || Boolean(previous.trpc?.abortOnUnmount) ? context.signal : undefined,
-                    }
-                  ),
-              }))
-              set(newInput)
-            }
+          /**
+           * Save the original `set` and `update` methods.
+           */
+          const { set, update } = inputStore
 
-            inputStore.update = (updater) => {
-              update(updater)
+          inputStore.set = (newInput) => {
+            optionsStore.update(() => ({
+              ...infiniteQueryOptions,
+              queryKey: getQueryKey(pathArray, newInput, method),
+              queryFn: async (context) =>
+                await client.query(
+                  path,
+                  { ...newInput, cursor: context.pageParam },
+                  {
+                    ...trpcOptions,
+                    signal: abortOnUnmount ? context.signal : undefined,
+                  }
+                ),
+            }))
 
-              const newInput = get(inputStore)
-              optionsStore.update((previous) => ({
-                ...previous,
-                queryKey: getQueryKey(pathArray, newInput, method),
-                queryFn: async (context) =>
-                  await client.query(
-                    path,
-                    { ...newInput, cursor: context.pageParam },
-                    {
-                      ...previous.trpc,
-                      signal:
-                        Boolean(abortOnUnmount) || Boolean(previous.trpc?.abortOnUnmount) ? context.signal : undefined,
-                    }
-                  ),
-              }))
-            }
-            return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver, queryClient)
+            set(newInput)
           }
-          return createInfiniteQuery(infiniteQueryOptions)
+
+          inputStore.update = (updaterFn) => {
+            update(updaterFn)
+
+            const newInput = get(inputStore)
+
+            optionsStore.update(() => ({
+              ...infiniteQueryOptions,
+              queryKey: getQueryKey(pathArray, newInput, method),
+              queryFn: async (context) =>
+                await client.query(
+                  path,
+                  { ...newInput, cursor: context.pageParam },
+                  {
+                    ...trpcOptions,
+                    signal: abortOnUnmount ? context.signal : undefined,
+                  }
+                ),
+            }))
+          }
+          return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver, queryClient)
         }
 
         case 'createMutation':

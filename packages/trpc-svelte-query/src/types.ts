@@ -34,7 +34,7 @@ export interface CreateTRPCSvelteOptions<_T extends AnyRouter> {
   /**
    * Override behaviors of the built-in hooks
    */
-  unstable_overrides?: {
+  overrides?: {
     createMutation?: Partial<CreateMutationOverride>
   }
 

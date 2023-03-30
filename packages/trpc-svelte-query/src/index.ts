@@ -132,6 +132,13 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         context: queryClient,
         mutationKey: [pathArray],
         mutationFn: (data) => client.mutation(path, data, anyArgs[0]?.trpc),
+        onSuccess(data, variables, context) {
+          options.overrides?.createMutation?.onSuccess?.({
+            queryClient,
+            meta: anyArgs[0]?.meta,
+            originalFn: () => anyArgs[0]?.onSuccess?.(data, variables, context),
+          })
+        },
         ...anyArgs[0],
       } satisfies CreateMutationOptions
 

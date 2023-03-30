@@ -1,7 +1,4 @@
-import type {
-  FetchCreateContextFnOptions,
-  FetchHandlerRequestOptions,
-} from '@trpc/server/adapters/fetch'
+import type { FetchCreateContextFnOptions, FetchHandlerRequestOptions } from '@trpc/server/adapters/fetch'
 import type { AnyRouter, inferRouterContext } from '@trpc/server'
 import type { RequestEvent } from '@sveltejs/kit'
 
@@ -19,25 +16,29 @@ type Override<Left, Right> = Omit<Left, keyof Right> & Right
  * Modified `createContext` function gets event from SvelteKit `RequestEvent`
  * and opts from the `fetchRequestHandler` callback.
  */
-type CreateContext<T extends AnyRouter> = (
+type CreateContext<TRouter extends AnyRouter, TRouteParams extends RouteParams, TRouteId extends RouteId> = (
   opts: FetchCreateContextFnOptions,
-  event: RequestEvent
-) => inferRouterContext<T>
+  event: RequestEvent<TRouteParams, TRouteId>
+) => inferRouterContext<TRouter>
 
 /**
  * Make some default tRPC fetch handler options optional.
  */
-type OptionalOptions<T extends AnyRouter> = OptionalKeys<
-  FetchHandlerRequestOptions<T>,
-  'req' | 'endpoint'
->
+type OptionalOptions<T extends AnyRouter> = OptionalKeys<FetchHandlerRequestOptions<T>, 'req' | 'endpoint'>
 
 /**
  * Options for `createTRPCHandle`.
  */
-export type TRPCHandleOptions<T extends AnyRouter> = Override<
-  OptionalOptions<T>,
+export type TRPCHandleOptions<
+  TRouter extends AnyRouter,
+  TRouteParams extends RouteParams = RouteParams,
+  TRouteId extends RouteId = RouteId
+> = Override<
+  OptionalOptions<TRouter>,
   {
-    createContext: CreateContext<T>
+    createContext: CreateContext<TRouter, TRouteParams, TRouteId>
   }
 >
+
+export type RouteParams = Partial<Record<string, string>>
+export type RouteId = string | null

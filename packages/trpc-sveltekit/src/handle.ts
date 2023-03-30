@@ -10,11 +10,10 @@ const defaultEndpoint = '/trpc'
  */
 export function createTRPCHandle<T extends AnyRouter>(options: TRPCHandleOptions<T>): Handle {
   const endpoint = options.endpoint ?? defaultEndpoint
-
-  return async ({ event, resolve }) =>
+  return ({ event, resolve }) =>
     !event.url.pathname.startsWith(endpoint)
-      ? await resolve(event)
-      : await fetchRequestHandler({
+      ? resolve(event)
+      : fetchRequestHandler({
           ...options,
           req: event.request,
           endpoint,

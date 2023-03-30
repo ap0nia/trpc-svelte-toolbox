@@ -2,8 +2,7 @@ import { httpBatchLink } from '@trpc/client'
 import { createTRPCSvelte } from '@bevm0/trpc-svelte-query'
 import { QueryClient } from '@tanstack/svelte-query'
 import type { AppRouter } from '$lib/server/trpc/routes'
-
-const url = 'http://localhost:5173/trpc'
+import { url } from '$lib/trpc'
 
 export async function load(event) {
   /**

@@ -274,7 +274,7 @@ You can now use the hooks you have just created to invoke your API.
 I don't think you can initialize a tRPC + svelte-query client in `+layout.server.ts` or `+page.server.ts`
 :::
 
-```html title='src/routes/+page.ts'
+```ts title='src/routes/+page.ts'
 import type { PageLoad } from './$types'
 
 export const load: PageLoad = async ({ parent }) => {

@@ -69,7 +69,7 @@ This means that it's impossible to "keepPreviousData" since it was recomputed an
   
   const input = writable('Aponia')
 
-  const helloWithArgs = trpc.hello.createQuery({ text: input }, { keepPreviousData: true });
+  const helloWithArgs = trpc.hello.createQuery({ text: $input }, { keepPreviousData: true });
 </script>
 
 <div>

@@ -45,7 +45,7 @@ const config = {
           items: [
             {
               label: 'Usage with Svelte',
-              to: '/svelte/introduction',
+              to: '/',
             },
             {
               label: 'Usage with SvelteKit',

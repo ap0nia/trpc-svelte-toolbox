@@ -3,6 +3,7 @@
   "version": "0.9.3",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/bevm0/trpc-svelte-toolbox.git",
@@ -10,18 +11,17 @@
   },
   "homepage": "https://trpc-svelte-toolbox.vercel.app/",
   "scripts": {
-    "build": "tsup",
     "dev": "vite",
+    "build": "vite build",
     "format": "prettier --write src",
     "lint": "eslint src",
-    "prepublish": "rimraf dist && npm run build"
+    "prepublish": "npm run build"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "files": [
     "dist",
-    "src",
-    "README.md"
+    "src"
   ],
   "peerDependencies": {
     "@tanstack/svelte-query": "4.27.0",

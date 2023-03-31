@@ -1,3 +1,4 @@
+import { getContext, setContext } from 'svelte'
 import { writable, get } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { createTRPCProxyClient, createTRPCUntypedClient } from '@trpc/client'
@@ -24,16 +25,24 @@ import { createReactiveQuery, isWritable } from './reactive'
 import type { TRPCSvelteQueryRouter, CreateQueries } from './query'
 import type { ContextRouter } from './context'
 import type { CreateTRPCSvelteOptions, TRPCOptions } from './types'
+import Provider from './Provider.svelte'
 
 interface TRPCSvelteQueryProxyRoot<T extends AnyRouter> {
   client: CreateTRPCProxyClient<T>
   queryClient: QueryClient
   context: ContextRouter<T>
-  createContext: () => ContextRouter<T>
+  getContext: () => ContextRouter<T>
   createQueries: CreateQueries<T>
+  Provider: typeof Provider
 }
 
 type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T> & TRPCSvelteQueryProxyRoot<T>
+
+const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
+
+function getTRPCContext() {
+  return getContext(TRPC_CONTEXT_KEY)
+}
 
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
@@ -51,8 +60,11 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
       case 'context':
         return createInnerProxy<T>(client, options?.svelteQueryContext ?? useQueryClient(), undefined, options)
 
-      case 'useContext':
-        return () => createInnerProxy<T>(client, options?.svelteQueryContext ?? useQueryClient(), undefined, options)
+      case 'Provider':
+        return Provider
+
+      case 'getContext':
+        return getTRPCContext
 
       case 'createQueries': {
         const customCreateQueries: CreateQueries<T> = (callback) => {
@@ -60,9 +72,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
         }
         return customCreateQueries
       }
-
-      default:
-        return createInnerProxy<T>(client, options?.svelteQueryContext ?? useQueryClient(), initialKey, options)
     }
   })
 
@@ -124,7 +133,10 @@ function createInnerProxy<T extends AnyRouter>(
         await client.query(
           path,
           { ...input, cursor: context.pageParam },
-          { ...trpcOptions, signal: abortOnUnmount ? context.signal : undefined }
+          {
+            ...trpcOptions,
+            signal: abortOnUnmount ? context.signal : undefined,
+          }
         ),
       ...anyArgs[1],
     } satisfies CreateInfiniteQueryOptions
@@ -295,7 +307,10 @@ function createInnerProxy<T extends AnyRouter>(
         return queryClient.isFetching({ queryKey, ...anyArgs[0] })
 
       case 'isMutating':
-        return queryClient.isMutating({ mutationKey: [pathArray], ...anyArgs[0] })
+        return queryClient.isMutating({
+          mutationKey: [pathArray],
+          ...anyArgs[0],
+        })
 
       default:
         throw new TypeError(`trpc.${path}.${method} is not a function`)

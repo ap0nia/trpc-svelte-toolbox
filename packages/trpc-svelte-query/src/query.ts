@@ -18,7 +18,7 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
-import { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
+import type { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
 import type { InfiniteQueryInput, TRPCOptions } from './types'
 import type { MaybeWritable } from './reactive'
 

@@ -33,7 +33,7 @@ interface TRPCSvelteQueryProxyRoot<T extends AnyRouter> {
   createQueries: CreateQueries<T>
 }
 
-export type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T> & TRPCSvelteQueryProxyRoot<T>
+type TRPCSvelteQueryProxy<T extends AnyRouter> = TRPCSvelteQueryRouter<T> & TRPCSvelteQueryProxyRoot<T>
 
 function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,

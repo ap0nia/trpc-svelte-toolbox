@@ -118,12 +118,6 @@ interface SharedContext {
   invalidate: (filters?: InvalidateQueryFilters, opts?: InvalidateOptions) => Promise<void>
 }
 
-type InnerContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
-} & SharedContext
-
-type RootContextRouter = SharedContext & object
-
 export type ContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T[k]>
-} & RootContextRouter
+  [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T[k]>
+} & SharedContext

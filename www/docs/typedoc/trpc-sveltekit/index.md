@@ -13,6 +13,8 @@ custom_edit_url: null
 
 ### Type Aliases
 
+- [RouteId](types/RouteId.md)
+- [RouteParams](types/RouteParams.md)
 - [TRPCHandle](types/TRPCHandle.md)
 - [TRPCHandleOptions](types/TRPCHandleOptions.md)
 - [TRPCRequestHandler](types/TRPCRequestHandler.md)

@@ -5,16 +5,18 @@ pagination_next: null
 custom_edit_url: null
 ---
 
-# TRPCHandleOptions<T\>
+# TRPCHandleOptions<TRouter, TRouteParams, TRouteId\>
 
-> <`T`\> `Override`<`OptionalOptions`<`T`\>, {
-    `createContext`: `CreateContext`<`T`\>;
+> <`TRouter`, `TRouteParams`, `TRouteId`\> `Override`<`OptionalOptions`<`TRouter`\>, {
+    `createContext`: `CreateContext`<`TRouter`, `TRouteParams`, `TRouteId`\>;
 }\>
 
 Options for `createTRPCHandle`.
 
 ## Type parameters
 
-- `T` *extends* `AnyRouter`
+- `TRouter` *extends* `AnyRouter`
+- `TRouteParams` *extends* [`RouteParams`](RouteParams.md) = [`RouteParams`](RouteParams.md)
+- `TRouteId` *extends* [`RouteId`](RouteId.md) = [`RouteId`](RouteId.md)
 
-Defined in:  [types.ts:38](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-sveltekit/src/types.ts#L38)
+Defined in:  [types.ts:32](https://github.com/bevm0/trpc-svelte-toolbox/blob/f50ca1f/packages/trpc-sveltekit/src/types.ts#L32)

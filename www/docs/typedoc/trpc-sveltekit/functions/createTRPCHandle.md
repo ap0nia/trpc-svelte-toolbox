@@ -12,7 +12,7 @@ Create `handle` function for SvelteKit `hooks.server`.
 ## Signature
 
 ```ts
-createTRPCHandle<T>(options: TRPCHandleOptions<T>): Handle;
+createTRPCHandle<T>(options: TRPCHandleOptions<T, Partial<Record<string, string>>, RouteId>): Handle;
 ```
 
 ## Type parameters
@@ -23,10 +23,10 @@ createTRPCHandle<T>(options: TRPCHandleOptions<T>): Handle;
 
 | Name | Type |
 | :------ | :------ |
-| `options` | [`TRPCHandleOptions`](../types/TRPCHandleOptions.md)<`T`\> |
+| `options` | [`TRPCHandleOptions`](../types/TRPCHandleOptions.md)<`T`, `Partial`<`Record`<`string`, `string`\>\>, [`RouteId`](../types/RouteId.md)\> |
 
 ## Returns
 
 `Handle`
 
-Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-sveltekit/src/handle.ts#L11)
+Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/f50ca1f/packages/trpc-sveltekit/src/handle.ts#L11)

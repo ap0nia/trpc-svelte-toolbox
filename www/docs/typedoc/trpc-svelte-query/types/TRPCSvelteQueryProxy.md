@@ -9,10 +9,8 @@ custom_edit_url: null
 
 > <`T`\> `TRPCSvelteQueryRouter`<`T`\> & `TRPCSvelteQueryProxyRoot`<`T`\>
 
-Map a tRPC router to a tRPC + svelte-query proxy.
-
 ## Type parameters
 
 - `T` *extends* `AnyRouter`
 
-Defined in:  [index.ts:55](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-svelte-query/src/index.ts#L55)
+Defined in:  [index.ts:36](https://github.com/bevm0/trpc-svelte-toolbox/blob/f50ca1f/packages/trpc-svelte-query/src/index.ts#L36)

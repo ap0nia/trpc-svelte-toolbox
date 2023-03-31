@@ -9,4 +9,4 @@ custom_edit_url: null
 
 > `ReturnType`<*typeof* [`createTRPCRequestHandler`](../functions/createTRPCRequestHandler.md)\>
 
-Defined in:  [requestHandler.ts:24](https://github.com/bevm0/trpc-svelte-toolbox/blob/86569fd/packages/trpc-sveltekit/src/requestHandler.ts#L24)
+Defined in:  [requestHandler.ts:27](https://github.com/bevm0/trpc-svelte-toolbox/blob/f50ca1f/packages/trpc-sveltekit/src/requestHandler.ts#L27)

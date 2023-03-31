@@ -17,7 +17,7 @@ module.exports = {
         'svelte/createQueries',
         'svelte/createReactiveQuery',
         'svelte/getQueryKey',
-        'svelte/utils',
+        'svelte/context',
       ],
     },
     {

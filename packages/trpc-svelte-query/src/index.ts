@@ -70,10 +70,6 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
   return proxy
 }
 
-
-/**
- * Create the tRPC + svelte-query inner proxy.
- */
 function createInnerProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   queryClient: QueryClient,
@@ -140,10 +136,6 @@ function createInnerProxy<T extends AnyRouter>(
 
         const optionsStore: Writable<CreateQueryOptions & TRPCOptions> = writable(queryOptions)
         const inputStore = anyArgs[0]
-
-        /**
-         * Save the original `set` and `update` methods.
-         */
         const { set, update } = inputStore
 
         inputStore.set = (newInput) => {
@@ -183,10 +175,6 @@ function createInnerProxy<T extends AnyRouter>(
 
         const optionsStore: Writable<CreateInfiniteQueryOptions & TRPCOptions> = writable(infiniteQueryOptions)
         const inputStore = anyArgs[0]
-
-        /**
-         * Save the original `set` and `update` methods.
-         */
         const { set, update } = inputStore
 
         inputStore.set = (newInput) => {
@@ -321,9 +309,7 @@ export function createTRPCSvelte<T extends AnyRouter>(
   svelteQueryOptions?: CreateTRPCSvelteOptions
 ): TRPCSvelteQueryProxy<T> {
   const untypedClient = createTRPCUntypedClient<T>(trpcClientOptions)
-
   const proxyClient = createTRPCProxyClient<T>(trpcClientOptions)
-
   const proxy = createTRPCSvelteQueryProxy<T>(untypedClient, proxyClient, svelteQueryOptions)
   return proxy
 }

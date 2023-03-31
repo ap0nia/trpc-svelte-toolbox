@@ -56,8 +56,7 @@ function createTRPCSvelteQueryProxy<T extends AnyRouter>(
 
       case 'createQueries': {
         const customCreateQueries: CreateQueries<T> = (callback) => {
-          const queryOptions = callback(proxy)
-          return createQueries(queryOptions)
+          return createQueries(callback(proxy))
         }
         return customCreateQueries
       }

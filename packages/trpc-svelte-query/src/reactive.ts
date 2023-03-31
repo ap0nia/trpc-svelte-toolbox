@@ -1,7 +1,3 @@
-/**
- * @see official implementation here: {@link https://github.com/TanStack/query/blob/alpha/packages/svelte-query/src/createBaseQuery.ts}
- */
-
 import { derived, get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { notifyManager } from '@tanstack/svelte-query'

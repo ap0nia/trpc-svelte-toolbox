@@ -323,7 +323,7 @@ export type CreateTRPCSvelte<T extends AnyRouter> = {
   loadContext: ContextRouter<T>
   createContext: typeof createTRPCContext
   setContext: typeof setTRPCContext
-  getContext: typeof getTRPCContext
+  getContext: () => ContextRouter<T>
 } & TRPCSvelteQueryRouter<T>
 
 export function createTRPCSvelte<T extends AnyRouter>(

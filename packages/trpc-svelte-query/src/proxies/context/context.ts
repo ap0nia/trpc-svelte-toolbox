@@ -9,8 +9,8 @@ import type { TRPCUntypedClient } from '@trpc/client'
 import type {
   AnyRouter,
 } from '@trpc/server'
-import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
-import type { ContextRouter } from './router-remaps/context'
+import { getQueryKeyInternal } from '../../helpers/getQueryKey'
+import type { ContextRouter } from './types'
 
 const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
 

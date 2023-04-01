@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-sveltekit",
-  "version": "0.9.3",
+  "version": "0.9.11",
   "description": "simple tRPC integration with SvelteKit hooks via the fetch adapter",
   "license": "MIT",
   "repository": {
@@ -10,18 +10,24 @@
   },
   "homepage": "https://trpc-svelte-toolbox.vercel.app/",
   "scripts": {
-    "build": "tsup",
+    "build": "rimraf dist && tsc",
     "format": "prettier --write src",
     "lint": "eslint src",
-    "prepublish": "rimraf dist && npm run build"
+    "prepublish": "npm run build"
   },
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "files": [
     "dist",
     "src",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "peerDependencies": {
     "@sveltejs/kit": "^1.13.0",
     "@trpc/server": "^10.18.0",

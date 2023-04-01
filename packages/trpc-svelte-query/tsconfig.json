@@ -1,7 +1,6 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "strict": true,
     "outDir": "dist",
   },
   "include": ["src"],

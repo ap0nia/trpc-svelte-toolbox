@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
   "type": "module",
@@ -11,17 +11,17 @@
   },
   "homepage": "https://trpc-svelte-toolbox.vercel.app/",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "build": "rimraf dist && tsc",
     "format": "prettier --write src",
     "lint": "eslint src",
-    "prepublish": "svelte-package"
+    "prepublish": "npm run build"
   },
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "files": [
     "dist",
-    "src"
+    "src",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -41,16 +41,11 @@
     "@trpc/server": "^10.18.0"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^2.0.0",
-    "@sveltejs/kit": "^1.13.0",
-    "@sveltejs/package": "^2.0.2",
     "eslint": "^8.36.0",
     "eslint-config-airbnb-custom": "*",
     "prettier": "^2.8.6",
     "rimraf": "^4.4.1",
     "svelte": "^3.57.0",
-    "tsup": "^6.7.0",
-    "typescript": "^5.0.2",
-    "vite": "^4.2.1"
+    "typescript": "^5.0.2"
   }
 }

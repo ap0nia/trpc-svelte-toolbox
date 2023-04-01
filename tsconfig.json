@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "NodeNext",
-    "moduleResolution": "node",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": ".",
     "outDir": "dist",
+    "declaration": true,
     "paths": {
       "@bevm0/trpc-svelte-query": ["packages/trpc-svelte-query/src"],
       "@bevm0/trpc-svelte-query/*": ["packages/trpc-svelte-query/src/*"],

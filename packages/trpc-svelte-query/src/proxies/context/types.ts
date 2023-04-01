@@ -2,7 +2,7 @@
  * Maps a tRPC router to a context router.
  */
 
-import type { QueryKeyKnown } from '$lib/query-key/getQueryKey'
+import type { QueryKeyKnown } from '../../helpers/getQueryKey'
 import type {
   QueryClient,
   InvalidateQueryFilters,

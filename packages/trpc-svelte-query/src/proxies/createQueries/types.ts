@@ -2,15 +2,22 @@
  * Maps a tRPC router to a `createQueries` proxy (provided to the callback).
  */
 
-import type { TRPCOptions } from '$lib'
 import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueriesResult,
   QueriesOptions,
 } from '@tanstack/svelte-query/build/lib/createQueries'
-import type { TRPCClientErrorLike } from '@trpc/client'
+import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { AnyProcedure, AnyQueryProcedure, AnyRouter, inferProcedureInput } from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
+
+interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
+  abortOnUnmount?: boolean
+}
+
+export interface TRPCOptions {
+  trpc?: TRPCSvelteRequestOptions
+}
 
 type CreateQueriesProcedure<
   T extends AnyProcedure,

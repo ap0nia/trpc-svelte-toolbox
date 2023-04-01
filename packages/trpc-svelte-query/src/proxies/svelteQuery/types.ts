@@ -21,7 +21,7 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
-import type { MaybeWritable } from '$lib/svelte-query/createReactiveQuery'
+import type { MaybeWritable } from '../../extensions/createReactiveQuery'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
   abortOnUnmount?: boolean

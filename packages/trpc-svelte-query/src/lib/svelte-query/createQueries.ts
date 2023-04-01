@@ -1,74 +1,67 @@
-import { derived, get, readable, writable } from 'svelte/store'
-import type { Writable } from 'svelte/store'
-import { notifyManager, useQueryClient } from '@tanstack/svelte-query'
+import type { TRPCOptions } from '$lib'
+import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
+import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type {
-  QueryObserver,
-  QueryClient,
-  QueryKey,
-  CreateQueryResult,
-  QueryObserverOptions,
-} from '@tanstack/svelte-query'
+  CreateQueriesResult,
+  QueriesOptions,
+} from '@tanstack/svelte-query/build/lib/createQueries'
+import type { TRPCClientErrorLike, TRPCUntypedClient } from '@trpc/client'
+import type { AnyProcedure, AnyQueryProcedure, AnyRouter, inferProcedureInput } from '@trpc/server'
+import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
+import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 
-export type MaybeWritable<T> = T | Writable<T>
+type CreateQueriesProcedure<
+  T extends AnyProcedure,
+  TPath extends string,
+  TInput = inferProcedureInput<T>,
+  TOutput = inferTransformedProcedureOutput<T>,
+  TError = TRPCClientErrorLike<T>
+> = (
+  input: TInput,
+  opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
+) => CreateQueryOptions<TOutput, unknown, TOutput, [TPath, TInput]>
 
-export const isWritable = <T>(obj: MaybeWritable<T>): obj is Writable<T> =>
-  obj != null && typeof obj === 'object' && 'subscribe' in obj && 'set' in obj && 'update' in obj
+type TRPCSvelteQueriesProcedure<
+  TProcedure,
+  TPath extends string
+> = TProcedure extends AnyQueryProcedure ? CreateQueriesProcedure<TProcedure, TPath> : never
 
-export function createReactiveQuery<
-  TQueryFnData,
-  TError,
-  TData,
-  TQueryData,
-  TQueryKey extends QueryKey
->(
-  options: MaybeWritable<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>>,
-  Observer: typeof QueryObserver,
-  queryClient: QueryClient = useQueryClient()
-): CreateQueryResult<TData, TError> {
-  const optionsStore = isWritable(options) ? options : writable(options)
+export type TRPCSvelteQueriesRouter<TRouter extends AnyRouter, TPath extends string = ''> = {
+  [k in keyof TRouter]: TRouter[k] extends AnyRouter
+    ? TRPCSvelteQueriesRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    : TRPCSvelteQueriesProcedure<TRouter[k], TPath>
+}
 
-  const defaultOptionsStore = derived(optionsStore, ($options) => {
-    const defaultOptions = queryClient.defaultQueryOptions($options)
-    // eslint-disable-next-line no-underscore-dangle, no-param-reassign
-    defaultOptions._optimisticResults = 'optimistic'
+export type CreateQueries<T extends AnyRouter> = <Options extends unknown[]>(
+  callback: (t: TRPCSvelteQueriesRouter<T>) => readonly [...QueriesOptions<Options>]
+) => CreateQueriesResult<Options>
 
-    if (defaultOptions.onError != null) {
-      defaultOptions.onError = notifyManager.batchCalls(defaultOptions.onError)
-    }
+export function createTRPCQueriesProxy<T extends AnyRouter>(
+  client: TRPCUntypedClient<T>,
+): TRPCSvelteQueriesRouter<T> {
+  const innerProxy = createRecursiveProxy((options) => {
+    const anyArgs: any = options.args
 
-    if (defaultOptions.onSuccess != null) {
-      defaultOptions.onSuccess = notifyManager.batchCalls(defaultOptions.onSuccess)
-    }
+    const pathCopy = [...options.path]
 
-    if (defaultOptions.onSettled != null) {
-      defaultOptions.onSettled = notifyManager.batchCalls(defaultOptions.onSettled)
-    }
+    const path = pathCopy.join('.')
 
-    return defaultOptions
-  })
+    const [input, ...rest] = anyArgs
 
-  const observer = new Observer<TQueryFnData, TError, TData, TQueryData, TQueryKey>(
-    queryClient,
-    get(defaultOptionsStore)
-  )
+    const queryOptions = {
+      queryKey: getQueryKeyInternal(pathCopy, input, 'query'),
+      queryFn: async (_context) =>
+        await client.query(path, input, {
+          ...rest?.trpc,
+        }),
+      ...rest,
+    } satisfies CreateQueryOptions
 
-  defaultOptionsStore.subscribe(($defaultedOptions) => {
-    // Do not notify on updates because of changes in the options because
-    // these changes should already be reflected in the optimistic result.
-    observer.setOptions($defaultedOptions, { listeners: false })
-  })
+    return queryOptions
 
-  const result = readable(observer.getCurrentResult(), (set) =>
-    observer.subscribe(notifyManager.batchCalls(set))
-  )
+  }) as TRPCSvelteQueriesRouter<T>
 
-  const { subscribe } = derived(result, ($result) => {
-    // eslint-disable-next-line no-param-reassign
-    $result = observer.getOptimisticResult(get(defaultOptionsStore))
-    return get(defaultOptionsStore).notifyOnChangeProps == null
-      ? observer.trackResult($result)
-      : $result
-  })
+  const proxy = createFlatProxy<TRPCSvelteQueriesRouter<T>>(initialKey => innerProxy[initialKey])
 
-  return { subscribe }
+  return proxy
 }

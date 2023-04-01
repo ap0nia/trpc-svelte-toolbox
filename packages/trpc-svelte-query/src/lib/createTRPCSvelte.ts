@@ -18,31 +18,37 @@ import type {
 } from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 import {
-  type CreateQueryOptions,
-  type CreateQueryResult,
-  type DefinedCreateQueryResult,
-  type CreateInfiniteQueryOptions,
-  type CreateInfiniteQueryResult,
-  type CreateMutationOptions,
-  type CreateMutationResult,
-  type QueryClient,
   createQuery,
   createMutation,
   createInfiniteQuery,
   QueryObserver,
   InfiniteQueryObserver,
   useQueryClient,
+  createQueries,
+} from '@tanstack/svelte-query'
+import type {
+  CreateQueryOptions,
+  CreateQueryResult,
+  DefinedCreateQueryResult,
+  CreateInfiniteQueryOptions,
+  CreateInfiniteQueryResult,
+  CreateMutationOptions,
+  CreateMutationResult,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
 import { createReactiveQuery, isWritable } from '$lib/svelte-query/createReactiveQuery'
-import { createTRPCContext, setTRPCContext, getTRPCContext, type ContextRouter } from '$lib/context'
+import { createTRPCContext, setTRPCContext, getTRPCContext } from '$lib/context'
+import type { ContextRouter } from '$lib/context'
 import type { MaybeWritable } from '$lib/svelte-query/createReactiveQuery'
+import { createTRPCQueriesProxy } from '$lib/svelte-query/createQueries'
+import type { CreateQueries } from '$lib/svelte-query/createQueries'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
   abortOnUnmount?: boolean
 }
 
-interface TRPCOptions {
+export interface TRPCOptions {
   trpc?: TRPCSvelteRequestOptions
 }
 
@@ -324,6 +330,7 @@ export type CreateTRPCSvelte<T extends AnyRouter> = {
   createContext: typeof createTRPCContext
   setContext: (queryClient: QueryClient) => void
   getContext: () => ContextRouter<T>
+  createQueries: CreateQueries<T>
 } & TRPCSvelteQueryRouter<T>
 
 export function createTRPCSvelte<T extends AnyRouter>(
@@ -335,6 +342,12 @@ export function createTRPCSvelte<T extends AnyRouter>(
   const innerProxy = createTRPCSvelteInner(client, svelteQueryOptions)
 
   let loadContext: ContextRouter<T>
+  
+  const createQueriesProxy = createTRPCQueriesProxy<T>(client)
+
+  const customCreateQueries: CreateQueries<T> = (callback) => {
+    return createQueries(callback(createQueriesProxy))
+  }
 
   const proxy = createFlatProxy<CreateTRPCSvelte<T>>((initialKey) => {
     switch (initialKey) {
@@ -362,6 +375,9 @@ export function createTRPCSvelte<T extends AnyRouter>(
 
       case 'getContext':
         return getTRPCContext
+
+      case 'createQueries':
+        return customCreateQueries
 
       default:
         return innerProxy[initialKey]

@@ -15,7 +15,7 @@
     "build": "vite build",
     "format": "prettier --write src",
     "lint": "eslint src",
-    "prepublish": "npm run build"
+    "prepublish": "svelte-package"
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",

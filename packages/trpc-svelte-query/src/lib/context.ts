@@ -125,7 +125,7 @@ export type InfiniteContext<
 // prettier-ignore
 type QueryContextProcedure<Trouter extends AnyRouter, TProcedure extends AnyProcedure> = 
   QueryContext<Trouter, TProcedure> &
-  inferProcedureInput<TProcedure> extends InfiniteQueryInput ? InfiniteContext<Trouter, TProcedure> : object
+  (inferProcedureInput<TProcedure> extends InfiniteQueryInput ? InfiniteContext<Trouter, TProcedure> : object)
 
 interface SharedContext {
   invalidate: (filters?: InvalidateQueryFilters, opts?: InvalidateOptions) => Promise<void>

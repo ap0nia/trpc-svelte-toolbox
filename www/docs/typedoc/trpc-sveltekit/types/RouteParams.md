@@ -9,4 +9,4 @@ custom_edit_url: null
 
 > `Partial`<`Record`<`string`, `string`\>\>
 
-Defined in:  [types.ts:43](https://github.com/bevm0/trpc-svelte-toolbox/blob/9479c80/packages/trpc-sveltekit/src/types.ts#L43)
+Defined in:  [types.ts:43](https://github.com/bevm0/trpc-svelte-toolbox/blob/e436d4e/packages/trpc-sveltekit/src/types.ts#L43)

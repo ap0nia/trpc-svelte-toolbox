@@ -5,34 +5,52 @@ sidebar_label: context
 slug: /svelte/context
 ---
 
-`useContext` is a hook that gives you access to helpers that let you manage the cached data of the queries you execute via `@trpc/react-query`. These helpers are actually thin wrappers around `@tanstack/react-query`'s [`queryClient`](https://tanstack.com/query/v4/docs/reference/QueryClient) methods. If you want more in-depth information about options and usage patterns for `useContext` helpers than what we provide here, we will link to their respective `@tanstack/react-query` docs so you can refer to them accordingly.
+`getContext` is gives you access to helpers that let you manage the cached data of the queries you execute via `@bevm0/trpc-svelte-query`.
+These helpers are actually thin wrappers around 
+`@tanstack/svelte-query`'s [`queryClient`](https://tanstack.com/query/v4/docs/reference/QueryClient) methods.
+If you want more in-depth information about options and usage patterns for `getContext` helpers than what we provide here,
+we will link to their respective `@tanstack/react-query` docs so you can refer to them accordingly.
+
+## Setup
+
+`setContext` must be called in the root of the component tree with the desired query client.
 
 :::note
+The exposed helper functions don't rely on `useQueryClient` because `useQueryClient`
+must be invoked at the top level of the component, and functions aren't necessarily called there.
+e.g. You may want to `invalidate` after a form submission.
 
-In v10, `useContext` no longer exposes the raw `queryClient`. If you need some of the methods that aren't wrapped by tRPC yet, import and use them directly from `@tanstack/react-query`:
+Instead, you should make sure to provide `trpc.setContext` with the same query client
+as the `QueryClientProvider`. This ensures that both are referring to the same cache.
+This allows the entire context proxy to be calculated once per `trpc.setContext`.
+:::
 
-<br />
+```html title='src/routes/+layout.svelte'
+<script lang="ts">
+  import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import { trpc } from '$lib/trpc'
 
-```tsx
-import { useQueryClient } from '@tanstack/react-query';
+  const queryClient = new QueryClient()
 
-function MyComponent() {
-  const queryClient = useQueryClient();
-}
+  trpc.setContext(queryClient)
+</script>
+
+<QueryClientProvider client={queryClient}>
+  <slot />
+</QueryClientProvider>
 ```
 
-:::
 
 ## Usage
 
-`useContext` returns an object with all the available queries you have in your routers. You use it the same way as your `trpc` client object. Once you reach a query, you'll have access to the query helpers. For example, let's say you have a `post` router with an `all` query:
+`getContext` returns an object with all the available queries you have in your routers.
+You use it the same way as your `trpc` client object.
+Once you reach a query, you'll have access to the query helpers.
+For example, let's say you have a `post` router with an `all` query:
 
-```twoslash include server
-// @target: esnext
-
-// @filename: server.ts
-import { initTRPC } from '@trpc/server';
+```ts
 import { z } from 'zod';
+import { initTRPC } from '@trpc/server';
 
 const t = initTRPC.create();
 
@@ -52,34 +70,27 @@ const appRouter = t.router({
 export type AppRouter = typeof appRouter;
 ```
 
-```ts twoslash title='server.ts'
-// @include: server
-```
+Now in our component, when we navigate the object `getContext` gives us and reach the `post.all` query, we'll get access to our query helpers!
 
-Now in our component, when we navigate the object `useContext` gives us and reach the `post.all` query, we'll get access to our query helpers!
+:::tip
+`trpc.getContext` will only work after `trpc.setContext` was called with the desired query client
+at the root of the component tree, i.e. +layout.svelte .
+:::
 
-```tsx twoslash title="MyComponent.tsx"
-// @target: esnext
-// @include: server
-// @filename: MyComponent.tsx
-import { createTRPCReact } from '@trpc/react-query';
-import type { AppRouter } from './server';
+```html title="src/lib/MyComponent.svelte"
+import { trpc } from '$lib/trpc'
 
-const trpc = createTRPCReact<AppRouter>();
-
-// ---cut---
-// @noErrors
-function MyComponent() {
-  const utils = trpc.useContext();
-  utils.post.all.f;
-  //              ^|
-  // [...]
-}
+const utils = trpc.getContext()
+utils.post.all.f;
+//              ^|
+// [...]
 ```
 
 ## Helpers
 
-These are the helpers you'll get access to via `useContext`. The table below will help you know which tRPC helper wraps which `@tanstack/react-query` helper method. Each react-query method will link to its respective docs/guide:
+These are the helpers you'll get access to via `getContext`.
+The table below will help you know which tRPC helper wraps which `@tanstack/react-query` helper method.
+Each react-query method will link to its respective docs/guide:
 
 | tRPC helper wrapper | `@tanstack/react-query` helper method                                                                                            |
 | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -96,39 +107,39 @@ These are the helpers you'll get access to via `useContext`. The table below wil
 | `setInfiniteData`   | [`queryClient.setInfiniteQueryData`](https://tanstack.com/query/v4/docs/reference/QueryClient#queryclientsetquerydata)           |
 | `getInfiniteData`   | [`queryClient.getInfiniteData`](https://tanstack.com/query/v4/docs/reference/QueryClient#queryclientgetquerydata)                |
 
-### ❓ The function I want isn't here!
-
-`@tanstack/react-query` has a lot of functions that we haven't put in the tRPC context yet. If you need a function that isn't here, feel free to [open a feature request](https://github.com/trpc/trpc/issues/new/choose) requesting it.
-
-In the meantime, you can import and use the function directly from `@tanstack/react-query`. We also provide a [getQueryKey](https://trpc.io/docs/getQueryKey) which you can use to get the correct queryKey on the filters when using these functions.
-
 ## Proxy client
 
-In addition to the above react-query helpers, the context also exposes your tRPC proxy client. This lets you call your procedures with `async`/`await` without needing to create an additional vanilla client.
+In addition to the above react-query helpers, trpc also exposes your tRPC proxy client, i.e. **without the need for context**.
+This lets you call your procedures with `async`/`await` without needing to create an additional vanilla client.
 
-```tsx
-import { trpc } from '../utils/trpc';
+```html
+<script lang="ts">
+  import { trpc } from '../utils/trpc';
 
-function MyComponent() {
-  const [apiKey, setApiKey] = useState();
-  const utils = trpc.useContext();
+  let apiKey
 
-  return (
-    <Form
-      handleSubmit={async (event) => {
-        const apiKey = await utils.client.apiKey.create.mutate(event);
-        setApiKey(apiKey);
-      }}
-    >
-      ...
-    </Form>
-  );
-}
+  type FormSubmitEvent = Event & 
+    { readonly submitter: HTMLElement | null } & 
+    { currentTarget: EventTarget & HTMLFormElement }
+
+  const handleSubmit = async (event: FormSubmitEvent) => {
+    const apiKey = await trpc.client.apiKey.create.mutate(event);
+    setApiKey(apiKey);
+  }
+</script>
+
+<form on:submit={handleSubmit}>
+  ...
+</form>
 ```
 
 ## Query Invalidation
 
-You invalidate queries via the `invalidate` helper. `invalidate` is actually a special helper given that, unlike the other helpers, it's available at every level of the router map. This means you can either run `invalidate` on a single query, a whole router, or every router if you want. We get more in detail in the sections below.
+You invalidate queries via the `invalidate` helper.
+`invalidate` is actually a special helper given that, unlike the other helpers,
+it's available at every level of the router map.
+This means you can either run `invalidate` on a single query, a whole router,
+or every router if you want. We get more in detail in the sections below.
 
 ### Invalidating a single query
 
@@ -137,11 +148,10 @@ on the input passed to it to prevent unnecessary calls to the back end.
 
 #### Example code
 
-```tsx
-import { trpc } from '../utils/trpc';
-
-function MyComponent() {
-  const utils = trpc.useContext();
+```html
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
+  const utils = trpc.getContext();
 
   const mutation = trpc.post.edit.useMutation({
     onSuccess(input) {
@@ -149,9 +159,8 @@ function MyComponent() {
       utils.post.byId.invalidate({ id: input.id }); // Will not invalidate queries for other id's 👍
     },
   });
+</script>
 
-  // [...]
-}
 ```
 
 ### Invalidating across whole routers
@@ -208,11 +217,10 @@ export const appRouter = t.router({
 
 </details>
 
-```tsx
-import { trpc } from '../utils/trpc';
-
-function MyComponent() {
-  const utils = trpc.useContext();
+```html
+<script lang="ts">
+  import { trpc } from '$lib/trpc';
+  const utils = trpc.getContext()
 
   const invalidateAllQueriesAcrossAllRouters = () => {
     // 1️⃣
@@ -233,28 +241,27 @@ function MyComponent() {
   };
 
   // Example queries
-  trpc.user.all.useQuery(); // Would only be validated by 1️⃣ only.
-  trpc.post.all.useQuery(); // Would be invalidated by 1️⃣ & 2️⃣
-  trpc.post.byId.useQuery({ id: 1 }); // Would be invalidated by 1️⃣, 2️⃣ and 3️⃣
-  trpc.post.byId.useQuery({ id: 2 }); // would be invalidated by 1️⃣ and 2️⃣ but NOT 3️⃣!
+  trpc.user.all.createQuery(); // Would only be validated by 1️⃣ only.
+  trpc.post.all.createQuery(); // Would be invalidated by 1️⃣ & 2️⃣
+  trpc.post.byId.createQuery({ id: 1 }); // Would be invalidated by 1️⃣, 2️⃣ and 3️⃣
+  trpc.post.byId.createQuery({ id: 2 }); // would be invalidated by 1️⃣ and 2️⃣ but NOT 3️⃣!
+</script>
 
-  // [...]
+{ ... }
 }
 ```
 
 ### Invalidate full cache on every mutation
 
-:::info
-We have prefixed this as `unstable_` as it's a new API, but you're safe to use it!
-:::
-
-Keeping track of exactly what queries a mutation should invalidate is hard, therefore, it can be a pragmatic solution to invalidate the _full cache_ as a side-effect on any mutation. Since we have request batching, this invalidation will simply refetch all queries on the page you're looking at in one single request.
+Keeping track of exactly what queries a mutation should invalidate is hard, therefore,
+it can be a pragmatic solution to invalidate the _full cache_ as a side-effect on any mutation.
+Since we have request batching, this invalidation will simply refetch all queries on the page you're looking at in one single request.
 
 We have added a feature to help with this:
 
 ```ts
-export const trpc = createTRPCReact<AppRouter, SSRContext>({
-  unstable_overrides: {
+export const trpc = createTRPCSvelte<AppRouter, SSRContext>({
+  overrides: {
     useMutation: {
       /**
        * This function is called whenever a `.useMutation` succeeds
@@ -276,36 +283,3 @@ export const trpc = createTRPCReact<AppRouter, SSRContext>({
   },
 });
 ```
-
-## Additional Options
-
-Aside from the query helpers, the object `useContext` returns also contains the following properties:
-
-```ts
-interface ProxyTRPCContextProps<TRouter extends AnyRouter, TSSRContext> {
-  /**
-   * The `TRPCClient`
-   */
-  client: TRPCClient<TRouter>;
-  /**
-   * The SSR context when server-side rendering
-   * @default null
-   */
-  ssrContext?: TSSRContext | null;
-  /**
-   * State of SSR hydration.
-   * - `false` if not using SSR.
-   * - `prepass` when doing a prepass to fetch queries' data
-   * - `mounting` before TRPCProvider has been rendered on the client
-   * - `mounted` when the TRPCProvider has been rendered on the client
-   * @default false
-   */
-  ssrState?: SSRState;
-  /**
-   * Abort loading query calls when unmounting a component - usually when navigating to a new page
-   * @default false
-   */
-  abortOnUnmount?: boolean;
-}
-```
-

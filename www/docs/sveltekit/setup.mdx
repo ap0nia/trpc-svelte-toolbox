@@ -168,7 +168,7 @@ It will invoke `useQueryClient` in order to find it.
 Keep on reading to see how to initialize a tRPC client for load functions.
 :::
 
-```tsx title='utils/trpc.ts'
+```tsx title='src/lib/trpc.ts'
 import { httpBatchLink } from '@trpc/client';
 import { createTRPCSvelte } from '@bevm0/trpc-svelte';
 import type { AppRouter } from '$lib/server/trpc/routers';
@@ -271,6 +271,15 @@ You can now use the hooks you have just created to invoke your API.
 I don't think you can initialize a tRPC + svelte-query client in `+layout.server.ts` or `+page.server.ts`
 :::
 
+:::tip
+`loadContext` is intended to work like `getContext`, but outside of components.
+
+It returns a proxy that uses the query client created in `+layout.ts` without requiring `setContext` to provide it.
+
+In components, I thought using `setContext` to set the query client and evaluate the proxy was appropriate since
+it's difficult to predict where the query client might originate in different apps.
+:::
+
 ```ts title='src/routes/+page.ts'
 import type { PageLoad } from './$types'
 
@@ -281,7 +290,7 @@ export const load: PageLoad = async ({ parent }) => {
   const { trpc } = await parent()
 
   return {
-    greeting: trpc.utils.hello.fetch({ text: 'client' });
+    greeting: trpc.loadContext.hello.fetch({ text: 'client' });
   }
 }
 ```

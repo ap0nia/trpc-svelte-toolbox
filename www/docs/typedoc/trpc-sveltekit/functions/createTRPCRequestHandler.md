@@ -35,4 +35,4 @@ createTRPCRequestHandler<TRouter, TRouteParams, TRouteId>(options: TRPCHandleOpt
 
 `RequestHandler`<`TRouteParams`, `TRouteId`\>
 
-Defined in:  [requestHandler.ts:13](https://github.com/bevm0/trpc-svelte-toolbox/blob/9479c80/packages/trpc-sveltekit/src/requestHandler.ts#L13)
+Defined in:  [requestHandler.ts:13](https://github.com/bevm0/trpc-svelte-toolbox/blob/e436d4e/packages/trpc-sveltekit/src/requestHandler.ts#L13)

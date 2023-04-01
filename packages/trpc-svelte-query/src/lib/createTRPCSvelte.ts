@@ -322,7 +322,7 @@ export type CreateTRPCSvelte<T extends AnyRouter> = {
   queryClient: QueryClient
   loadContext: ContextRouter<T>
   createContext: typeof createTRPCContext
-  setContext: typeof setTRPCContext
+  setContext: (queryClient: QueryClient) => void
   getContext: () => ContextRouter<T>
 } & TRPCSvelteQueryRouter<T>
 
@@ -358,7 +358,7 @@ export function createTRPCSvelte<T extends AnyRouter>(
         return createTRPCContext
 
       case 'setContext':
-        return setTRPCContext
+        return (queryClient: QueryClient) => setTRPCContext(client, queryClient, svelteQueryOptions)
 
       case 'getContext':
         return getTRPCContext

@@ -140,7 +140,7 @@ type ContextProcedure<TRouter extends AnyRouter, TProcedure> = TProcedure extend
   : never
 
 type InnerContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T, T[k]>
+  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T, T[k]>
 } & SharedContext
 
 export type ContextRouter<T extends AnyRouter> = {

@@ -3,8 +3,10 @@
 
   const query = trpc.greeting.createQuery('Aponia')
 
+  const utils = trpc.getContext()
+
   function refetch() {
-    trpc.utils.greeting.refetch()
+    utils.greeting.refetch()
   }
 </script>
 

@@ -2,8 +2,8 @@ export async function load({ parent }) {
   const { trpc } = await parent()
 
   return {
-    '': trpc.utils[''].prefetch('Elysia'),
-    greeting: trpc.utils.greeting.fetch('Aponia'),
-    goodbye: trpc.utils.goodbye.ensureData('Kiana'),
+    '': trpc.loadContext[''].prefetch('Elysia'),
+    greeting: trpc.loadContext.greeting.fetch('Aponia'),
+    goodbye: trpc.loadContext.goodbye.ensureData('Kiana'),
   }
 }

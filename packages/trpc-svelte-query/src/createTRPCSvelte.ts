@@ -15,12 +15,12 @@ import type { SetContextProxy, GetContextProxy, ContextProxy } from './proxies/c
 import type { CreateQueriesFn } from './proxies/createQueries'
 import type { SvelteQueryProxy, SvelteQueryProxyOptions } from './proxies/svelteQuery'
 
-type TRPCSvelteRoot<T extends AnyRouter> = {
+interface TRPCSvelteRoot<T extends AnyRouter> {
+  queryClient: QueryClient
   client: TRPCUntypedClient<T>
   proxy: CreateTRPCProxyClient<T>
-  queryClient: QueryClient
 
-  loadContext: ContextProxy<T>
+  context: ContextProxy<T>
   setContext: SetContextProxy<T>
   getContext: GetContextProxy<T>
 
@@ -37,39 +37,35 @@ export function createTRPCSvelte<T extends AnyRouter>(
 
   const proxyClient = createTRPCProxyClient<T>(trpcClientOptions)
 
-  const loadContextProxy =
+  const context =
     svelteQueryOptions?.svelteQueryContext != null
       ? createContextProxy<T>(client, svelteQueryOptions.svelteQueryContext)
       : null
 
   const createQueriesProxy = createCreateQueriesProxy<T>(client)
 
-  const svelteQueryProxy = createSvelteQueryProxy<T>(client, svelteQueryOptions)
+  const createQueriesFn: CreateQueriesFn<T> = (callback) =>
+    createQueries(callback(createQueriesProxy))
 
-  const createQueriesFn: CreateQueriesFn<T> = (callback) => {
-    return createQueries(callback(createQueriesProxy))
-  }
+  const svelteQueryProxy = createSvelteQueryProxy<T>(client, svelteQueryOptions)
 
   const TRPCSvelte = createFlatProxy<TRPCSvelte<T>>((initialKey) => {
     switch (initialKey) {
+      case 'queryClient':
+        return svelteQueryOptions?.svelteQueryContext
+
       case 'client':
         return client
 
       case 'proxy':
         return proxyClient
 
-      case 'queryClient':
-        return svelteQueryOptions?.svelteQueryContext
-
-      case 'loadContext': {
-        if (loadContextProxy == null) {
+      case 'context': {
+        if (context == null) {
           throw new Error('`loadContext` is not available, did you provide a query client?')
         }
-        return loadContextProxy
+        return context
       }
-
-      case 'createContext':
-        return createContextProxy
 
       case 'setContext':
         return setContextProxy

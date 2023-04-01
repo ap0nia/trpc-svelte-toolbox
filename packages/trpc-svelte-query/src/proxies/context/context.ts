@@ -14,7 +14,7 @@ interface SvelteQueryOptions {
   abortOnUnmount?: boolean
 }
 
-const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
+export const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
 
 export type CreateContextProxy<T extends AnyRouter> = (
   client: TRPCUntypedClient<T>,

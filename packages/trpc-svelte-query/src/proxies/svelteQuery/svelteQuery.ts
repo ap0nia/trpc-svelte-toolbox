@@ -188,7 +188,7 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
         } satisfies CreateMutationOptions)
       }
 
-      case 'createSubscription': 
+      case 'createSubscription':
         return client.subscription(path, anyArgs[0], anyArgs[1])
 
       case '_def':

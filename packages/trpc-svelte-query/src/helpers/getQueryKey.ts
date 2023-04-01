@@ -39,7 +39,7 @@ export function getQueryKey<T extends AnyProcedure | AnyRouter>(
   type: QueryType = 'any'
 ): QueryKey {
   // eslint-disable-next-line no-underscore-dangle
-  const { path } = procedureOrRouter._def()
+  const path = procedureOrRouter._def()
   const queryKey = getQueryKeyInternal(path, input, type)
   return queryKey
 }

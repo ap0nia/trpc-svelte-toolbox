@@ -23,6 +23,12 @@
     "dist",
     "src"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "peerDependencies": {
     "@tanstack/svelte-query": "4.27.0",
     "@trpc/client": "^10.18.0",

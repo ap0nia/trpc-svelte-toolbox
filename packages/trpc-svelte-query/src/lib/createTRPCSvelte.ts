@@ -31,6 +31,7 @@ import {
   createInfiniteQuery,
   QueryObserver,
   InfiniteQueryObserver,
+  useQueryClient,
 } from '@tanstack/svelte-query'
 import { getQueryKeyInternal } from './getQueryKey'
 import { createReactiveQuery, isWritable } from './createReactiveQuery'
@@ -166,12 +167,9 @@ function createTRPCSvelteInner<T extends AnyRouter>(
     const abortOnUnmount =
       Boolean(svelteQueryOptions?.abortOnUnmount) || Boolean(anyArgs[1]?.trpc?.abortOnUnmount)
 
-    const queryClient = svelteQueryOptions?.svelteQueryContext ?? getTRPCContext().queryClient
-
     switch (lastArg) {
       case 'createQuery': {
         const queryOptions = {
-          context: queryClient,
           queryKey: getQueryKeyInternal(pathCopy, input, 'query'),
           queryFn: async (context) =>
             await client.query(path, input, {
@@ -217,12 +215,11 @@ function createTRPCSvelteInner<T extends AnyRouter>(
               }),
           }))
         }
-        return createReactiveQuery(optionsStore, QueryObserver, queryClient)
+        return createReactiveQuery(optionsStore, QueryObserver)
       }
 
       case 'createInfiniteQuery': {
         const infiniteQueryOptions = {
-          context: queryClient,
           queryKey: getQueryKeyInternal(pathCopy, input, 'infinite'),
           queryFn: async (context) =>
             await client.query(
@@ -282,23 +279,18 @@ function createTRPCSvelteInner<T extends AnyRouter>(
               ),
           }))
         }
-        return createReactiveQuery(
-          optionsStore,
-          InfiniteQueryObserver as typeof QueryObserver,
-          queryClient
-        )
+        return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver)
       }
 
       case 'createMutation': {
         return createMutation({
-          context: queryClient,
           mutationKey: [pathCopy],
           mutationFn: async (variables) => await client.mutation(path, variables, anyArgs[0]?.trpc),
           onSuccess(data, variables, context) {
             const originalFn = (): unknown => anyArgs[0]?.onSuccess?.(data, variables, context)
             return svelteQueryOptions?.overrides?.createMutation?.onSuccess != null
               ? svelteQueryOptions.overrides.createMutation.onSuccess({
-                  queryClient,
+                  queryClient: svelteQueryOptions.svelteQueryContext ?? useQueryClient(),
                   meta: anyArgs[0]?.meta,
                   originalFn,
                 })

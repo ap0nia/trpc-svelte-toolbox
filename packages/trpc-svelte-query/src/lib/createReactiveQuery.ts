@@ -1,6 +1,6 @@
 import { derived, get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
-import { notifyManager } from '@tanstack/svelte-query'
+import { notifyManager, useQueryClient } from '@tanstack/svelte-query'
 import type {
   QueryObserver,
   QueryClient,
@@ -23,7 +23,7 @@ export function createReactiveQuery<
 >(
   options: MaybeWritable<QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>>,
   Observer: typeof QueryObserver,
-  queryClient: QueryClient
+  queryClient: QueryClient = useQueryClient()
 ): CreateQueryResult<TData, TError> {
   const optionsStore = isWritable(options) ? options : writable(options)
 

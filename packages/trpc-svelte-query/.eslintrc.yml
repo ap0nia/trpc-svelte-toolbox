@@ -3,3 +3,4 @@ extends:
 
 rules:
   '@typescript-eslint/no-confusing-void-expression': off
+  import/extensions: off

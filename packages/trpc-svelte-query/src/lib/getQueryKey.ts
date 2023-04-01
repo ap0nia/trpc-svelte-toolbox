@@ -1,5 +1,8 @@
 import type { AnyProcedure, AnyRouter, DeepPartial } from '@trpc/server'
-import type { InfiniteQueryInput } from '$lib/types'
+
+interface InfiniteQueryInput {
+  cursor?: unknown
+}
 
 export type KnownQueryType = 'query' | 'infinite'
 
@@ -34,8 +37,9 @@ export function getQueryKey<T extends AnyProcedure | AnyRouter>(
   procedureOrRouter: T,
   input: unknown,
   type: QueryType = 'any'
-) {
-  const path: string[] = procedureOrRouter._def().path
+): QueryKey {
+  // eslint-disable-next-line no-underscore-dangle
+  const { path } = procedureOrRouter._def()
   const queryKey = getQueryKeyInternal(path, input, type)
   return queryKey
 }

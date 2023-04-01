@@ -1,8 +1,5 @@
-import { get } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { createTRPCContext, setTRPCContext, getTRPCContext, type ContextRouter } from './context'
-import { isWritable } from './createReactiveQuery'
-import { getQueryKeyInternal } from './getQueryKey'
 import type {
   CreateTRPCClientOptions,
   TRPCClientErrorLike,
@@ -32,8 +29,12 @@ import {
   createQuery,
   createMutation,
   createInfiniteQuery,
-  useQueryClient,
+  QueryObserver,
+  InfiniteQueryObserver,
 } from '@tanstack/svelte-query'
+import { getQueryKeyInternal } from './getQueryKey'
+import { createReactiveQuery, isWritable } from './createReactiveQuery'
+import { createTRPCContext, setTRPCContext, getTRPCContext, type ContextRouter } from './context'
 import type { MaybeWritable } from '$lib/createReactiveQuery'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
@@ -48,13 +49,13 @@ interface InfiniteQueryInput {
   cursor?: unknown
 }
 
-type CreateTRPCQuery<
+interface CreateTRPCQuery<
   T extends AnyProcedure,
   TPath extends string,
   TInput = inferProcedureInput<T>,
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
-> = {
+> {
   (
     input: MaybeWritable<TInput>,
     opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
@@ -68,17 +69,15 @@ type CreateTRPCQuery<
 
 type CreateTRPCInfiniteQuery<
   T extends AnyProcedure,
-  TPath extends String,
+  TPath extends string,
   TInput = inferProcedureInput<T>,
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>,
   NoCursor = Omit<TInput, 'cursor'>
-> = {
-  (
+> = (
     input: MaybeWritable<NoCursor>,
     opts?: CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]> & TRPCOptions
-  ): CreateInfiniteQueryResult<TOutput, TError>
-}
+  ) => CreateInfiniteQueryResult<TOutput, TError>
 
 type CreateTRPCMutation<
   T extends AnyProcedure,
@@ -86,13 +85,11 @@ type CreateTRPCMutation<
   TInput = inferProcedureInput<T>,
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
-> = {
-  (
+> = (
     opts?: CreateMutationOptions<TOutput, TError, TInput, TContext> & TRPCOptions
-  ): CreateMutationResult<TOutput, TError, TInput, TContext>
-}
+  ) => CreateMutationResult<TOutput, TError, TInput, TContext>
 
-type CreateTRPCSubscriptionOptions<TOutput, TError> = {
+interface CreateTRPCSubscriptionOptions<TOutput, TError> {
   enabled?: boolean
   onStarted?: () => void
   onData: (data: TOutput) => void
@@ -104,9 +101,7 @@ type CreateTRPCSubscription<
   TInput = inferProcedureInput<T>,
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
-> = {
-  (input: TInput, opts?: TRPCRequestOptions & CreateTRPCSubscriptionOptions<TOutput, TError>): void
-}
+> = (input: TInput, opts?: TRPCRequestOptions & CreateTRPCSubscriptionOptions<TOutput, TError>) => void
 
 type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   createQuery: CreateTRPCQuery<TProcedure, TPath>
@@ -114,11 +109,11 @@ type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   ? CreateTRPCInfiniteQuery<TProcedure, TPath>
   : object)
 
-type MutationProcedure<T extends AnyProcedure> = {
+interface MutationProcedure<T extends AnyProcedure> {
   createMutation: CreateTRPCMutation<T>
 }
 
-type SubscriptionProcedure<T extends AnyProcedure> = {
+interface SubscriptionProcedure<T extends AnyProcedure> {
   createSubscription: CreateTRPCSubscription<T>
 }
 
@@ -153,7 +148,7 @@ export interface CreateTRPCSvelteOptions {
 function createTRPCSvelteInner<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   svelteQueryOptions?: CreateTRPCSvelteOptions
-) {
+): TRPCSvelteQueryRouter<T> {
   const innerProxy = createRecursiveProxy((options) => {
     const anyArgs: any = options.args
 
@@ -168,38 +163,118 @@ function createTRPCSvelteInner<T extends AnyRouter>(
     const abortOnUnmount =
       Boolean(svelteQueryOptions?.abortOnUnmount) || Boolean(anyArgs[1]?.trpc?.abortOnUnmount)
 
+    const queryClient = svelteQueryOptions?.svelteQueryContext ?? getTRPCContext().queryClient
+
     switch (lastArg) {
       case 'createQuery': {
-        return createQuery({
+        const queryOptions = {
+          context: queryClient,
           queryKey: getQueryKeyInternal(pathCopy, input, 'query'),
-          queryFn: (context) =>
-            client.query(path, input, {
-              ...anyArgs[1],
+          queryFn: async (context) =>
+            await client.query(path, input, {
+              ...anyArgs[1]?.trpc,
               signal: abortOnUnmount ? context.signal : undefined,
             }),
           ...anyArgs[1],
-        } satisfies CreateQueryOptions)
+        } satisfies CreateQueryOptions
+
+        if (!isWritable(anyArgs[0])) {
+          return createQuery(queryOptions)
+        }
+
+        const optionsStore = writable<CreateQueryOptions & TRPCOptions>(queryOptions)
+        const inputStore = anyArgs[0]
+        const { set, update } = inputStore
+
+        inputStore.set = (newInput) => {
+          optionsStore.update(() => ({
+            ...queryOptions,
+            queryKey: getQueryKeyInternal(pathCopy, newInput, 'query'),
+            queryFn: async (context) =>
+              await client.query(path, newInput, {
+                ...anyArgs[1]?.trpc,
+                signal: abortOnUnmount ? context.signal : undefined,
+              }),
+          }))
+          set(newInput)
+        }
+
+        inputStore.update = (updaterFn) => {
+          update(updaterFn)
+
+          const newInput = get(inputStore)
+
+          optionsStore.update(() => ({
+            ...queryOptions,
+            queryKey: getQueryKeyInternal(pathCopy, newInput, 'query'),
+            queryFn: async (context) =>
+              await client.query(path, newInput, {
+                ...anyArgs[1]?.trpc,
+                signal: abortOnUnmount ? context.signal : undefined,
+              }),
+          }))
+        }
+        return createReactiveQuery(optionsStore, QueryObserver, queryClient)
       }
 
       case 'createInfiniteQuery': {
-        return createInfiniteQuery({
+        const infiniteQueryOptions = {
+          context: queryClient,
           queryKey: getQueryKeyInternal(pathCopy, input, 'infinite'),
-          queryFn: (context) =>
-            client.query(path, input, {
-              ...anyArgs[1],
+          queryFn: async (context) =>
+            await client.query(path, { ...input, cursor: context.pageParam }, {
+              ...anyArgs[1]?.trpc,
               signal: abortOnUnmount ? context.signal : undefined,
             }),
           ...anyArgs[1],
-        } satisfies CreateInfiniteQueryOptions)
+        } satisfies CreateInfiniteQueryOptions
+
+        if (!isWritable(anyArgs[0])) {
+          return createInfiniteQuery(infiniteQueryOptions)
+        }
+
+        const inputStore = anyArgs[0]
+        const optionsStore = writable<CreateInfiniteQueryOptions & TRPCOptions>(infiniteQueryOptions)
+        const { set, update } = inputStore
+
+        inputStore.set = (newInput) => {
+          optionsStore.update(() => ({
+            ...infiniteQueryOptions,
+            queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
+            queryFn: async (context) =>
+            await client.query(path, { ...newInput, cursor: context.pageParam }, {
+                ...anyArgs[1]?.trpc,
+                signal: abortOnUnmount ? context.signal : undefined,
+              }),
+          }))
+          set(newInput)
+        }
+
+        inputStore.update = (updaterFn) => {
+          update(updaterFn)
+
+          const newInput = get(inputStore)
+
+          optionsStore.update(() => ({
+            ...infiniteQueryOptions,
+            queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
+            queryFn: async (context) =>
+              await client.query(path, { ...newInput, cursor: context.pageParam }, {
+                ...anyArgs[1]?.trpc,
+                signal: abortOnUnmount ? context.signal : undefined,
+              }),
+          }))
+        }
+        return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver, queryClient)
       }
 
       case 'createMutation': {
-        const queryClient = svelteQueryOptions?.svelteQueryContext ?? useQueryClient()
         return createMutation({
+          context: queryClient,
           mutationKey: [pathCopy],
-          mutationFn: (variables) => client.mutation(path, variables, anyArgs[0]?.trpc),
+          mutationFn: async (variables) => await client.mutation(path, variables, anyArgs[0]?.trpc),
           onSuccess(data, variables, context) {
-            const originalFn = () => anyArgs[0]?.onSuccess?.(data, variables, context)
+            const originalFn = (): unknown => anyArgs[0]?.onSuccess?.(data, variables, context)
             return svelteQueryOptions?.overrides?.createMutation?.onSuccess != null
               ? svelteQueryOptions.overrides.createMutation.onSuccess({
                   queryClient,
@@ -214,7 +289,7 @@ function createTRPCSvelteInner<T extends AnyRouter>(
 
       // TODO
       case 'createSubscription': {
-        return
+        return 'WIP'
       }
 
       // invoked by public `getQueryKey` helper
@@ -256,9 +331,15 @@ export function createTRPCSvelte<T extends AnyRouter>(
       case 'queryClient':
         return svelteQueryOptions?.svelteQueryContext
 
-      case 'loadContext':
-        loadContext = createTRPCContext<T>(client, svelteQueryOptions?.svelteQueryContext)
+      case 'loadContext': {
+        if (svelteQueryOptions?.svelteQueryContext == null) {
+          throw new Error('QueryClient must be provided in load functions.')
+        }
+        if (loadContext == null) {
+          loadContext = createTRPCContext<T>(client, svelteQueryOptions.svelteQueryContext)
+        }
         return loadContext
+      }
 
       case 'createContext':
         return createTRPCContext

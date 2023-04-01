@@ -1,16 +1,6 @@
 import { setContext, getContext } from 'svelte'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { QueryClient, useQueryClient } from '@tanstack/svelte-query'
-import type { TRPCUntypedClient, TRPCClientError, TRPCRequestOptions } from '@trpc/client'
-import type {
-  AnyProcedure,
-  AnyQueryProcedure,
-  AnyRouter,
-  DeepPartial,
-  inferProcedureInput,
-} from '@trpc/server'
-import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
-import type {
+import type { QueryClient ,
   InvalidateQueryFilters,
   InvalidateOptions,
   InfiniteData,
@@ -24,6 +14,15 @@ import type {
   Query,
   RefetchOptions,
 } from '@tanstack/svelte-query'
+import type { TRPCUntypedClient, TRPCClientError, TRPCRequestOptions } from '@trpc/client'
+import type {
+  AnyProcedure,
+  AnyQueryProcedure,
+  AnyRouter,
+  DeepPartial,
+  inferProcedureInput,
+} from '@trpc/server'
+import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 import { getQueryKeyInternal } from '$lib/getQueryKey'
 import type { QueryKeyKnown } from '$lib/getQueryKey'
 
@@ -41,13 +40,13 @@ interface InfiniteQueryInput {
 
 type Override<Left, Right> = Omit<Left, keyof Right> & Right
 
-export type QueryContext<
+export interface QueryContext<
   TRouter extends AnyRouter,
   TProcedure extends AnyProcedure,
   TInput = inferProcedureInput<TProcedure>,
   TOutput = inferTransformedProcedureOutput<TProcedure>,
   TError = TRPCClientError<TRouter>
-> = {
+> {
   fetch: (
     input: TInput,
     options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
@@ -96,13 +95,13 @@ export type QueryContext<
   reset: (input?: TInput, filters?: QueryFilters, options?: ResetOptions) => Promise<void>
 }
 
-export type InfiniteContext<
+export interface InfiniteContext<
   TRouter extends AnyRouter,
   TProcedure extends AnyProcedure,
   TInput = inferProcedureInput<TProcedure>,
   TOutput = inferTransformedProcedureOutput<TProcedure>,
   TError = TRPCClientError<TRouter>
-> = {
+> {
   fetchInfinite: (
     input: TInput,
     options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
@@ -131,19 +130,26 @@ interface SharedContext {
   invalidate: (filters?: InvalidateQueryFilters, opts?: InvalidateOptions) => Promise<void>
 }
 
-// prettier-ignore
+interface RootContext {
+  queryClient: QueryClient
+}
+
 type ContextProcedure<TRouter extends AnyRouter, TProcedure> = 
   TProcedure extends AnyQueryProcedure ? QueryContextProcedure<TRouter, TProcedure> : never
 
-export type ContextRouter<T extends AnyRouter> = {
+export type InnerContextRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T, T[k]>
 } & SharedContext
+
+export type ContextRouter<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T, T[k]>
+} & RootContext
 
 const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
 
 export function createTRPCContext<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
-  queryClient: QueryClient = useQueryClient()
+  queryClient: QueryClient
 ): ContextRouter<T> {
   const innerProxy = createRecursiveProxy((options) => {
     const anyArgs: any = options.args
@@ -154,22 +160,24 @@ export function createTRPCContext<T extends AnyRouter>(
 
     const path = pathCopy.join('.')
 
+    const abortOnUnmount = Boolean(anyArgs[1]?.trpc?.abortOnUnmount)
+
     const queryOptions = {
       queryKey: getQueryKeyInternal(pathCopy, anyArgs[0], 'query'),
-      queryFn: (context) =>
-        client.query(path, anyArgs[0], {
+      queryFn: async (context) =>
+        await client.query(path, anyArgs[0], {
           ...anyArgs[1],
-          signal: anyArgs[1]?.trpc?.abortOnUnmount ? context.signal : undefined,
+          signal: abortOnUnmount ? context.signal : undefined,
         }),
       ...anyArgs[1],
     } satisfies FetchQueryOptions
 
     const infiniteQueryOptions = {
       queryKey: getQueryKeyInternal(pathCopy, anyArgs[0], 'infinite'),
-      queryFn: (context) =>
-        client.query(path, anyArgs[0], {
+      queryFn: async (context) =>
+        await client.query(path, anyArgs[0], {
           ...anyArgs[1],
-          signal: anyArgs[1]?.trpc?.abortOnUnmount ? context.signal : undefined,
+          signal: abortOnUnmount ? context.signal : undefined,
         }),
       ...anyArgs[1],
     } satisfies FetchInfiniteQueryOptions
@@ -225,16 +233,25 @@ export function createTRPCContext<T extends AnyRouter>(
     }
   }) as ContextRouter<T>
 
-  const proxy = createFlatProxy<ContextRouter<T>>((initialKey) => innerProxy[initialKey])
+  const proxy = createFlatProxy<ContextRouter<T>>((initialKey) => {
+    switch (initialKey) {
+      case 'queryClient':
+        return queryClient
+
+      default:
+        return innerProxy[initialKey]
+    }
+  })
   return proxy
 }
 
 export function setTRPCContext<T extends AnyRouter>(
   client: TRPCUntypedClient<T>,
   queryClient: QueryClient
-) {
+): ContextRouter<T> {
   const proxy = createTRPCContext(client, queryClient)
   setContext(TRPC_CONTEXT_KEY, proxy)
+  return proxy
 }
 
 export function getTRPCContext<T extends AnyRouter>(): ContextRouter<T> {

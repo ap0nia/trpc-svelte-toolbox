@@ -75,9 +75,9 @@ type CreateTRPCInfiniteQuery<
   TError = TRPCClientErrorLike<T>,
   NoCursor = Omit<TInput, 'cursor'>
 > = (
-    input: MaybeWritable<NoCursor>,
-    opts?: CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]> & TRPCOptions
-  ) => CreateInfiniteQueryResult<TOutput, TError>
+  input: MaybeWritable<NoCursor>,
+  opts?: CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]> & TRPCOptions
+) => CreateInfiniteQueryResult<TOutput, TError>
 
 type CreateTRPCMutation<
   T extends AnyProcedure,
@@ -86,8 +86,8 @@ type CreateTRPCMutation<
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
 > = (
-    opts?: CreateMutationOptions<TOutput, TError, TInput, TContext> & TRPCOptions
-  ) => CreateMutationResult<TOutput, TError, TInput, TContext>
+  opts?: CreateMutationOptions<TOutput, TError, TInput, TContext> & TRPCOptions
+) => CreateMutationResult<TOutput, TError, TInput, TContext>
 
 interface CreateTRPCSubscriptionOptions<TOutput, TError> {
   enabled?: boolean
@@ -101,7 +101,10 @@ type CreateTRPCSubscription<
   TInput = inferProcedureInput<T>,
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
-> = (input: TInput, opts?: TRPCRequestOptions & CreateTRPCSubscriptionOptions<TOutput, TError>) => void
+> = (
+  input: TInput,
+  opts?: TRPCRequestOptions & CreateTRPCSubscriptionOptions<TOutput, TError>
+) => void
 
 type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   createQuery: CreateTRPCQuery<TProcedure, TPath>
@@ -222,10 +225,14 @@ function createTRPCSvelteInner<T extends AnyRouter>(
           context: queryClient,
           queryKey: getQueryKeyInternal(pathCopy, input, 'infinite'),
           queryFn: async (context) =>
-            await client.query(path, { ...input, cursor: context.pageParam }, {
-              ...anyArgs[1]?.trpc,
-              signal: abortOnUnmount ? context.signal : undefined,
-            }),
+            await client.query(
+              path,
+              { ...input, cursor: context.pageParam },
+              {
+                ...anyArgs[1]?.trpc,
+                signal: abortOnUnmount ? context.signal : undefined,
+              }
+            ),
           ...anyArgs[1],
         } satisfies CreateInfiniteQueryOptions
 
@@ -234,7 +241,9 @@ function createTRPCSvelteInner<T extends AnyRouter>(
         }
 
         const inputStore = anyArgs[0]
-        const optionsStore = writable<CreateInfiniteQueryOptions & TRPCOptions>(infiniteQueryOptions)
+        const optionsStore = writable<CreateInfiniteQueryOptions & TRPCOptions>(
+          infiniteQueryOptions
+        )
         const { set, update } = inputStore
 
         inputStore.set = (newInput) => {
@@ -242,10 +251,14 @@ function createTRPCSvelteInner<T extends AnyRouter>(
             ...infiniteQueryOptions,
             queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
             queryFn: async (context) =>
-            await client.query(path, { ...newInput, cursor: context.pageParam }, {
-                ...anyArgs[1]?.trpc,
-                signal: abortOnUnmount ? context.signal : undefined,
-              }),
+              await client.query(
+                path,
+                { ...newInput, cursor: context.pageParam },
+                {
+                  ...anyArgs[1]?.trpc,
+                  signal: abortOnUnmount ? context.signal : undefined,
+                }
+              ),
           }))
           set(newInput)
         }
@@ -259,13 +272,21 @@ function createTRPCSvelteInner<T extends AnyRouter>(
             ...infiniteQueryOptions,
             queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
             queryFn: async (context) =>
-              await client.query(path, { ...newInput, cursor: context.pageParam }, {
-                ...anyArgs[1]?.trpc,
-                signal: abortOnUnmount ? context.signal : undefined,
-              }),
+              await client.query(
+                path,
+                { ...newInput, cursor: context.pageParam },
+                {
+                  ...anyArgs[1]?.trpc,
+                  signal: abortOnUnmount ? context.signal : undefined,
+                }
+              ),
           }))
         }
-        return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver, queryClient)
+        return createReactiveQuery(
+          optionsStore,
+          InfiniteQueryObserver as typeof QueryObserver,
+          queryClient
+        )
       }
 
       case 'createMutation': {
@@ -308,9 +329,9 @@ export type CreateTRPCSvelte<T extends AnyRouter> = {
   client: TRPCUntypedClient<T>
   queryClient: QueryClient
   loadContext: ContextRouter<T>
-  createContext: (client: TRPCUntypedClient<T>, queryClient: QueryClient) => ContextRouter<T>
-  setContext: (client: TRPCUntypedClient<T>, queryClient: QueryClient) => void
-  getContext: () => ContextRouter<T>
+  createContext: typeof createTRPCContext
+  setContext: typeof setTRPCContext
+  getContext: typeof getTRPCContext
 } & TRPCSvelteQueryRouter<T>
 
 export function createTRPCSvelte<T extends AnyRouter>(

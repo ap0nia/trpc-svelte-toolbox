@@ -32,7 +32,8 @@ This allows the entire context proxy to be calculated once per `trpc.setContext`
 
   const queryClient = new QueryClient()
 
-  trpc.setContext(queryClient)
+  // provide the context with an untyped tRPC client and a query client 
+  trpc.setContext(trpc.client, queryClient)
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -109,7 +110,8 @@ Each react-query method will link to its respective docs/guide:
 
 ## Proxy client
 
-In addition to the above react-query helpers, trpc also exposes your tRPC proxy client, i.e. **without the need for context**.
+In addition to the above react-query helpers,
+trpc also exposes your tRPC proxy client, i.e. **without the need for context**.
 This lets you call your procedures with `async`/`await` without needing to create an additional vanilla client.
 
 ```html
@@ -123,7 +125,7 @@ This lets you call your procedures with `async`/`await` without needing to creat
     { currentTarget: EventTarget & HTMLFormElement }
 
   const handleSubmit = async (event: FormSubmitEvent) => {
-    const apiKey = await trpc.client.apiKey.create.mutate(event);
+    const apiKey = await trpc.proxy.apiKey.create.mutate(event);
     setApiKey(apiKey);
   }
 </script>
@@ -151,6 +153,7 @@ on the input passed to it to prevent unnecessary calls to the back end.
 ```html
 <script lang="ts">
   import { trpc } from '$lib/trpc';
+
   const utils = trpc.getContext();
 
   const mutation = trpc.post.edit.useMutation({
@@ -161,20 +164,21 @@ on the input passed to it to prevent unnecessary calls to the back end.
   });
 </script>
 
+{...}
+
 ```
 
 ### Invalidating across whole routers
 
-It is also possible to invalidate queries across an entire router rather then
-just one query.
+It is also possible to invalidate queries across an entire router rather then just one query.
 
 #### Example code
 
 <details><summary>Backend code</summary>
 
 ```tsx title='server/routers/_app.ts'
-import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
+import { initTRPC } from '@trpc/server';
 
 export const t = initTRPC.create();
 
@@ -220,6 +224,7 @@ export const appRouter = t.router({
 ```html
 <script lang="ts">
   import { trpc } from '$lib/trpc';
+
   const utils = trpc.getContext()
 
   const invalidateAllQueriesAcrossAllRouters = () => {
@@ -248,7 +253,7 @@ export const appRouter = t.router({
 </script>
 
 { ... }
-}
+
 ```
 
 ### Invalidate full cache on every mutation
@@ -273,10 +278,10 @@ export const trpc = createTRPCSvelte<AppRouter, SSRContext>({
          * having a flash of content change whilst redirecting.
          **/
 
-        // Calls the `onSuccess` defined in the `useQuery()`-options:
+        // Calls the `onSuccess` defined in the `createMutation()` options:
         await opts.originalFn();
 
-        // Invalidate all queries in the react-query cache:
+        // Invalidate all queries in the svelte-query cache:
         await opts.queryClient.invalidateQueries();
       },
     },

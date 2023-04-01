@@ -13,8 +13,13 @@ custom_edit_url: null
 
 ### Type Aliases
 
-- [TRPCSvelteQueryProxy](types/TRPCSvelteQueryProxy.md)
+- [TRPCSvelte](types/TRPCSvelte.md)
+
+### Variables
+
+- [TRPC\_CONTEXT\_KEY](variables/TRPC_CONTEXT_KEY.md)
 
 ### Functions
 
 - [createTRPCSvelte](functions/createTRPCSvelte.md)
+- [getQueryKey](functions/getQueryKey.md)

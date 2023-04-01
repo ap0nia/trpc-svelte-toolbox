@@ -32,7 +32,7 @@ Try using a file structure like this one!
 │       │       ├── post.ts  # <-- sub routers
 │       │       └── index.ts # <-- exports a merged router
 │       │
-│       ├── trpc.ts <-- tRPC + Svelte-Query proxy (typesafe hooks)
+│       ├── trpc.ts # <-- typesafe tRPC client + svelte-query hooks
 │       └── [..]
 └── [..]
 ```
@@ -72,6 +72,7 @@ pnpm add @trpc/server @trpc/client @tanstack/react-query zod @bevm0/trpc-svelte-
 If you want to use Zod for input validation, make sure you have enabled strict mode in your `tsconfig.json`:
 
 ```diff title="tsconfig.json"
+"extends": "./.svelte-kit/tsconfig.json",
 "compilerOptions": {
 +   "strict": true
 }
@@ -80,6 +81,7 @@ If you want to use Zod for input validation, make sure you have enabled strict m
 If strict mode is too harsh, you'll at least want to enable `strictNullChecks`:
 
 ```diff title="tsconfig.json"
+"extends": "./.svelte-kit/tsconfig.json",
 "compilerOptions": {
 +   "strictNullChecks": true
 }
@@ -224,6 +226,8 @@ export const load: LayoutLoad = async (event) => {
   import type { PageData } from './$types'
 
   export let data: PageData 
+
+  data.trpc.setContext(data.trpc.client, data.trpc.queryClient)
 </script>
 
 <QueryClientProvider client={data.trpc.queryClient}>
@@ -232,6 +236,19 @@ export const load: LayoutLoad = async (event) => {
 
 ```
 
+:::tip
+The tRPC proxy created in `+layout.ts` and `src/lib/trpc.ts` are different clients.
+The purpose of the one in `+layout.ts` is to be used in load functions to hydrate a new query client created for the user.
+Once the page loads, the initialized query client is used instead of initializing a new one.
+
+Now the client in `src/lib/trpc.ts` takes over. 
+`setContext` is used to share the data already created,
+to be used by helper functions from `trpc.getContext()`. 
+i.e. all tRPC clients are able to share the same `queryClient` through the use of Svelte's context API.
+
+The tRPC context also requires an **untyped** tRPC client to make its requests, which is provided by `trpc.client`.
+:::
+
 ### 7. Make an API request from a component
 
 You're all set!
@@ -239,13 +256,12 @@ You're all set!
 You can now use the hooks you have just created to invoke your API.
 
 :::note
-1. We initialized a new query client for the user in +layout.ts
+1. We initialized a new query client for the user in `+layout.ts`
    -> When load functions invoke this tRPC client, 
       it will be caching directly to the newly initialized query client
 
-2. We used that query client in the QueryClientProvider in +layout.svelte
-   -> When fetching within components, the tRPC client was initialized without a query client,
-      so it uses `useQueryClient` to pick up the same query client that was passed into `+layout.svelte`
+2. We used that query client in the QueryClientProvider in `+layout.svelte` and also added it to the trpc context.
+   -> When `setContext` was called, a new proxy was created to perform helper functions on the specified query client.
 :::
 
 ```html title='src/routes/+page.svelte'
@@ -272,25 +288,22 @@ I don't think you can initialize a tRPC + svelte-query client in `+layout.server
 :::
 
 :::tip
-`loadContext` is intended to work like `getContext`, but outside of components.
-
-It returns a proxy that uses the query client created in `+layout.ts` without requiring `setContext` to provide it.
-
-In components, I thought using `setContext` to set the query client and evaluate the proxy was appropriate since
-it's difficult to predict where the query client might originate in different apps.
+`context` is intended to work like `getContext`, but outside of components.
+It is always available as long as you call `createTRPCSvelte` 
+and provide the `svelteQueryContext` (query client) property in the second argument.
 :::
 
 ```ts title='src/routes/+page.ts'
 import type { PageLoad } from './$types'
 
 export const load: PageLoad = async ({ parent }) => {
-  /**
-   * use the initialized tRPC client from the parent +layout.ts
-   */
+  // use the initialized tRPC client from the parent +layout.ts
   const { trpc } = await parent()
 
+  // in components, if you didn't specify the `svelteQueryContext` in `src/lib/trpc.ts` -- i.e. like the guide,
+  // you should use `getContext()` because `context` wasn't able to be computed.
   return {
-    greeting: trpc.loadContext.hello.fetch({ text: 'client' });
+    greeting: trpc.context.hello.fetch({ text: 'client' });
   }
 }
 ```
@@ -304,6 +317,9 @@ Usage in the component can vary:
   import { trpc } from '$lib/trpc'
   import { PageData } from './$types'
 
+  // data = {
+  //   hello: '...'
+  // }
   export let data: PageData
 
   const hello = trpc.hello.createQuery({ text: 'client' });
@@ -326,11 +342,17 @@ Usage in the component can vary:
 ### Experimental
 Since tRPC is initialized in `+layout.ts` and returned.
 You should actually be able to access it via the page store.
+You'll just need to define it as part of global `PageData` in [`src/app.d.ts`](https://kit.svelte.dev/docs/types#app)
+
 ```html
 <script lang="ts">
   import { page } from '$app/stores'
 
   const trpc = $page.data.trpc
+
+  const utils = trpc.getContext()
+
+  const query = trpc.greeting.createQuery()
 </script>
 
 {...}

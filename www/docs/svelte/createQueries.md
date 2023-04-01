@@ -10,8 +10,7 @@ at the same time using only one hook call.
 
 The main use case for such a hook is to be able to fetch a number of queries, usually of the same type.
 For example if you fetch a list of todo ids,
-you can then map over them in a useQueries hook calling a byId endpoint
-that would fetch the details of each todo.
+you can then map over them in a `createQueries` hook calling a `byId` endpoint that would fetch the details of each todo.
 
 ## Usage
 
@@ -29,9 +28,10 @@ Additionally, if the underlying procedure is using something like Prisma's `find
 & do exactly 1 database query as well.
 :::
 
-:::tip
+:::note
 The returned array needs to be of "readonly" nature, this means that you can't store
-the array in a variable and return it (I think); you must return the array itself from the callback.
+the array in a variable and return it (I think); 
+you must return the array directly from the callback, or qualify the array with `as const`.
 :::
 
 ```html title='src/components/MyComponent.svelte'
@@ -50,7 +50,7 @@ the array in a variable and return it (I think); you must return the array itsel
 ### Providing options to individual queries
 
 You can also pass in any normal query options to the second parameter of any of the query calls 
-in the array such as `enabled`, `suspense`, `refetchOnWindowFocus`...etc.
+in the array such as `enabled`, `refetchOnWindowFocus`...etc.
 
 For a complete overview of all the available options, see the 
 [tanstack useQuery](https://tanstack.com/query/v4/docs/react/reference/useQuery) documentation.
@@ -74,24 +74,4 @@ For a complete overview of all the available options, see the
   <p>{$greeting.data.message}</p>
   <button on:click={onButtonClick}>Click to fetch</button>
 </div>
-
-```
-
-### Context
-
-You can also pass in an optional Svelte Query context to override the default.
-
-:::note
-I think this is WIP actually
-:::
-
-```html
-<script lang="ts">
-  const [post, greeting] = trpc.createQueries((t) => [
-      t.post.byId({ id: '1' }),
-      t.greeting({ text: 'world' })
-    ],
-    myCustomContext,
-  );
-</script>
 ```

@@ -30,6 +30,11 @@ const config = {
           label: 'SvelteKit',
         },
         {
+          position: 'right',
+          label: 'Blog',
+          to: 'blog',
+        },
+        {
          href: 'https://github.com/bevm0/trpc-svelte-toolbox.git',
           position: 'right',
           className: 'header-github-link',
@@ -56,6 +61,10 @@ const config = {
         {
           title: 'More',
           items: [
+            {
+              label: 'Blog',
+              to: 'blog',
+            },
             {
               label: 'GitHub',
               href: 'https://github.com/bevm0/trpc-svelte-toolbox.git',

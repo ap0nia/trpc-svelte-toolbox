@@ -98,8 +98,7 @@ This helper gets the currently cached data from an existing infinite query
 <script lang="ts">
   import { trpc } from '$lib/trpc';
 
-  // utils is a special key at the root of the tRPC + svelte-query proxy with helper methods
-  const utils = trpc.utils
+  const utils = trpc.getContext()
 
   const myMutation = trpc.infinitePosts.add.useMutation({
     async onMutate({ post }) {
@@ -121,8 +120,7 @@ This helper allows you to update a query's cached data
 <script lang="ts">
   import { trpc } from '../utils/trpc';
 
-  // utils is a special key at the root of the tRPC + svelte-query proxy with helper methods
-  const utils = trpc.utils
+  const utils = trpc.getContext()
 
   const myMutation = trpc.infinitePosts.delete.useMutation({
     async onMutate({ post }) {

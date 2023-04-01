@@ -8,7 +8,7 @@ slug: /svelte/createmutation
 :::note
 The hooks provided by `@bevm0/trpc-svelte-query` are a thin wrapper around @tanstack/svelte-query.
 For in-depth information about options and usage patterns,
-refer to their docs on [queries](https://tanstack.com/query/v4/docs/svelte/overview#available-functions).
+refer to their docs on [mutations](https://tanstack.com/query/v4/docs/svelte/overview#available-functions).
 :::
 
 Works like svelte-query's mutations - 
@@ -56,7 +56,7 @@ export const appRouter = t.router({
 
   const handleLogin = () => {
     const name = 'John Doe';
-    mutation.mutate({ name });
+    $mutation.mutate({ name });
   };
 </script>
 

@@ -48,31 +48,25 @@ import { initTRPC } from '@trpc/server';
 const t = initTRPC.create();
 
 const appRouter = t.router({
-  getUser: t.procedure.input(z.object({ id: z.string() })).query(() => ({ name: 'Pardo' })),
-  createUser: t.procedure.input(z.object({ name: z.string() })).mutation(() => 'Felis'),
+  getUser: t.procedure
+    .input(z.object({ id: z.string() }))
+    .query(() => ({ name: 'Pardo' })),
+
+  createUser: t.procedure
+    .input(z.object({ name: z.string() }))
+    .mutation(() => 'Felis'),
 });
 
 export type AppRouter = typeof appRouter;
 ```
 
-### 3. Create tRPC hooks
+### 3. Import your `AppRouter` and Create tRPC hooks
 
 Create a set of strongly-type Svelte hooks from your `AppRouter` type signature with `createTRPCSvelte`.
 
 :::tip
 These are meant to be used **in components only**.
-[See how to use `loadContext` in SvelteKit load functions here](/sveltekit/setup).
-
-In SvelteKit, it's possible for this client to be initialized on either the server or the client.
-As a result, this client is "disconnected" from any explicit query client to prevent "cache pollution".
-It will only save its data to the query client specified by `setContext` within components.
-
-In load functions, we want to explicitly write to the query client since there
-is no context outside of components, and we create a new one per +layout.ts;
-the `loadContext` will invoke the typical contextual functions directly on the query client.
-
-Once the page loads, the hydrated query client is provided to the `QueryClientProvider`
-and also set in the trpc context so that everything on the component level is synchronized.
+[See how to use `context` directly in SvelteKit load functions here](/sveltekit/setup).
 :::
 
 ```ts title='src/lib/trpc.ts'
@@ -103,7 +97,11 @@ If you already use Svelte Query in your application, you **should** re-use the `
 
   const queryClient = new QueryClient()
 
-  trpc.setContext(queryClient)
+  // the tRPC context needs
+  // 1. an untyped tRPC client to make the request
+  // 2. a query client to control
+  // 3. (optional) options to control the behavior of context
+  trpc.setContext(trpc.client, queryClient)
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -111,14 +109,10 @@ If you already use Svelte Query in your application, you **should** re-use the `
 </QueryClientProvider>
 ```
 :::note
-The extra 'setContext' step is used to synchronize multiple tRPC clients with the same query client.
-i.e. you can initialize multiple trpc clients via `createTRPCSvelte`
-and contextual functions from `getContext` will apply to the same queryClient.
+`setContext` is intended to be analogous to [`trpc.Provider`](https://trpc.io/docs/reactjs/setup#4-add-trpc-providers).
 
-It also allows a single `context` proxy to be created once during the layout load, 
-and not have to be recalculated everytime `getContext` is called.
-
-It's intended to be analogous to the `trpc.Provider` component in react-query.
+The main difference is that the provided tRPC client should be **untyped**.
+This `TRPCUntypedClient` and a typesafe `TRPCProxyClient` can be accessed via `trpc.client` and `trpc.proxy` respectively.
 :::
 
 ### 5. Fetch data

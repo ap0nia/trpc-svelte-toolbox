@@ -10,7 +10,7 @@ custom_edit_url: null
 ## Signature
 
 ```ts
-createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOptions?: CreateTRPCSvelteOptions): TRPCSvelteQueryProxy<T>;
+createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOptions?: SvelteQueryProxyOptions): TRPCSvelte<T>;
 ```
 
 ## Type parameters
@@ -22,10 +22,10 @@ createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOp
 | Name | Type |
 | :------ | :------ |
 | `trpcClientOptions` | `CreateTRPCClientOptions`<`T`\> |
-| `svelteQueryOptions?` | `CreateTRPCSvelteOptions` |
+| `svelteQueryOptions?` | `SvelteQueryProxyOptions` |
 
 ## Returns
 
-[`TRPCSvelteQueryProxy`](../types/TRPCSvelteQueryProxy.md)<`T`\>
+[`TRPCSvelte`](../types/TRPCSvelte.md)<`T`\>
 
-Defined in:  [index.ts:306](https://github.com/bevm0/trpc-svelte-toolbox/blob/9479c80/packages/trpc-svelte-query/src/index.ts#L306)
+Defined in:  [createTRPCSvelte.ts:32](https://github.com/bevm0/trpc-svelte-toolbox/blob/916a475/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L32)

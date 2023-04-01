@@ -27,16 +27,28 @@ you can use any of their options here such as `enabled`, `refetchOnWindowFocus`,
 We also have some `trpc` specific options that let you opt in or out of certain behaviors on a per-procedure level:
 
 From `TRPCRequestOptions`
-- **`trpc.context`:** Forwarded to the `client.query` call
+- **`trpc.context`:** 
+  Context for links, forwarded to the `client.query` call.
+  [Reference](https://trpc.io/docs/typedoc/react-query/interfaces/TRPCRequestOptions#context)
 
 Custom
-- **`trpc.abortOnUnmount`**: Indicates that the `queryFn`'s `context.signal` should be forwarded to 
+- **`trpc.abortOnUnmount`**: 
+  Indicates that the `queryFn`'s `context.signal` should be forwarded to 
   trpc's `query` function to enabling aborting the request.
+
+Not Implemented
+- **`trpc.ssr`**:
+  @trpc/react-query uses [react-ssr-prepass](https://www.npmjs.com/package/react-ssr-prepass)
+  to find all promises and fetch them prior to the page loading (I think).
+  My approach to tRPC + SSR with SvelteKit is to explicitly prefetch all required data in load functions.
+  So you can only explicitly opt *in* to SSR. 
+  But idk if it fully counts as SSR since it can only be used in non-server load functions atm.
+  [Reference](https://trpc.io/docs/typedoc/react-query/interfaces/TRPCRequestOptions#context)
 
 :::tip
 If you need to set any options but don't want to pass any input, you can pass `undefined` as the input.
 
-e.g. trpc.hello.createQuery(undefined, {...})
+e.g. `trpc.hello.createQuery(undefined, {...})`
 :::
 
 You'll notice that you get autocompletion on the `input` based on what you have set in your `input` schema on your backend.

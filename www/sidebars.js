@@ -14,10 +14,10 @@ module.exports = {
         'svelte/createQuery',
         'svelte/createMutation',
         'svelte/createInfiniteQuery',
+        'svelte/context',
         'svelte/createQueries',
         'svelte/createReactiveQuery',
         'svelte/getQueryKey',
-        'svelte/context',
       ],
     },
     {

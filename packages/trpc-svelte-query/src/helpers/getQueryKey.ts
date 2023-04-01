@@ -23,7 +23,7 @@ export type QueryKeyKnown<TInput, TType extends Exclude<QueryType, 'any'>> = [
 
 export function getQueryKeyInternal(
   pathArray: string[],
-  input: unknown,
+  input?: unknown,
   type?: QueryType
 ): QueryKey {
   const hasInput = typeof input !== 'undefined'
@@ -35,7 +35,7 @@ export function getQueryKeyInternal(
 
 export function getQueryKey<T extends AnyProcedure | AnyRouter>(
   procedureOrRouter: T,
-  input: unknown,
+  input?: unknown,
   type: QueryType = 'any'
 ): QueryKey {
   // eslint-disable-next-line no-underscore-dangle

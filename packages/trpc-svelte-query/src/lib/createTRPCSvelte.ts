@@ -246,7 +246,7 @@ export function createTRPCSvelte<T extends AnyRouter>(
 
   const innerProxy = createTRPCSvelteInner(client, svelteQueryOptions)
 
-  const loadContext = createTRPCContext(client, svelteQueryOptions?.svelteQueryContext)
+  let loadContext: ContextRouter<T>
 
   const proxy = createFlatProxy<CreateTRPCSvelte<T>>((initialKey) => {
     switch (initialKey) {
@@ -257,6 +257,7 @@ export function createTRPCSvelte<T extends AnyRouter>(
         return svelteQueryOptions?.svelteQueryContext
 
       case 'loadContext':
+        loadContext = createTRPCContext<T>(client, svelteQueryOptions?.svelteQueryContext)
         return loadContext
 
       case 'createContext':

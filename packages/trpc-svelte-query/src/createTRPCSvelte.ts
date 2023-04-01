@@ -15,7 +15,7 @@ import type { SetContextProxy, GetContextProxy, ContextProxy } from './proxies/c
 import type { CreateQueriesFn } from './proxies/createQueries'
 import type { SvelteQueryProxy, SvelteQueryProxyOptions } from './proxies/svelteQuery'
 
-type TRPCSvelteRootProperties<T extends AnyRouter> = {
+type TRPCSvelteRoot<T extends AnyRouter> = {
   client: TRPCUntypedClient<T>
   proxy: CreateTRPCProxyClient<T>
   queryClient: QueryClient
@@ -27,7 +27,7 @@ type TRPCSvelteRootProperties<T extends AnyRouter> = {
   createQueries: CreateQueriesFn<T>
 }
 
-export type TRPCSvelte<T extends AnyRouter> = SvelteQueryProxy<T> & TRPCSvelteRootProperties<T>
+export type TRPCSvelte<T extends AnyRouter> = SvelteQueryProxy<T> & TRPCSvelteRoot<T>
 
 export function createTRPCSvelte<T extends AnyRouter>(
   trpcClientOptions: CreateTRPCClientOptions<T>,
@@ -61,8 +61,12 @@ export function createTRPCSvelte<T extends AnyRouter>(
       case 'queryClient':
         return svelteQueryOptions?.svelteQueryContext
 
-      case 'loadContext':
+      case 'loadContext': {
+        if (loadContextProxy == null) {
+          throw new Error('`loadContext` is not available, did you provide a query client?')
+        }
         return loadContextProxy
+      }
 
       case 'createContext':
         return createContextProxy

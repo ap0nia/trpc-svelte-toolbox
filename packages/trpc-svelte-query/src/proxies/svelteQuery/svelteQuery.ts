@@ -188,12 +188,9 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
         } satisfies CreateMutationOptions)
       }
 
-      // TODO
-      case 'createSubscription': {
-        return 'WIP'
-      }
+      case 'createSubscription': 
+        return client.subscription(path, anyArgs[0], anyArgs[1])
 
-      // invoked by public `getQueryKey` helper
       case '_def':
         return pathCopy
 

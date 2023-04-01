@@ -1,14 +1,15 @@
 import { get } from 'svelte/store'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { setTRPCContext, getTRPCContext } from './context'
+import { createTRPCContext, setTRPCContext, getTRPCContext } from './context'
 import { isWritable } from './createReactiveQuery'
 import { getQueryKeyInternal } from './getQueryKey'
-import {
-  createTRPCUntypedClient,
-  type CreateTRPCClientOptions,
-  type TRPCClientErrorLike,
-  type TRPCRequestOptions,
+import type {
+  CreateTRPCClientOptions,
+  TRPCClientErrorLike,
+  TRPCRequestOptions,
+  TRPCUntypedClient,
 } from '@trpc/client'
+import { createTRPCUntypedClient } from '@trpc/client'
 import type {
   AnyMutationProcedure,
   AnyProcedure,
@@ -126,19 +127,14 @@ type TRPCSvelteQueryProcedure<TProcedure, TPath extends string> =
   TProcedure extends AnyMutationProcedure ? MutationProcedure<TProcedure> :
   TProcedure extends AnySubscriptionProcedure ? SubscriptionProcedure<TProcedure> : never
 
-type InternalProperties = {
-  _def: string[]
-}
-
 export type TRPCSvelteQueryRouter<
   TRouter extends AnyRouter,
   TPath extends string = '',
-  Internal = false
 > = {
   [k in keyof TRouter]: TRouter[k] extends AnyRouter
-    ? TRPCSvelteQueryRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`, Internal>
+    ? TRPCSvelteQueryRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
     : TRPCSvelteQueryProcedure<TRouter[k], TPath>
-} & (Internal extends true ? InternalProperties : object)
+}
 
 export interface CreateMutationOverride {
   onSuccess: (opts: {
@@ -156,12 +152,9 @@ export interface CreateTRPCSvelteOptions {
   svelteQueryContext?: QueryClient
 }
 
-export function createTRPCSvelte<T extends AnyRouter>(
-  trpcOptions: CreateTRPCClientOptions<T>,
-  queryOptions?: CreateTRPCSvelteOptions
+function createTRPCSvelteInner<T extends AnyRouter>(
+  client: TRPCUntypedClient<T>
 ) {
-  const client = createTRPCUntypedClient<T>(trpcOptions)
-
   const innerProxy = createRecursiveProxy((options) => {
     const anyArgs: any = options.args
 
@@ -220,16 +213,35 @@ export function createTRPCSvelte<T extends AnyRouter>(
     }
   }) as TRPCSvelteQueryRouter<T>
 
+  return innerProxy
+}
+
+export function createTRPCSvelte<T extends AnyRouter>(
+  trpcClientOptions: CreateTRPCClientOptions<T>,
+  svelteQueryOptions?: CreateTRPCSvelteOptions
+) {
+  const client = createTRPCUntypedClient<T>(trpcClientOptions)
+
+  const innerProxy = createTRPCSvelteInner(client)
+
+  const loadContext = createTRPCContext(client, svelteQueryOptions)
+
   const proxy = createFlatProxy((initialKey) => {
     switch (initialKey) {
       case 'client':
         return client
 
       case 'queryClient':
-        return queryOptions?.svelteQueryContext
+        return svelteQueryOptions?.svelteQueryContext
+
+      case 'loadContext':
+        return loadContext[initialKey]
+
+      case 'createContext':
+        return createTRPCContext
 
       case 'setContext':
-        return () => setTRPCContext(client)
+        return setTRPCContext
 
       case 'getContext':
         return getTRPCContext

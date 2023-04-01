@@ -1,6 +1,6 @@
 import { setContext, getContext } from 'svelte'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import { useQueryClient } from '@tanstack/svelte-query'
+import { QueryClient, useQueryClient } from '@tanstack/svelte-query'
 import type { TRPCUntypedClient, TRPCClientError, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyProcedure,
@@ -139,11 +139,19 @@ export type ContextRouter<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? ContextRouter<T[k]> : ContextProcedure<T, T[k]>
 } & SharedContext
 
+export interface CreateTRPCSvelteOptions {
+  abortOnUnmount?: boolean
+  svelteQueryContext?: QueryClient
+}
+
 const TRPC_CONTEXT_KEY = Symbol('TRPC_CONTEXT_KEY')
 
-export function setTRPCContext<T extends AnyRouter>(client: TRPCUntypedClient<T>) {
+export function createTRPCContext<T extends AnyRouter>(
+  client: TRPCUntypedClient<T>,
+  svelteQueryOptions?: CreateTRPCSvelteOptions
+) {
   const innerProxy = createRecursiveProxy((options) => {
-    const queryClient = useQueryClient()
+    const queryClient = svelteQueryOptions?.svelteQueryContext ?? useQueryClient()
 
     const anyArgs: any = options.args
 
@@ -224,10 +232,15 @@ export function setTRPCContext<T extends AnyRouter>(client: TRPCUntypedClient<T>
     }
   }) as ContextRouter<T>
 
-  const proxy = createFlatProxy<ContextRouter<T>>((initialKey) => {
-    return innerProxy[initialKey]
-  })
+  const proxy = createFlatProxy<ContextRouter<T>>((initialKey) => innerProxy[initialKey])
+  return proxy
+}
 
+export function setTRPCContext<T extends AnyRouter>(
+  client: TRPCUntypedClient<T>,
+  svelteQueryOptions?: CreateTRPCSvelteOptions
+) {
+  const proxy = createTRPCContext(client, svelteQueryOptions)
   setContext(TRPC_CONTEXT_KEY, proxy)
 }
 

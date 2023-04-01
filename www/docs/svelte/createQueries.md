@@ -29,16 +29,6 @@ Additionally, if the underlying procedure is using something like Prisma's `find
 & do exactly 1 database query as well.
 :::
 
-:::note
-This differs from @trpc/react-query because you use the `createOptions` method.
-This is always available and returns all the options, e.g. the `queryKey` and `queryFn`,
-needed to create the query.
-
-Internally, the provided callback function will be invoked with the proxy, 
-and all the options generated will be used directly in a `createQueries` call,
-resulting in a strongly typed `createQueries` output.
-:::
-
 :::tip
 The returned array needs to be of "readonly" nature, this means that you can't store
 the array in a variable and return it (I think); you must return the array itself from the callback.
@@ -49,7 +39,7 @@ the array in a variable and return it (I think); you must return the array itsel
   import { trpc } from '$lib/trpc'
 
   const postQueries = trpc.createQueries((t) =>
-    props.postIds.map((id) => t.post.byId.createOptions({ id })),
+    props.postIds.map((id) => t.post.byId({ id })),
   );
 </script>
 
@@ -67,7 +57,7 @@ For a complete overview of all the available options, see the
 
 ```html title='src/components/MyComponent.svelte'
 <script lang="ts">
-  const [post, greeting] = trpc.useQueries((t) => [
+  const [post, greeting] = trpc.createQueries((t) => [
     t.post.byId({ id: '1' }, { enabled: false }),
     t.greeting({ text: 'world' }),
   ]);
@@ -98,8 +88,8 @@ I think this is WIP actually
 ```html
 <script lang="ts">
   const [post, greeting] = trpc.createQueries((t) => [
-      t.post.byId.createOptions({ id: '1' }),
-      t.greeting.createOptions({ text: 'world' })
+      t.post.byId({ id: '1' }),
+      t.greeting({ text: 'world' })
     ],
     myCustomContext,
   );

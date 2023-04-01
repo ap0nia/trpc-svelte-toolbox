@@ -6,12 +6,11 @@ import { getQueryKeyInternal } from '../../helpers/getQueryKey'
 import type { CreateQueriesProxy } from './types'
 
 export interface CreateQueriesOptions {
-  context: QueryClient
+  context?: QueryClient
 }
 
 export function createCreateQueriesProxy<T extends AnyRouter>(
-  client: TRPCUntypedClient<T>,
-  createQueriesOptions: CreateQueriesOptions
+  client: TRPCUntypedClient<T>
 ): CreateQueriesProxy<T> {
   const innerCreateQueriesProxy = createRecursiveProxy((options) => {
     const anyArgs: any = options.args
@@ -29,7 +28,6 @@ export function createCreateQueriesProxy<T extends AnyRouter>(
           ...rest?.trpc,
         }),
       ...rest,
-      ...createQueriesOptions,
     } satisfies CreateQueryOptions
 
     return queryOptions

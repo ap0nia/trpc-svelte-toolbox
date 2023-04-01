@@ -21,8 +21,9 @@ import type {
   RefetchOptions,
 } from '@tanstack/svelte-query'
 import type { InfiniteQueryInput, TRPCOptions } from '$lib/types'
-import type { Override } from '$lib/utils'
 import type { QueryKeyKnown } from '$lib/getQueryKey'
+
+type Override<Left, Right> = Omit<Left, keyof Right> & Right
 
 export type QueryContext<
   TRouter extends AnyRouter,

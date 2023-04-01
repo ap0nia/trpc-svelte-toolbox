@@ -1,7 +1,3 @@
-/**
- * Maps a tRPC router to a `createQueries` proxy (provided to the callback).
- */
-
 import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueriesResult,
@@ -11,12 +7,8 @@ import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { AnyProcedure, AnyQueryProcedure, AnyRouter, inferProcedureInput } from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 
-interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
-  abortOnUnmount?: boolean
-}
-
-export interface TRPCOptions {
-  trpc?: TRPCSvelteRequestOptions
+interface TRPCOptions {
+  trpc?: Omit<TRPCRequestOptions, 'signal'> & { abortOnUnmount?: boolean }
 }
 
 type CreateQueriesProcedure<
@@ -30,17 +22,14 @@ type CreateQueriesProcedure<
   opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
 ) => CreateQueryOptions<TOutput, unknown, TOutput, [TPath, TInput]>
 
-type TRPCSvelteQueriesProcedure<
-  TProcedure,
-  TPath extends string
-> = TProcedure extends AnyQueryProcedure ? CreateQueriesProcedure<TProcedure, TPath> : never
-
-export type TRPCSvelteQueriesRouter<TRouter extends AnyRouter, TPath extends string = ''> = {
+export type CreateQueriesProxy<TRouter extends AnyRouter, TPath extends string = ''> = {
   [k in keyof TRouter]: TRouter[k] extends AnyRouter
-    ? TRPCSvelteQueriesRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
-    : TRPCSvelteQueriesProcedure<TRouter[k], TPath>
+    ? CreateQueriesProxy<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    : TRouter[k] extends AnyQueryProcedure
+    ? CreateQueriesProcedure<TRouter[k], TPath>
+    : never
 }
 
-export type CreateQueries<T extends AnyRouter> = <Options extends unknown[]>(
-  callback: (t: TRPCSvelteQueriesRouter<T>) => readonly [...QueriesOptions<Options>]
+export type CreateQueriesFn<T extends AnyRouter> = <Options extends unknown[]>(
+  callback: (t: CreateQueriesProxy<T>) => readonly [...QueriesOptions<Options>]
 ) => CreateQueriesResult<Options>

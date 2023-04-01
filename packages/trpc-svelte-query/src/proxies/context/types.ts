@@ -1,8 +1,12 @@
-/**
- * Maps a tRPC router to a context router.
- */
-
-import type { QueryKeyKnown } from '../../helpers/getQueryKey'
+import type { TRPCClientError, TRPCRequestOptions } from '@trpc/client'
+import type {
+  AnyProcedure,
+  AnyQueryProcedure,
+  AnyRouter,
+  DeepPartial,
+  inferProcedureInput,
+} from '@trpc/server'
+import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 import type {
   QueryClient,
   InvalidateQueryFilters,
@@ -17,19 +21,9 @@ import type {
   Query,
   RefetchOptions,
 } from '@tanstack/svelte-query'
-import type { TRPCClientError, TRPCRequestOptions } from '@trpc/client'
-import type {
-  AnyProcedure,
-  AnyQueryProcedure,
-  AnyRouter,
-  DeepPartial,
-  inferProcedureInput,
-} from '@trpc/server'
-import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
+import type { QueryKeyKnown } from '../../helpers/getQueryKey'
 
-interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
-  abortOnUnmount?: boolean
-}
+type TRPCSvelteRequestOptions = Omit<TRPCRequestOptions, 'signal'> & { abortOnUnmount?: boolean }
 
 interface TRPCOptions {
   trpc?: TRPCSvelteRequestOptions
@@ -122,27 +116,28 @@ interface InfiniteContext<
   ) => void
 }
 
-// prettier-ignore
-type QueryContextProcedure<Trouter extends AnyRouter, TProcedure extends AnyProcedure> = 
-  QueryContext<Trouter, TProcedure> &
-  (inferProcedureInput<TProcedure> extends InfiniteQueryInput ? InfiniteContext<Trouter, TProcedure> : object)
+type QueryContextProcedure<
+  Trouter extends AnyRouter,
+  TProcedure extends AnyProcedure
+> = QueryContext<Trouter, TProcedure> &
+  (inferProcedureInput<TProcedure> extends InfiniteQueryInput
+    ? InfiniteContext<Trouter, TProcedure>
+    : object)
 
 interface SharedContext {
   invalidate: (filters?: InvalidateQueryFilters, opts?: InvalidateOptions) => Promise<void>
 }
 
-interface RootContext extends SharedContext {
-  queryClient: QueryClient
-}
+type RootContext = { queryClient: QueryClient } & SharedContext
 
 type ContextProcedure<TRouter extends AnyRouter, TProcedure> = TProcedure extends AnyQueryProcedure
   ? QueryContextProcedure<TRouter, TProcedure>
   : never
 
-type InnerContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T, T[k]>
+type InnerContextProxy<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerContextProxy<T[k]> : ContextProcedure<T, T[k]>
 } & SharedContext
 
-export type ContextRouter<T extends AnyRouter> = {
-  [k in keyof T]: T[k] extends AnyRouter ? InnerContextRouter<T[k]> : ContextProcedure<T, T[k]>
+export type ContextProxy<T extends AnyRouter> = {
+  [k in keyof T]: T[k] extends AnyRouter ? InnerContextProxy<T[k]> : ContextProcedure<T, T[k]>
 } & RootContext

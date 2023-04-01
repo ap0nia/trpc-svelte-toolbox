@@ -1,7 +1,3 @@
-/**
- * Maps a tRPC router to basic svelte-query hooks.
- */
-
 import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyMutationProcedure,
@@ -23,12 +19,8 @@ import type {
 } from '@tanstack/svelte-query'
 import type { MaybeWritable } from '../../extensions/createReactiveQuery'
 
-interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
-  abortOnUnmount?: boolean
-}
-
-interface TRPCOptions {
-  trpc?: TRPCSvelteRequestOptions
+export interface TRPCOptions {
+  trpc?: Omit<TRPCRequestOptions, 'signal'> & { abortOnUnmount?: boolean }
 }
 
 interface InfiniteQueryInput {
@@ -107,13 +99,13 @@ interface SubscriptionProcedure<T extends AnyProcedure> {
 }
 
 // prettier-ignore
-type TRPCSvelteQueryProcedure<TProcedure, TPath extends string> = 
+type SvelteQueryProcedure<TProcedure, TPath extends string> = 
   TProcedure extends AnyQueryProcedure ? QueryProcedure<TProcedure, TPath> :
   TProcedure extends AnyMutationProcedure ? MutationProcedure<TProcedure> :
   TProcedure extends AnySubscriptionProcedure ? SubscriptionProcedure<TProcedure> : never
 
-export type TRPCSvelteQueryRouter<TRouter extends AnyRouter, TPath extends string = ''> = {
+export type SvelteQueryProxy<TRouter extends AnyRouter, TPath extends string = ''> = {
   [k in keyof TRouter]: TRouter[k] extends AnyRouter
-    ? TRPCSvelteQueryRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
-    : TRPCSvelteQueryProcedure<TRouter[k], TPath>
+    ? SvelteQueryProxy<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    : SvelteQueryProcedure<TRouter[k], TPath>
 }

@@ -1,14 +1,19 @@
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import type { TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import { getQueryKeyInternal } from '../../helpers/getQueryKey'
-import type { TRPCSvelteQueriesRouter } from './types'
+import type { CreateQueriesProxy } from './types'
 
-export function createTRPCQueriesProxy<T extends AnyRouter>(
-  client: TRPCUntypedClient<T>
-): TRPCSvelteQueriesRouter<T> {
-  const innerProxy = createRecursiveProxy((options) => {
+export interface CreateQueriesOptions {
+  context: QueryClient
+}
+
+export function createCreateQueriesProxy<T extends AnyRouter>(
+  client: TRPCUntypedClient<T>,
+  createQueriesOptions: CreateQueriesOptions
+): CreateQueriesProxy<T> {
+  const innerCreateQueriesProxy = createRecursiveProxy((options) => {
     const anyArgs: any = options.args
 
     const pathCopy = [...options.path]
@@ -24,12 +29,14 @@ export function createTRPCQueriesProxy<T extends AnyRouter>(
           ...rest?.trpc,
         }),
       ...rest,
+      ...createQueriesOptions,
     } satisfies CreateQueryOptions
 
     return queryOptions
-  }) as TRPCSvelteQueriesRouter<T>
+  }) as CreateQueriesProxy<T>
 
-  const proxy = createFlatProxy<TRPCSvelteQueriesRouter<T>>((initialKey) => innerProxy[initialKey])
-
-  return proxy
+  const createQueriesProxy = createFlatProxy<CreateQueriesProxy<T>>(
+    (initialKey) => innerCreateQueriesProxy[initialKey]
+  )
+  return createQueriesProxy
 }

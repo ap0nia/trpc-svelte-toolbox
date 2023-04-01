@@ -17,31 +17,45 @@ import type {
   CreateMutationOptions,
   CreateMutationResult,
 } from '@tanstack/svelte-query'
-import type { CreateQueriesResult, QueriesOptions } from '@tanstack/svelte-query/build/lib/createQueries'
+import type {
+  CreateQueriesResult,
+  QueriesOptions,
+} from '@tanstack/svelte-query/build/lib/createQueries'
 import type { InfiniteQueryInput, TRPCOptions } from './types'
 import type { MaybeWritable } from './reactive'
 
 type CreateTRPCQuery<T extends AnyProcedure, TPath extends string> = {
   <TInput = inferProcedureInput<T>, TOutput = inferTransformedProcedureOutput<T>>(
     input: MaybeWritable<TInput>,
-    opts?: CreateQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, TInput]> & TRPCOptions
+    opts?: CreateQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, TInput]> &
+      TRPCOptions
   ): CreateQueryResult<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
 
   <TInput = inferProcedureInput<T>, TOutput = inferTransformedProcedureOutput<T>>(
     input: MaybeWritable<TInput>,
-    opts?: CreateQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, TInput]> & TRPCOptions
+    opts?: CreateQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, TInput]> &
+      TRPCOptions
   ): DefinedCreateQueryResult<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
 }
 
 type CreateTRPCInfiniteQuery<T extends AnyProcedure, TPath extends String> = {
-  <TInput = inferProcedureInput<T>, TOutput = inferTransformedProcedureOutput<T>, NoCursor = Omit<TInput, 'cursor'>>(
+  <
+    TInput = inferProcedureInput<T>,
+    TOutput = inferTransformedProcedureOutput<T>,
+    NoCursor = Omit<TInput, 'cursor'>
+  >(
     input: MaybeWritable<NoCursor>,
-    opts?: CreateInfiniteQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, NoCursor]> & TRPCOptions
+    opts?: CreateInfiniteQueryOptions<TOutput, TRPCClientErrorLike<T>, TOutput, [TPath, NoCursor]> &
+      TRPCOptions
   ): CreateInfiniteQueryResult<inferTransformedProcedureOutput<T>, TRPCClientErrorLike<T>>
 }
 
 type CreateTRPCMutation<T extends AnyProcedure> = {
-  <TInput = inferProcedureInput<T>, TOutput = inferTransformedProcedureOutput<T>, TContext = unknown>(
+  <
+    TInput = inferProcedureInput<T>,
+    TOutput = inferTransformedProcedureOutput<T>,
+    TContext = unknown
+  >(
     opts?: CreateMutationOptions<TOutput, TRPCClientErrorLike<T>, TInput, TContext> & TRPCOptions
   ): CreateMutationResult<TOutput, TRPCClientErrorLike<T>, TInput, TContext>
 }
@@ -62,7 +76,9 @@ type CreateTRPCSubscriptionProcedure<T extends AnyProcedure> = {
 
 type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   createQuery: CreateTRPCQuery<TProcedure, TPath>
-} & (inferProcedureInput<TProcedure> extends InfiniteQueryInput ? CreateTRPCInfiniteQuery<TProcedure, TPath> : object)
+} & (inferProcedureInput<TProcedure> extends InfiniteQueryInput
+  ? CreateTRPCInfiniteQuery<TProcedure, TPath>
+  : object)
 
 type MutationProcedure<T extends AnyProcedure> = {
   createMutation: CreateTRPCMutation<T>
@@ -82,8 +98,16 @@ type TRPCSvelteQueryProcedure<TProcedure, TPath extends string> =
   TProcedure extends AnyMutationProcedure ? MutationProcedure<TProcedure> :
   TProcedure extends AnySubscriptionProcedure ? SubscriptionProcedure<TProcedure> : never
 
-export type TRPCSvelteQueryRouter<T extends AnyRouter, TPath extends string = ''> = {
-  [k in keyof T]: T[k] extends AnyRouter
-    ? TRPCSvelteQueryRouter<T[k]['_def']['record'], `${TPath}${k & string}`>
-    : TRPCSvelteQueryProcedure<T[k], TPath>
+type InternalProperties = {
+  _def: string[]
 }
+
+export type TRPCSvelteQueryRouter<
+  TRouter extends AnyRouter,
+  TPath extends string = '',
+  Internal = false
+> = {
+  [k in keyof TRouter]: TRouter[k] extends AnyRouter
+    ? TRPCSvelteQueryRouter<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    : TRPCSvelteQueryProcedure<TRouter[k], TPath>
+} & (Internal extends true ? InternalProperties : object)

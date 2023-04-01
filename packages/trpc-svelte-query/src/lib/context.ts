@@ -1,5 +1,11 @@
 import type { TRPCClientError } from '@trpc/client'
-import type { AnyProcedure, AnyQueryProcedure, AnyRouter, DeepPartial, inferProcedureInput } from '@trpc/server'
+import type {
+  AnyProcedure,
+  AnyQueryProcedure,
+  AnyRouter,
+  DeepPartial,
+  inferProcedureInput,
+} from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
 import type {
   InvalidateQueryFilters,
@@ -32,47 +38,47 @@ export type QueryKeyKnown<TInput, TType extends Exclude<QueryType, 'any'>> = [
   { input?: GetQueryProcedureInput<TInput>; type: TType }?
 ]
 
-export type QueryContext<TRouter extends AnyRouter, TProcedure extends AnyProcedure> = {
+export type QueryContext<
+  TRouter extends AnyRouter,
+  TProcedure extends AnyProcedure,
+  TInput = inferProcedureInput<TProcedure>,
+  TOutput = inferTransformedProcedureOutput<TProcedure>,
+  TError = TRPCClientError<TRouter>
+> = {
   fetch: (
-    input: inferProcedureInput<TProcedure>,
-    options?: FetchQueryOptions<inferTransformedProcedureOutput<TProcedure>, TRPCClientError<TRouter>> & TRPCOptions
-  ) => Promise<inferTransformedProcedureOutput<TProcedure>>
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+  ) => Promise<TOutput>
 
   prefetch: (
-    input: inferProcedureInput<TProcedure>,
-    options?: FetchQueryOptions<inferTransformedProcedureOutput<TProcedure>, TRPCClientError<TRouter>> & TRPCOptions
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
   ) => Promise<void>
 
   ensureData: (
-    input: inferProcedureInput<TProcedure>,
-    options?: FetchQueryOptions<inferTransformedProcedureOutput<TProcedure>, TRPCClientError<TRouter>> & TRPCOptions
-  ) => Promise<inferTransformedProcedureOutput<TProcedure>>
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+  ) => Promise<TOutput>
 
-  getData: (input: inferProcedureInput<TProcedure>) => inferTransformedProcedureOutput<TProcedure> | undefined
+  getData: (input: TInput) => TOutput | undefined
 
   setData: (
-    input: inferProcedureInput<TProcedure>,
-    updater: Updater<
-      inferTransformedProcedureOutput<TProcedure> | undefined,
-      inferTransformedProcedureOutput<TProcedure> | undefined
-    >,
+    input: TOutput,
+    updater: Updater<TOutput | undefined, TOutput | undefined>,
     options?: SetDataOptions
   ) => void
 
   invalidate: (
-    input?: DeepPartial<inferProcedureInput<TProcedure>>,
+    input?: DeepPartial<TInput>,
     filters?: Override<
       InvalidateQueryFilters,
       {
         predicate?: (
           query: Query<
-            inferProcedureInput<TProcedure>,
-            TRPCClientError<TRouter>,
-            inferProcedureInput<TProcedure>,
-            QueryKeyKnown<
-              inferProcedureInput<TProcedure>,
-              inferProcedureInput<TProcedure> extends InfiniteQueryInput ? 'infinite' : 'query'
-            >
+            TInput,
+            TError,
+            TInput,
+            QueryKeyKnown<TInput, TInput extends InfiniteQueryInput ? 'infinite' : 'query'>
           >
         ) => boolean
       }
@@ -80,34 +86,35 @@ export type QueryContext<TRouter extends AnyRouter, TProcedure extends AnyProced
     options?: InvalidateOptions
   ) => Promise<void>
 
-  refetch: (input?: inferProcedureInput<TProcedure>, filters?: QueryFilters, options?: RefetchOptions) => Promise<void>
+  refetch: (input?: TInput, filters?: QueryFilters, options?: RefetchOptions) => Promise<void>
 
-  cancel: (input?: inferProcedureInput<TProcedure>, filters?: QueryFilters, options?: CancelOptions) => Promise<void>
+  cancel: (input?: TInput, filters?: QueryFilters, options?: CancelOptions) => Promise<void>
 
-  reset: (input?: inferProcedureInput<TProcedure>, filters?: QueryFilters, options?: ResetOptions) => Promise<void>
+  reset: (input?: TInput, filters?: QueryFilters, options?: ResetOptions) => Promise<void>
 }
 
-export type InfiniteContext<TRouter extends AnyRouter, TProcedure extends AnyProcedure> = {
+export type InfiniteContext<
+  TRouter extends AnyRouter,
+  TProcedure extends AnyProcedure,
+  TInput = inferProcedureInput<TProcedure>,
+  TOutput = inferTransformedProcedureOutput<TProcedure>,
+  TError = TRPCClientError<TRouter>
+> = {
   fetchInfinite: (
-    input: inferProcedureInput<TProcedure>,
-    options?: FetchQueryOptions<inferTransformedProcedureOutput<TProcedure>, TRPCClientError<TRouter>> & TRPCOptions
-  ) => Promise<InfiniteData<inferTransformedProcedureOutput<TProcedure>>>
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+  ) => Promise<InfiniteData<TOutput>>
 
   prefetchInfinite: (
-    input: inferProcedureInput<TProcedure>,
-    options?: FetchQueryOptions<inferTransformedProcedureOutput<TProcedure>, TRPCClientError<TRouter>> & TRPCOptions
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
   ) => Promise<void>
 
-  getInfiniteData: (
-    input: inferProcedureInput<TProcedure>
-  ) => InfiniteData<inferTransformedProcedureOutput<TProcedure>> | undefined
+  getInfiniteData: (input: TInput) => InfiniteData<TOutput> | undefined
 
   setInfiniteData: (
-    input: inferProcedureInput<TProcedure>,
-    updater: Updater<
-      InfiniteData<inferTransformedProcedureOutput<TProcedure>> | undefined,
-      InfiniteData<inferTransformedProcedureOutput<TProcedure>> | undefined
-    >,
+    input: TInput,
+    updater: Updater<InfiniteData<TOutput> | undefined, InfiniteData<TOutput> | undefined>,
     options?: SetDataOptions
   ) => void
 }

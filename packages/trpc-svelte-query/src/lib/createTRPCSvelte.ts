@@ -38,11 +38,11 @@ import type {
 } from '@tanstack/svelte-query'
 import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
 import { createReactiveQuery, isWritable } from '$lib/svelte-query/createReactiveQuery'
-import { createTRPCContext, setTRPCContext, getTRPCContext } from '$lib/context'
-import type { ContextRouter } from '$lib/context'
+import { createTRPCContext, setTRPCContext, getTRPCContext } from './context'
+import type { ContextRouter } from '$lib/router-remaps/context'
 import type { MaybeWritable } from '$lib/svelte-query/createReactiveQuery'
-import { createTRPCQueriesProxy } from '$lib/svelte-query/createQueries'
-import type { CreateQueries } from '$lib/svelte-query/createQueries'
+import { createTRPCQueriesProxy } from './createSvelteQueries'
+import type { CreateQueries } from '$lib/router-remaps/createSvelteQueries'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
   abortOnUnmount?: boolean

@@ -1,7 +1,7 @@
 import { get } from 'svelte/store'
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
 import { setTRPCContext, getTRPCContext } from './context'
-import { isWritable } from './reactive'
+import { isWritable } from './createReactiveQuery'
 import { getQueryKeyInternal } from './getQueryKey'
 import {
   createTRPCUntypedClient,
@@ -32,8 +32,19 @@ import {
   createMutation,
   createInfiniteQuery,
 } from '@tanstack/svelte-query'
-import type { InfiniteQueryInput, TRPCOptions } from '$lib/types'
-import type { MaybeWritable } from '$lib/reactive'
+import type { MaybeWritable } from '$lib/createReactiveQuery'
+
+interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
+  abortOnUnmount?: boolean
+}
+
+interface TRPCOptions {
+  trpc?: TRPCSvelteRequestOptions
+}
+
+interface InfiniteQueryInput {
+  cursor?: unknown
+}
 
 type CreateTRPCQuery<
   T extends AnyProcedure,

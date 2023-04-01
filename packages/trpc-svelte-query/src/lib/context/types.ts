@@ -1,4 +1,4 @@
-import type { TRPCClientError } from '@trpc/client'
+import type { TRPCClientError, TRPCRequestOptions } from '@trpc/client'
 import type {
   AnyProcedure,
   AnyQueryProcedure,
@@ -20,8 +20,19 @@ import type {
   Query,
   RefetchOptions,
 } from '@tanstack/svelte-query'
-import type { InfiniteQueryInput, TRPCOptions } from '$lib/types'
 import type { QueryKeyKnown } from '$lib/getQueryKey'
+
+interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
+  abortOnUnmount?: boolean
+}
+
+interface TRPCOptions {
+  trpc?: TRPCSvelteRequestOptions
+}
+
+interface InfiniteQueryInput {
+  cursor?: unknown
+}
 
 type Override<Left, Right> = Omit<Left, keyof Right> & Right
 

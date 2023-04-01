@@ -33,10 +33,10 @@ import {
   InfiniteQueryObserver,
   useQueryClient,
 } from '@tanstack/svelte-query'
-import { getQueryKeyInternal } from './getQueryKey'
-import { createReactiveQuery, isWritable } from './createReactiveQuery'
-import { createTRPCContext, setTRPCContext, getTRPCContext, type ContextRouter } from './context'
-import type { MaybeWritable } from '$lib/createReactiveQuery'
+import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
+import { createReactiveQuery, isWritable } from '$lib/svelte-query/createReactiveQuery'
+import { createTRPCContext, setTRPCContext, getTRPCContext, type ContextRouter } from '$lib/context'
+import type { MaybeWritable } from '$lib/svelte-query/createReactiveQuery'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
   abortOnUnmount?: boolean

@@ -24,8 +24,8 @@ import type {
   inferProcedureInput,
 } from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
-import { getQueryKeyInternal } from '$lib/getQueryKey'
-import type { QueryKeyKnown } from '$lib/getQueryKey'
+import { getQueryKeyInternal } from '$lib/query-key/getQueryKey'
+import type { QueryKeyKnown } from '$lib/query-key/getQueryKey'
 
 interface TRPCSvelteRequestOptions extends Omit<TRPCRequestOptions, 'signal'> {
   abortOnUnmount?: boolean

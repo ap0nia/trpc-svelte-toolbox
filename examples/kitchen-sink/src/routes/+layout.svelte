@@ -1,6 +1,7 @@
 <script lang="ts">
   import { QueryClientProvider } from '@tanstack/svelte-query'
   export let data
+  data.trpc.setContext(data.trpc.queryClient)
 </script>
 
 <QueryClientProvider client={data.trpc.queryClient}>
@@ -11,7 +12,6 @@
     <li><a href="/createQueries">Create Queries</a></li>
     <li><a href="/createMutation">Create Mutation</a></li>
     <li><a href="/queryKey">Query Keys</a></li>
-    <li><a href="/queryOptions">Query Options</a></li>
     <li><a href="/invalidate">Invalidation</a></li>
     <li><a href="/refetch">Refetch</a></li>
     <li><a href="/load">Load Function</a></li>

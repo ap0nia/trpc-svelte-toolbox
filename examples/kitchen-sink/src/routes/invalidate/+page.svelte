@@ -3,8 +3,10 @@
 
   const query = trpc.greeting.createQuery('Aponia')
 
+  const utils = trpc.getContext()
+
   function invalidate() {
-    trpc.utils.greeting.invalidate()
+    utils.greeting.invalidate()
   }
 </script>
 

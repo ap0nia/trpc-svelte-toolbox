@@ -236,7 +236,7 @@ export type CreateTRPCSvelte<T extends AnyRouter> = {
   createContext: (client: TRPCUntypedClient<T>, queryClient: QueryClient) => ContextRouter<T>
   setContext: (client: TRPCUntypedClient<T>, queryClient: QueryClient) => void
   getContext: () => ContextRouter<T>
-}
+} & TRPCSvelteQueryRouter<T>
 
 export function createTRPCSvelte<T extends AnyRouter>(
   trpcClientOptions: CreateTRPCClientOptions<T>,

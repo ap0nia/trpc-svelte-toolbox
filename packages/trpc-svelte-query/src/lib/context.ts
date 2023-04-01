@@ -237,7 +237,7 @@ export function createTRPCContext<T extends AnyRouter>(
         return queryClient.resetQueries({ queryKey, ...anyArgs[0] }, anyArgs[1])
 
       default:
-        throw new TypeError(`trpc.${path}.${lastArg} is not a function`)
+        throw new TypeError(`context.${path}.${lastArg} is not a function`)
     }
   }) as ContextRouter<T>
 

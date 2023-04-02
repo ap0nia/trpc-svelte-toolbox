@@ -6,9 +6,9 @@ import type { TRPCHandleOptions } from './types'
 const defaultEndpoint = '/trpc'
 
 /**
- * Create `handle` function for SvelteKit `hooks.server`.
+ * Create a `handle` function for SvelteKit `hooks.server`.
  */
-export function createTRPCHandle<T extends AnyRouter>(options: TRPCHandleOptions<T>): Handle {
+function createTRPCHandle<T extends AnyRouter>(options: TRPCHandleOptions<T>): Handle {
   const endpoint = options.endpoint ?? defaultEndpoint
   return ({ event, resolve }) =>
     !event.url.pathname.startsWith(endpoint)
@@ -21,4 +21,4 @@ export function createTRPCHandle<T extends AnyRouter>(options: TRPCHandleOptions
         })
 }
 
-export type TRPCHandle = ReturnType<typeof createTRPCHandle>
+export default createTRPCHandle

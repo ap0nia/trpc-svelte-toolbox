@@ -4,13 +4,13 @@ import type { RequestHandler } from '@sveltejs/kit'
 import type { TRPCHandleOptions, RouteParams, RouteId } from './types'
 
 /**
- * Create `RequestHandler` function for SvelteKit `+server.ts`, e.g. GET, POST, etc.
- * e.g. Default file location `src/routes/trpc/[...path]/+server.ts`
+ * Create a `RequestHandler` for SvelteKit `+server.ts`, e.g. GET, POST, etc.
+ * Example file location: `src/routes/api/trpc/[...trpc]/+server.ts`
  *
- * @experimental If endpoint isn't provided, it will be inferred from the pathname.
- * e.g. if pathname is '/api/trpc/,a,b,c', where '/a,b,c' are params, the endpoint will be '/api/trpc'
+ * @experimental If `endpoint` isn't specified, it will be inferred from the pathname.
+ * e.g. if pathname is '/api/trpc/,a,b,c', where '/a,b,c' are params, the endpoint should be calculated as '/api/trpc'
  */
-export function createTRPCRequestHandler<
+function createTRPCRequestHandler<
   TRouter extends AnyRouter,
   TRouteParams extends RouteParams = RouteParams,
   TRouteId extends RouteId = RouteId
@@ -24,4 +24,4 @@ export function createTRPCRequestHandler<
     })
 }
 
-export type TRPCRequestHandler = ReturnType<typeof createTRPCRequestHandler>
+export default createTRPCRequestHandler

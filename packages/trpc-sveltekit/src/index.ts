@@ -1,4 +1,4 @@
-export * from './handle'
-export * from './requestHandler'
+export { default as createTRPCHandle } from './handle'
+export { default as createTRPCRequestHandler } from './requestHandler'
 
 export * from './types'

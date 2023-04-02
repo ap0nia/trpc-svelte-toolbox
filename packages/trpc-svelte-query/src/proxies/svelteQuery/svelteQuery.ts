@@ -70,38 +70,24 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
           return createQuery(queryOptions)
         }
 
-        const optionsStore = writable<CreateQueryOptions & TRPCOptions>(queryOptions)
         const inputStore = anyArgs[0]
-        const { set, update } = inputStore
 
-        inputStore.set = (newInput) => {
-          optionsStore.update(() => ({
-            ...queryOptions,
-            queryKey: getQueryKeyInternal(pathCopy, newInput, 'query'),
-            queryFn: async (context) =>
-              await client.query(path, newInput, {
-                ...anyArgs[1]?.trpc,
-                signal: abortOnUnmount ? context.signal : undefined,
-              }),
-          }))
-          set(newInput)
-        }
+        const optionsStore = writable<CreateQueryOptions & TRPCOptions>(queryOptions, (set) => {
+          const unsubscribe = inputStore.subscribe((newInput) => {
+            set({
+              ...queryOptions,
+              queryKey: getQueryKeyInternal(pathCopy, newInput, 'query'),
+              queryFn: async (context) =>
+                await client.query(path, newInput, {
+                  ...anyArgs[1]?.trpc,
+                  signal: abortOnUnmount ? context.signal : undefined,
+                }),
+            })
+          })
 
-        inputStore.update = (updaterFn) => {
-          update(updaterFn)
+          return unsubscribe
+        })
 
-          const newInput = get(inputStore)
-
-          optionsStore.update(() => ({
-            ...queryOptions,
-            queryKey: getQueryKeyInternal(pathCopy, newInput, 'query'),
-            queryFn: async (context) =>
-              await client.query(path, newInput, {
-                ...anyArgs[1]?.trpc,
-                signal: abortOnUnmount ? context.signal : undefined,
-              }),
-          }))
-        }
         return createReactiveQuery(optionsStore, QueryObserver)
       }
 
@@ -125,47 +111,29 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
         }
 
         const inputStore = anyArgs[0]
+
         const optionsStore = writable<CreateInfiniteQueryOptions & TRPCOptions>(
-          infiniteQueryOptions
+          infiniteQueryOptions,
+          (set) => {
+            const unsubscribe = inputStore.subscribe((newInput) => {
+              set({
+                ...infiniteQueryOptions,
+                queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
+                queryFn: async (context) =>
+                  await client.query(
+                    path,
+                    { ...newInput, cursor: context.pageParam },
+                    {
+                      ...anyArgs[1]?.trpc,
+                      signal: abortOnUnmount ? context.signal : undefined,
+                    }
+                  ),
+              })
+            })
+            return unsubscribe
+          }
         )
-        const { set, update } = inputStore
 
-        inputStore.set = (newInput) => {
-          optionsStore.update(() => ({
-            ...infiniteQueryOptions,
-            queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
-            queryFn: async (context) =>
-              await client.query(
-                path,
-                { ...newInput, cursor: context.pageParam },
-                {
-                  ...anyArgs[1]?.trpc,
-                  signal: abortOnUnmount ? context.signal : undefined,
-                }
-              ),
-          }))
-          set(newInput)
-        }
-
-        inputStore.update = (updaterFn) => {
-          update(updaterFn)
-
-          const newInput = get(inputStore)
-
-          optionsStore.update(() => ({
-            ...infiniteQueryOptions,
-            queryKey: getQueryKeyInternal(pathCopy, newInput, 'infinite'),
-            queryFn: async (context) =>
-              await client.query(
-                path,
-                { ...newInput, cursor: context.pageParam },
-                {
-                  ...anyArgs[1]?.trpc,
-                  signal: abortOnUnmount ? context.signal : undefined,
-                }
-              ),
-          }))
-        }
         return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver)
       }
 

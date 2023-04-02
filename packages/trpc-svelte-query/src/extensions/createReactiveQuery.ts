@@ -1,3 +1,15 @@
+/**
+ * Create a properly reactive query.
+ * The current recommended way to create queries is incorect: https://tanstack.com/query/latest/docs/svelte/reactivity.
+ * The entire query observer is re-calculated, which prevents "keepPreviousData" from working properly.
+ *
+ * It's been implemented correctly on the svelte-query alpha branch.
+ *
+ * Issue: https://github.com/TanStack/query/issues/4851
+ * PR: https://github.com/TanStack/query/pull/5050
+ * Reference implementation: https://github.com/TanStack/query/blob/alpha/packages/svelte-query/src/createBaseQuery.ts
+ */
+
 import { derived, get, readable, writable } from 'svelte/store'
 import type { Writable } from 'svelte/store'
 import { notifyManager, useQueryClient } from '@tanstack/svelte-query'

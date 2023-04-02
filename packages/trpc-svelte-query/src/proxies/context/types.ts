@@ -138,6 +138,9 @@ type InnerContextProxy<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerContextProxy<T[k]> : ContextProcedure<T, T[k]>
 } & SharedContext
 
+/**
+ * Converts all router procedures to objects with contextual helper methods.
+ */
 export type ContextProxy<T extends AnyRouter> = {
   [k in keyof T]: T[k] extends AnyRouter ? InnerContextProxy<T[k]> : ContextProcedure<T, T[k]>
 } & RootContext

@@ -15,20 +15,56 @@ import type { SetContextProxy, GetContextProxy, ContextProxy } from './proxies/c
 import type { CreateQueriesFn } from './proxies/createQueries'
 import type { SvelteQueryProxy, SvelteQueryProxyOptions } from './proxies/svelteQuery'
 
+/**
+ * Root properties of the tRPC + svelte-query proxy.
+ * TODO: warning if provided tRPC router has conflicting initial keys.
+ */
 interface TRPCSvelteRoot<T extends AnyRouter> {
+  /**
+   * query client if `svelteQueryContext` was provided.
+   */
   queryClient: QueryClient
+
+  /**
+   * tRPC client used to make queries internally.
+   */
   client: TRPCUntypedClient<T>
+
+  /**
+   * type-safe tRPC proxy client that can be used to make queries externally.
+   */
   proxy: CreateTRPCProxyClient<T>
 
+  /**
+   * Direct access to context helper functions. Only available if `svelteQueryContext` was provided.
+   */
   context: ContextProxy<T>
+
+  /**
+   * Set the tRPC context for all context helpers in components.
+   */
   setContext: SetContextProxy<T>
+
+  /**
+   * Get the tRPC context. Has helper functions with more control over the query client.
+   */
   getContext: GetContextProxy<T>
 
+  /**
+   * Create multiple type-safe tRPC queries with svelte-query's `createQueries` API.
+   */
   createQueries: CreateQueriesFn<T>
 }
 
+/**
+ * The main tRPC + svelte-query proxy.
+ * Contains all root properties and extends the main svelte-query proxy.
+ */
 export type TRPCSvelte<T extends AnyRouter> = SvelteQueryProxy<T> & TRPCSvelteRoot<T>
 
+/**
+ * Create a proxy that will provide access to all other tRPC + svelte-query proxies.
+ */
 export function createTRPCSvelte<T extends AnyRouter>(
   trpcClientOptions: CreateTRPCClientOptions<T>,
   svelteQueryOptions?: SvelteQueryProxyOptions

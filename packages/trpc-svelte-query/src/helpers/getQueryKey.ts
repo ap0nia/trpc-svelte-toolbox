@@ -21,6 +21,9 @@ export type QueryKeyKnown<TInput, TType extends Exclude<QueryType, 'any'>> = [
   { input?: GetQueryProcedureInput<TInput>; type: TType }?
 ]
 
+/**
+ * Create a query key, usually within a `recursiveProxy`.
+ */
 export function getQueryKeyInternal(
   pathArray: string[],
   input?: unknown,
@@ -33,6 +36,10 @@ export function getQueryKeyInternal(
   return [pathArray, { ...(hasInput && { input }), ...(hasType && { type }) }]
 }
 
+/**
+ * Public API for getting a query key from a procedure or router.
+ * The `svelteQueryProxy` returns a path array when `_def()` is called, not indicated by type definitions.
+ */
 export function getQueryKey<T extends AnyProcedure | AnyRouter>(
   procedureOrRouter: T,
   input?: unknown,

@@ -1,13 +1,13 @@
 import { createFlatProxy, createRecursiveProxy } from '@trpc/server/shared'
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type { TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter } from '@trpc/server'
 import { getQueryKeyInternal } from '../../helpers/getQueryKey'
 import type { CreateQueriesProxy } from './types'
 
-export interface CreateQueriesOptions {
-  context?: QueryClient
-}
+export type CreateCreateQueriesProxy = <T extends AnyRouter>(
+  client: TRPCUntypedClient<T>
+) => CreateQueriesProxy<T>
 
 export function createCreateQueriesProxy<T extends AnyRouter>(
   client: TRPCUntypedClient<T>

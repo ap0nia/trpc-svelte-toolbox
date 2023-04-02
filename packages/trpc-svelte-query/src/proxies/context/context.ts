@@ -10,7 +10,7 @@ import type { AnyRouter } from '@trpc/server'
 import { getQueryKeyInternal } from '../../helpers/getQueryKey'
 import type { ContextProxy } from './types'
 
-interface SvelteQueryOptions {
+export interface SvelteQueryOptions {
   abortOnUnmount?: boolean
 }
 

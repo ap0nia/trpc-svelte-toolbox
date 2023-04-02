@@ -7,6 +7,8 @@ custom_edit_url: null
 
 # RouteParams
 
-> `Partial`<`Record`<`string`, `string`\>\>
+> `RequestEvent`[`"params"`]
 
-Defined in:  [types.ts:43](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-sveltekit/src/types.ts#L43)
+Default `RouteParams` SvelteKit generic for `RequestHandler` and `RequestEvent`.
+
+Defined in:  [types.ts:46](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-sveltekit/src/types.ts#L46)

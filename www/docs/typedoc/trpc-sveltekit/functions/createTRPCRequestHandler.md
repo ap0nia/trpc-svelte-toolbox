@@ -7,11 +7,11 @@ custom_edit_url: null
 
 # createTRPCRequestHandler()
 
-Create `RequestHandler` function for SvelteKit `+server.ts`, e.g. GET, POST, etc.
-e.g. Default file location `src/routes/trpc/[...path]/+server.ts`
+Create a `RequestHandler` for SvelteKit `+server.ts`, e.g. GET, POST, etc.
+Example file location: `src/routes/api/trpc/[...trpc]/+server.ts`
 
- If endpoint isn't provided, it will be inferred from the pathname.
-e.g. if pathname is '/api/trpc/,a,b,c', where '/a,b,c' are params, the endpoint will be '/api/trpc'
+ If `endpoint` isn't specified, it will be inferred from the pathname.
+e.g. if pathname is '/api/trpc/,a,b,c', where '/a,b,c' are params, the endpoint should be calculated as '/api/trpc'
 
 ## Signature
 
@@ -23,7 +23,7 @@ createTRPCRequestHandler<TRouter, TRouteParams, TRouteId>(options: TRPCHandleOpt
 
 - `TRouter` *extends* `Router`<`AnyRouterDef`<`AnyRootConfig`, `any`\>, `TRouter`\>
 - `TRouteParams` *extends* `Partial`<`Record`<`string`, `string`\>\> = `Partial`<`Record`<`string`, `string`\>\>
-- `TRouteId` *extends* [`RouteId`](../types/RouteId.md) = [`RouteId`](../types/RouteId.md)
+- `TRouteId` *extends* `null` \| `string` = `null` \| `string`
 
 ## Parameters
 
@@ -35,4 +35,4 @@ createTRPCRequestHandler<TRouter, TRouteParams, TRouteId>(options: TRPCHandleOpt
 
 `RequestHandler`<`TRouteParams`, `TRouteId`\>
 
-Defined in:  [requestHandler.ts:13](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-sveltekit/src/requestHandler.ts#L13)
+Defined in:  [requestHandler.ts:13](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-sveltekit/src/requestHandler.ts#L13)

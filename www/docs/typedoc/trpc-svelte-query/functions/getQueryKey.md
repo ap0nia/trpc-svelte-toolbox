@@ -7,6 +7,9 @@ custom_edit_url: null
 
 # getQueryKey()
 
+Public API for getting a query key from a procedure or router.
+The `svelteQueryProxy` returns a path array when `_def()` is called, not indicated by type definitions.
+
 ## Signature
 
 ```ts
@@ -29,4 +32,4 @@ getQueryKey<T>(procedureOrRouter: T, input?: unknown, type: QueryType = 'any'): 
 
 `QueryKey`
 
-Defined in:  [helpers/getQueryKey.ts:36](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-svelte-query/src/helpers/getQueryKey.ts#L36)
+Defined in:  [helpers/getQueryKey.ts:43](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-svelte-query/src/helpers/getQueryKey.ts#L43)

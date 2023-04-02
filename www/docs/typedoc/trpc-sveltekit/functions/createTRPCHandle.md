@@ -7,12 +7,12 @@ custom_edit_url: null
 
 # createTRPCHandle()
 
-Create `handle` function for SvelteKit `hooks.server`.
+Create a `handle` function for SvelteKit `hooks.server`.
 
 ## Signature
 
 ```ts
-createTRPCHandle<T>(options: TRPCHandleOptions<T, Partial<Record<string, string>>, RouteId>): Handle;
+createTRPCHandle<T>(options: TRPCHandleOptions<T, Partial<Record<string, string>>, null | string>): Handle;
 ```
 
 ## Type parameters
@@ -23,10 +23,10 @@ createTRPCHandle<T>(options: TRPCHandleOptions<T, Partial<Record<string, string>
 
 | Name | Type |
 | :------ | :------ |
-| `options` | [`TRPCHandleOptions`](../types/TRPCHandleOptions.md)<`T`, `Partial`<`Record`<`string`, `string`\>\>, [`RouteId`](../types/RouteId.md)\> |
+| `options` | [`TRPCHandleOptions`](../types/TRPCHandleOptions.md)<`T`, `Partial`<`Record`<`string`, `string`\>\>, `null` \| `string`\> |
 
 ## Returns
 
 `Handle`
 
-Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-sveltekit/src/handle.ts#L11)
+Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-sveltekit/src/handle.ts#L11)

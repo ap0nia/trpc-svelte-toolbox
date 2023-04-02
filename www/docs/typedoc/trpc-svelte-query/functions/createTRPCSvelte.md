@@ -7,6 +7,8 @@ custom_edit_url: null
 
 # createTRPCSvelte()
 
+Create a proxy that will provide access to all other tRPC + svelte-query proxies.
+
 ## Signature
 
 ```ts
@@ -28,4 +30,4 @@ createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOp
 
 [`TRPCSvelte`](../types/TRPCSvelte.md)<`T`\>
 
-Defined in:  [createTRPCSvelte.ts:32](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L32)
+Defined in:  [createTRPCSvelte.ts:68](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L68)

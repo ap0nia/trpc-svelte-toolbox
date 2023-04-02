@@ -41,6 +41,17 @@ This allows the entire context proxy to be calculated once per `trpc.setContext`
 </QueryClientProvider>
 ```
 
+:::note
+It also doesn't matter **which** `trpc` is used to set the context.
+All `tRPC + svelte-query` instances refer to the same context, 
+so any of them just has to set the untyped client and query client.
+
+e.g. in SvelteKit, you may see `data.trpc.setContext` used because an initialized
+tRPC + svelte-query client was already initialized and provided to the page as a prop.
+
+As long as any `trpc.setContext` calls are made with the correct untyped client and query client,
+then any instance of `trpc.getContext` will work properly.
+:::
 
 ## Usage
 

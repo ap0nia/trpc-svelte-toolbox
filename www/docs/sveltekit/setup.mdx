@@ -18,7 +18,8 @@ Try using a file structure like this one!
 │   └── [..]
 ├── src
 │   ├── routes
-│   │   ├── +layout.svelte  # <-- load query client
+│   │   ├── +layout.ts      # <-- create new client for the user
+│   │   ├── +layout.svelte  # <-- set the query client in context
 │   │   ├── api
 │   │   │   └── trpc
 │   │   │       └── [...trpc]
@@ -138,15 +139,17 @@ export type AppRouter = typeof appRouter;
 ```ts title='src/routes/api/trpc/[...trpc]/+server.ts'
 import { createTRPCRequestHandler } from '@bevm0/trpc-sveltekit'
 import { appRouter } from '$lib/server/trpc/routers';
+import type { AppRouter } from '$lib/server/trpc/routers';
+import type { RouteParams, RouteId } from './$types'
 
 // export GET and POST SvelteKit request handler
 // @see https://trpc.io/docs/api-handler
 // @see https://kit.svelte.dev/docs/routing#server
 
-const requestHandler = createTRPCRequestHandler({
+const requestHandler = createTRPCRequestHandler<AppRouter, RouteParams, RouteId>({
   endpoint: '/api/trpc',
   router: appRouter,
-  createContext: () => ({})
+  createContext: (opts, event) => ({ opts, event })
 })
 
 export const GET = requestHandler
@@ -235,6 +238,12 @@ export const load: LayoutLoad = async (event) => {
 </QueryClientProvider>
 
 ```
+
+:::note
+You can't use `createQuery`, `createMutation`, etc. in `+layout.svelte` because there
+isn't any `QueryClientProvider` wrapping this component. 
+I'm not sure if there's an idiomatic way to solve this limitation.
+:::
 
 :::tip
 The tRPC proxy created in `+layout.ts` and `src/lib/trpc.ts` are different clients.

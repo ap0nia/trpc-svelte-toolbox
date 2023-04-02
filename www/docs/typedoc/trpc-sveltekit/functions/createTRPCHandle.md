@@ -29,4 +29,4 @@ createTRPCHandle<T>(options: TRPCHandleOptions<T, Partial<Record<string, string>
 
 `Handle`
 
-Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/916a475/packages/trpc-sveltekit/src/handle.ts#L11)
+Defined in:  [handle.ts:11](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-sveltekit/src/handle.ts#L11)

@@ -29,4 +29,4 @@ getQueryKey<T>(procedureOrRouter: T, input?: unknown, type: QueryType = 'any'): 
 
 `QueryKey`
 
-Defined in:  [helpers/getQueryKey.ts:36](https://github.com/bevm0/trpc-svelte-toolbox/blob/916a475/packages/trpc-svelte-query/src/helpers/getQueryKey.ts#L36)
+Defined in:  [helpers/getQueryKey.ts:36](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-svelte-query/src/helpers/getQueryKey.ts#L36)

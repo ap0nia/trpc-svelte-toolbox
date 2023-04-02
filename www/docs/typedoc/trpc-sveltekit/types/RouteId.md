@@ -9,4 +9,4 @@ custom_edit_url: null
 
 > `string` \| `null`
 
-Defined in:  [types.ts:44](https://github.com/bevm0/trpc-svelte-toolbox/blob/916a475/packages/trpc-sveltekit/src/types.ts#L44)
+Defined in:  [types.ts:44](https://github.com/bevm0/trpc-svelte-toolbox/blob/9381f64/packages/trpc-sveltekit/src/types.ts#L44)

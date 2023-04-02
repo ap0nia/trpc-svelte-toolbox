@@ -9,4 +9,4 @@ custom_edit_url: null
 
 > **`Const`** *typeof* [`TRPC_CONTEXT_KEY`](TRPC_CONTEXT_KEY.md)
 
-Defined in:  [proxies/context/context.ts:17](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-svelte-query/src/proxies/context/context.ts#L17)
+Defined in:  [proxies/context/context.ts:17](https://github.com/bevm0/trpc-svelte-toolbox/blob/1f94003/packages/trpc-svelte-query/src/proxies/context/context.ts#L17)

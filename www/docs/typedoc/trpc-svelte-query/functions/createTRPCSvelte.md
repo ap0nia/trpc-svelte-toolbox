@@ -30,4 +30,4 @@ createTRPCSvelte<T>(trpcClientOptions: CreateTRPCClientOptions<T>, svelteQueryOp
 
 [`TRPCSvelte`](../types/TRPCSvelte.md)<`T`\>
 
-Defined in:  [createTRPCSvelte.ts:68](https://github.com/bevm0/trpc-svelte-toolbox/blob/66267dc/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L68)
+Defined in:  [createTRPCSvelte.ts:68](https://github.com/bevm0/trpc-svelte-toolbox/blob/1f94003/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L68)

@@ -1,7 +1,7 @@
 ---
 id: context
-title: context
-sidebar_label: context
+title: Context
+sidebar_label: Context
 slug: /svelte/context
 ---
 

@@ -16,4 +16,4 @@ Contains all root properties and extends the main svelte-query proxy.
 
 - `T` *extends* `AnyRouter`
 
-Defined in:  [createTRPCSvelte.ts:63](https://github.com/bevm0/trpc-svelte-toolbox/blob/1f94003/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L63)
+Defined in:  [createTRPCSvelte.ts:63](https://github.com/bevm0/trpc-svelte-toolbox/blob/e1a0b3a/packages/trpc-svelte-query/src/createTRPCSvelte.ts#L63)

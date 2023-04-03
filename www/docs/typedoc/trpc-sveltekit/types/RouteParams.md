@@ -11,4 +11,4 @@ custom_edit_url: null
 
 Default `RouteParams` SvelteKit generic for `RequestHandler` and `RequestEvent`.
 
-Defined in:  [types.ts:46](https://github.com/bevm0/trpc-svelte-toolbox/blob/1f94003/packages/trpc-sveltekit/src/types.ts#L46)
+Defined in:  [types.ts:46](https://github.com/bevm0/trpc-svelte-toolbox/blob/e1a0b3a/packages/trpc-sveltekit/src/types.ts#L46)

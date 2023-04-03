@@ -35,11 +35,14 @@ const config = {
           to: 'blog',
         },
         {
-         href: 'https://github.com/bevm0/trpc-svelte-toolbox.git',
+          label: 'npm',
+          href: 'https://www.npmjs.com/package/@bevm0/trpc-svelte-query',
           position: 'right',
-          className: 'header-github-link',
-          html: 'GitHub',
-          'aria-label': 'GitHub repository',
+        },
+        {
+          href: 'https://github.com/bevm0/trpc-svelte-toolbox.git',
+          label: 'GitHub',
+          position: 'right',
         },
       ],
     },
@@ -64,6 +67,10 @@ const config = {
             {
               label: 'Blog',
               to: 'blog',
+            },
+            {
+              label: 'npm',
+              href: 'https://www.npmjs.com/package/@bevm0/trpc-svelte-query',
             },
             {
               label: 'GitHub',

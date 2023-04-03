@@ -19,4 +19,4 @@ Options to create a request handler.
 - `TRouteParams` *extends* [`RouteParams`](RouteParams.md) = [`RouteParams`](RouteParams.md)
 - `TRouteId` *extends* [`RouteId`](RouteId.md) = [`RouteId`](RouteId.md)
 
-Defined in:  [types.ts:32](https://github.com/bevm0/trpc-svelte-toolbox/blob/1f94003/packages/trpc-sveltekit/src/types.ts#L32)
+Defined in:  [types.ts:32](https://github.com/bevm0/trpc-svelte-toolbox/blob/e1a0b3a/packages/trpc-sveltekit/src/types.ts#L32)

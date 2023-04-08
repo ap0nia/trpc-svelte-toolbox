@@ -87,7 +87,7 @@ type CreateTRPCSubscription<
 type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   createQuery: CreateTRPCQuery<TProcedure, TPath>
 } & (inferProcedureInput<TProcedure> extends InfiniteQueryInput
-  ? CreateTRPCInfiniteQuery<TProcedure, TPath>
+  ? { createInfiniteQuery: CreateTRPCInfiniteQuery<TProcedure, TPath> }
   : object)
 
 interface MutationProcedure<T extends AnyProcedure> {
@@ -106,6 +106,6 @@ type SvelteQueryProcedure<TProcedure, TPath extends string> =
 
 export type SvelteQueryProxy<TRouter extends AnyRouter, TPath extends string = ''> = {
   [k in keyof TRouter]: TRouter[k] extends AnyRouter
-    ? SvelteQueryProxy<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    ? SvelteQueryProxy<TRouter[k], `${TPath}${k & string}`>
     : SvelteQueryProcedure<TRouter[k], TPath>
 }

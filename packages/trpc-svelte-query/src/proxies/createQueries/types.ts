@@ -24,7 +24,7 @@ type CreateQueriesProcedure<
 
 export type CreateQueriesProxy<TRouter extends AnyRouter, TPath extends string = ''> = {
   [k in keyof TRouter]: TRouter[k] extends AnyRouter
-    ? CreateQueriesProxy<TRouter[k]['_def']['record'], `${TPath}${k & string}`>
+    ? CreateQueriesProxy<TRouter[k], `${TPath}${k & string}`>
     : TRouter[k] extends AnyQueryProcedure
     ? CreateQueriesProcedure<TRouter[k], TPath>
     : never

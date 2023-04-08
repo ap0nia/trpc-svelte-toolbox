@@ -17,13 +17,16 @@ Try using a file structure like this one!
 ├── prisma  # <-- if prisma is added
 │   └── [..]
 ├── src
+│   │
+│   ├── hooks.server.ts    # <-- option 1: tRPC HTTP handler in +hooks.server.ts
+│   │
 │   ├── routes
 │   │   ├── +layout.ts      # <-- create new client for the user
 │   │   ├── +layout.svelte  # <-- set the query client in context
 │   │   ├── api
 │   │   │   └── trpc
 │   │   │       └── [...trpc]
-│   │   │           └── +server.ts  # <-- tRPC HTTP handler (GET + POST)
+│   │   │           └── +server.ts  # <-- option 2: tRPC HTTP handler in +server.ts (GET + POST)
 │   │   └── [..]
 │   └── lib
 │       ├── server
@@ -37,6 +40,15 @@ Try using a file structure like this one!
 │       └── [..]
 └── [..]
 ```
+
+:::tip
+You can put the tRPC handler in either `src/hooks.server.ts`, 
+or any `+server.ts` file that follows [rest parameters](https://kit.svelte.dev/docs/advanced-routing#rest-parameters).
+
+Personally, I like the ability to isolate specific tRPC routes to their own handler file.
+SvelteKit hooks are generally intended to be used for app-wide controls, like auth sessions.
+:::
+
 
 ## Add tRPC to existing SvelteKit project
 
@@ -142,12 +154,13 @@ import { appRouter } from '$lib/server/trpc/routers';
 import type { AppRouter } from '$lib/server/trpc/routers';
 import type { RouteParams, RouteId } from './$types'
 
-// export GET and POST SvelteKit request handler
-// @see https://trpc.io/docs/api-handler
-// @see https://kit.svelte.dev/docs/routing#server
+/**
+ * export GET and POST SvelteKit request handlers
+ * @see https://trpc.io/docs/api-handler
+ * @see https://kit.svelte.dev/docs/routing#server
+ */
 
 const requestHandler = createTRPCRequestHandler<AppRouter, RouteParams, RouteId>({
-  endpoint: '/api/trpc',
   router: appRouter,
   createContext: (opts, event) => ({ opts, event })
 })
@@ -158,17 +171,13 @@ export const POST = requestHandler
 
 </details>
 
-:::note
-The backend above is using the [recommended file structure](#recommended-file-structure), but you can keep it simple and put everything in [an API handler directly](https://github.com/trpc/trpc/blob/main/examples/next-minimal-starter/src/pages/api/trpc/%5Btrpc%5D.ts) if you prefer.
-:::
-
 ### 4. Create tRPC hooks
 
 use the `createTRPCSvelte` function to create a set of strongly-typed hooks from your API's type signature.
 
 :::note
 This tRPC client should only be used in components because it wasn't assigned a queryClient.
-It will invoke `useQueryClient` in order to find it.
+It will invoke `useQueryClient` or refer to context to find it..
 
 Keep on reading to see how to initialize a tRPC client for load functions.
 :::
@@ -284,7 +293,7 @@ You can now use the hooks you have just created to invoke your API.
   <div>
     <p>{$hello.data.greeting}</p>
   </div>
-  {:else}
+{:else}
     <div>Loading...</div>;
 {/if}
 
@@ -321,6 +330,25 @@ Usage in the component can vary:
 1. Create a matching query -> since this was already fetched and cached, no initial fetch needs to occur
 2. Just use the data without any query -> depending on the helper function invoked, you can just use the returned data
 
+:::tip
+Differences between types of helper fetch variants (including their infinite counterparts)
+
+- `fetch`: Gets the data, caches the result, and returns the result
+- `prefetch`: Gets the data, caches the result, but **doesn't** return the data (it returns `void`)
+- `ensure`: 
+  First checks if the query client already has the data;
+  if not, then it gets the data, caches the result, and returns the result.
+  (The latter part is identical to `fetch`)
+
+There's so many ways to do almost the same thing! 
+It seems that `ensure` would be the best option since it does everything "optimally".
+
+Usually `fetch` would be sufficient, 
+but if you have lots of queries that can be replicated in subroutes, 
+i.e. `src/routes/+layout.ts` and `/src/routes/+page.ts` or their children have duplicate queries,
+then `ensure` might be ideal because it doesn't refetch those queries.
+:::
+
 ```html title='src/routes/+page.svelte'
 <script lang="ts">
   import { trpc } from '$lib/trpc'
@@ -342,7 +370,7 @@ Usage in the component can vary:
   <div>
     <p>{$hello.data.greeting}</p>
   </div>
-  {:else}
+{:else}
     <div>Loading...</div>;
 {/if}
 

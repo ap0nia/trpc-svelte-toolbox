@@ -26,7 +26,7 @@ interface TRPCSvelteRoot<T extends AnyRouter> {
   queryClient: QueryClient
 
   /**
-   * tRPC client used to make queries internally.
+   * untyped tRPC client used to make queries internally.
    */
   client: TRPCUntypedClient<T>
 
@@ -36,7 +36,7 @@ interface TRPCSvelteRoot<T extends AnyRouter> {
   proxy: CreateTRPCProxyClient<T>
 
   /**
-   * Direct access to context helper functions. Only available if `svelteQueryContext` was provided.
+   * Direct access to context helper functions. Only defined if `svelteQueryContext` was provided.
    */
   context: ContextProxy<T>
 
@@ -96,12 +96,8 @@ export function createTRPCSvelte<T extends AnyRouter>(
       case 'proxy':
         return proxyClient
 
-      case 'context': {
-        if (context == null) {
-          throw new Error('`loadContext` is not available, did you provide a query client?')
-        }
+      case 'context': 
         return context
-      }
 
       case 'setContext':
         return setContextProxy

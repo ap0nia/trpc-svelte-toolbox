@@ -30,6 +30,16 @@ export const appRouter = router({
   getName: procedure.input(z.string()).query(async ({ input }) => {
     const name = db[input]
     return name
+  }),
+
+  addCookie: procedure.query(async ({ ctx }) => {
+    ctx.opts.resHeaders.append('set-cookie', ctx.event.cookies.serialize('test', 'test', { path: '/' }))
+    return true
+  }),
+
+  deleteCookie: procedure.query(async ({ ctx }) => {
+    ctx.opts.resHeaders.append('set-cookie', ctx.event.cookies.serialize('test', 'test', { maxAge: 0, path: '/'}))
+    return true
   })
 })
 

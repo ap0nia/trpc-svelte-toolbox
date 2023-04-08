@@ -17,7 +17,7 @@ function createTRPCHandle<T extends AnyRouter>(options: TRPCHandleOptions<T>): H
           ...options,
           req: event.request,
           endpoint,
-          createContext: (opts) => options?.createContext(opts, event),
+          createContext: (opts) => options?.createContext({ opts, event }),
         })
 }
 

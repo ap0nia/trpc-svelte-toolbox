@@ -3,6 +3,7 @@ import { createTRPCSvelte } from '@bevm0/trpc-svelte-query'
 import { QueryClient } from '@tanstack/svelte-query'
 import type { AppRouter } from '$lib/server/trpc/routes'
 import { url } from '$lib/trpc'
+import { browser } from '$app/environment'
 
 export async function load(event) {
   /**
@@ -10,7 +11,13 @@ export async function load(event) {
    * The tRPC proxy itself can remain the same since it uses `useQueryClient` 
    * to figure out the query client, which will be set in +layout.svelte
    */
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        enabled: browser
+      }
+    }
+  })
 
   /**
    * Initialize a new tRPC client that uses 

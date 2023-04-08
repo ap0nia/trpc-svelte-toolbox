@@ -20,7 +20,7 @@ function createTRPCRequestHandler<
       ...options,
       req: event.request,
       endpoint: options.endpoint ?? event.url.pathname.substring(0, event.url.pathname.lastIndexOf('/')),
-      createContext: (opts) => options?.createContext(opts, event),
+      createContext: (opts) => options?.createContext({ opts, event }),
     })
 }
 

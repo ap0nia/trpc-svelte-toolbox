@@ -12,13 +12,18 @@ type OptionalKeys<T, Keys extends keyof T> = Omit<T, Keys> & Partial<Pick<T, Key
  */
 type Override<Left, Right> = Omit<Left, keyof Right> & Right
 
+type trpcSvelteContextOptions<TRouteParams extends RouteParams, TRouteId extends RouteId> = {
+  opts: FetchCreateContextFnOptions,
+  event: RequestEvent<TRouteParams, TRouteId>
+}
+
+
 /**
  * Modified `createContext` function gets event from SvelteKit `RequestEvent` and
  * opts from the `fetchRequestHandler` callback.
  */
-type CreateContext<TRouter extends AnyRouter, TRouteParams extends RouteParams, TRouteId extends RouteId> = (
-  opts: FetchCreateContextFnOptions,
-  event: RequestEvent<TRouteParams, TRouteId>
+export type CreateContext<TRouter extends AnyRouter, TRouteParams extends RouteParams, TRouteId extends RouteId> = (
+  options: trpcSvelteContextOptions<TRouteParams, TRouteId>
 ) => inferRouterContext<TRouter>
 
 /**

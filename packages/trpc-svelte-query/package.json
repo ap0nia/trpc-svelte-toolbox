@@ -1,6 +1,6 @@
 {
   "name": "@bevm0/trpc-svelte-query",
-  "version": "0.9.15",
+  "version": "0.9.18",
   "description": "tRPC integration with @tanstack/svelte-query",
   "license": "MIT",
   "repository": {
@@ -30,22 +30,22 @@
     }
   },
   "peerDependencies": {
-    "@tanstack/svelte-query": "4.27.0",
-    "@trpc/client": "^10.18.0",
-    "@trpc/server": "^10.18.0",
-    "svelte": "^3.57.0"
+    "@tanstack/svelte-query": "4.29.1",
+    "@trpc/client": "10.21.1-alpha.2",
+    "@trpc/server": "10.21.1-alpha.2",
+    "svelte": "^3.58.0"
   },
   "dependencies": {
-    "@tanstack/svelte-query": "4.27.0",
-    "@trpc/client": "^10.18.0",
-    "@trpc/server": "^10.18.0"
+    "@tanstack/svelte-query": "4.29.1",
+    "@trpc/client": "10.21.1-alpha.2",
+    "@trpc/server": "10.21.1-alpha.2"
   },
   "devDependencies": {
     "eslint": "^8.36.0",
     "eslint-config-airbnb-custom": "*",
     "prettier": "^2.8.6",
     "rimraf": "^4.4.1",
-    "svelte": "^3.57.0",
+    "svelte": "^3.58.0",
     "typescript": "^5.0.2"
   }
 }

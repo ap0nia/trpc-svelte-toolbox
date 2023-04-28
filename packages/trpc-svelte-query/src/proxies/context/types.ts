@@ -93,7 +93,7 @@ interface QueryContext<
 
   options: (
     input: TInput,
-    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+    options?: CreateQueryOptions<TOutput, TError> & TRPCOptions
   ) => CreateQueryOptions<TOutput, TError> & TRPCOptions
 }
 
@@ -124,7 +124,7 @@ interface InfiniteContext<
 
   infiniteOptions: (
     input: TInput,
-    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+    options?: CreateInfiniteQueryOptions<TOutput, TError> & TRPCOptions
   ) => CreateInfiniteQueryOptions<TOutput, TError> & TRPCOptions
 }
 

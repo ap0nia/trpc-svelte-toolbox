@@ -1,4 +1,5 @@
 import type { AnyProcedure, AnyRouter, DeepPartial } from '@trpc/server'
+import type { QueryProcedure } from '../proxies/svelteQuery'
 
 interface InfiniteQueryInput {
   cursor?: unknown
@@ -40,13 +41,13 @@ export function getQueryKeyInternal(
  * Public API for getting a query key from a procedure or router.
  * The `svelteQueryProxy` returns a path array when `_def()` is called, not indicated by type definitions.
  */
-export function getQueryKey<T extends AnyProcedure | AnyRouter>(
+export function getQueryKey<T extends AnyProcedure | AnyRouter | QueryProcedure<any, any>>(
   procedureOrRouter: T,
   input?: unknown,
   type: QueryType = 'any'
 ): QueryKey {
   // eslint-disable-next-line no-underscore-dangle
-  const path = procedureOrRouter._def()
+  const path = (procedureOrRouter as any)._def()
   const queryKey = getQueryKeyInternal(path, input, type)
   return queryKey
 }

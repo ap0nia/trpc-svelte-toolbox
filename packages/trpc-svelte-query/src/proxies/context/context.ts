@@ -63,6 +63,12 @@ export const createContextProxy = <T extends AnyRouter>(
     const queryKey = getQueryKeyInternal(pathCopy, anyArgs[0], 'any')
 
     switch (lastArg) {
+      case 'options':
+        return queryOptions
+
+      case 'infiniteOptions':
+        return infiniteQueryOptions
+
       case 'fetch':
         return queryClient.fetchQuery(queryOptions)
 

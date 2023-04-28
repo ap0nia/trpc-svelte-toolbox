@@ -84,22 +84,22 @@ type CreateTRPCSubscription<
   opts?: TRPCRequestOptions & CreateTRPCSubscriptionOptions<TOutput, TError>
 ) => void
 
-type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
+export type QueryProcedure<TProcedure extends AnyProcedure, TPath extends string> = {
   createQuery: CreateTRPCQuery<TProcedure, TPath>
 } & (inferProcedureInput<TProcedure> extends InfiniteQueryInput
   ? { createInfiniteQuery: CreateTRPCInfiniteQuery<TProcedure, TPath> }
   : object)
 
-interface MutationProcedure<T extends AnyProcedure> {
+export interface MutationProcedure<T extends AnyProcedure> {
   createMutation: CreateTRPCMutation<T>
 }
 
-interface SubscriptionProcedure<T extends AnyProcedure> {
+export interface SubscriptionProcedure<T extends AnyProcedure> {
   createSubscription: CreateTRPCSubscription<T>
 }
 
 // prettier-ignore
-type SvelteQueryProcedure<TProcedure, TPath extends string> = 
+export type SvelteQueryProcedure<TProcedure, TPath extends string> = 
   TProcedure extends AnyQueryProcedure ? QueryProcedure<TProcedure, TPath> :
   TProcedure extends AnyMutationProcedure ? MutationProcedure<TProcedure> :
   TProcedure extends AnySubscriptionProcedure ? SubscriptionProcedure<TProcedure> : never

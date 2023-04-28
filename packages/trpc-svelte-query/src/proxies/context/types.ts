@@ -20,6 +20,8 @@ import type {
   SetDataOptions,
   Query,
   RefetchOptions,
+  CreateQueryOptions,
+  CreateInfiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type { QueryKeyKnown } from '../../helpers/getQueryKey'
 
@@ -88,6 +90,8 @@ interface QueryContext<
   cancel: (input?: TInput, filters?: QueryFilters, options?: CancelOptions) => Promise<void>
 
   reset: (input?: TInput, filters?: QueryFilters, options?: ResetOptions) => Promise<void>
+
+  options: CreateQueryOptions<TOutput, TError> & TRPCOptions
 }
 
 interface InfiniteContext<
@@ -114,6 +118,8 @@ interface InfiniteContext<
     updater: Updater<InfiniteData<TOutput> | undefined, InfiniteData<TOutput> | undefined>,
     options?: SetDataOptions
   ) => void
+
+  infiniteOptions: CreateInfiniteQueryOptions<TOutput, TError> & TRPCOptions
 }
 
 type QueryContextProcedure<

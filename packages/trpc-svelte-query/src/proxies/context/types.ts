@@ -91,7 +91,10 @@ interface QueryContext<
 
   reset: (input?: TInput, filters?: QueryFilters, options?: ResetOptions) => Promise<void>
 
-  options: CreateQueryOptions<TOutput, TError> & TRPCOptions
+  options: (
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+  ) => CreateQueryOptions<TOutput, TError> & TRPCOptions
 }
 
 interface InfiniteContext<
@@ -119,7 +122,10 @@ interface InfiniteContext<
     options?: SetDataOptions
   ) => void
 
-  infiniteOptions: CreateInfiniteQueryOptions<TOutput, TError> & TRPCOptions
+  infiniteOptions: (
+    input: TInput,
+    options?: FetchQueryOptions<TOutput, TError> & TRPCOptions
+  ) => CreateInfiniteQueryOptions<TOutput, TError> & TRPCOptions
 }
 
 type QueryContextProcedure<

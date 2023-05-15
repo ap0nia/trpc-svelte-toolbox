@@ -1,4 +1,4 @@
-const { generateTypedocDocusaurusPlugins } = require('./plugins/typedoc');
+// const { generateTypedocDocusaurusPlugins } = require('./plugins/typedoc');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -94,12 +94,12 @@ const config = {
     ],
   ],
 
-  plugins: [
-    ...generateTypedocDocusaurusPlugins([
-      'trpc-svelte-query',
-      'trpc-sveltekit'
-    ]),
-  ],
+  // plugins: [
+  //   ...generateTypedocDocusaurusPlugins([
+  //     'trpc-svelte-query',
+  //     'trpc-sveltekit'
+  //   ]),
+  // ],
 };
 
 module.exports = config;

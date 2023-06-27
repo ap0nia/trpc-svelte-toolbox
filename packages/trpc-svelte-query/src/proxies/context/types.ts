@@ -62,7 +62,7 @@ interface QueryContext<
   getData: (input: TInput) => TOutput | undefined
 
   setData: (
-    input: TOutput,
+    input: TInput,
     updater: Updater<TOutput | undefined, TOutput | undefined>,
     options?: SetDataOptions
   ) => void

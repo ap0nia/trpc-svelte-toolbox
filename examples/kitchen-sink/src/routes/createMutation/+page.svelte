@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getQueryKey } from "@bevm0/trpc-svelte-query";
   import { trpc } from "$lib/trpc";
 
   let value = "";
@@ -13,7 +12,7 @@
   function submit() {
     $mutation.mutate(value, {
       onSuccess(data) {
-        utils.queryClient.setQueryData(getQueryKey(trpc.getName, 'Elysia', 'query'), count++)
+        utils.getName.setData('Elysia', `${count++}`)
         console.log("Successfully submitted", data);
       },
     });

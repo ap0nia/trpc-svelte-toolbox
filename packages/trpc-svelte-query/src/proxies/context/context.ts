@@ -82,7 +82,7 @@ export const createContextProxy = <T extends AnyRouter>(
         return queryClient.ensureQueryData(queryOptions)
 
       case 'setData':
-        return queryClient.setQueryData(queryOptions.queryKey, anyArgs[0], anyArgs[1])
+        return queryClient.setQueryData(queryOptions.queryKey, anyArgs[1], anyArgs[2])
 
       case 'fetchInfinite':
         return queryClient.fetchInfiniteQuery(infiniteQueryOptions)

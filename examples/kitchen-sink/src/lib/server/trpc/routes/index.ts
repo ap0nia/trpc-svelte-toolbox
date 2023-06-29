@@ -10,6 +10,7 @@ export const appRouter = router({
   }),
 
   greeting: procedure.input(z.string().nullish()).query(async ({ input }) => {
+    await new Promise(resolve => setTimeout(resolve, 1000))
     return `Salutations, ${input}!`
   }),
 

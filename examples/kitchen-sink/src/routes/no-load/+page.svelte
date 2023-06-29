@@ -11,6 +11,12 @@
   into the query client cache for the first time.
 </p>
 
+<p>
+  {$emptyQuery.status}
+  {$greetingQuery.status}
+  {$goodbyeQuery.status}
+</p>
+
 <div>
   <h2>''</h2>
   <p>{$emptyQuery.data}</p>

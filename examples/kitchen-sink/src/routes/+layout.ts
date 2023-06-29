@@ -36,5 +36,8 @@ export async function load(event) {
     ],
   }, { svelteQueryContext: queryClient })
 
-  return { trpc }
+  return { 
+    trpc,
+    mei: trpc.context.greeting.fetch('Mei')
+  }
 }

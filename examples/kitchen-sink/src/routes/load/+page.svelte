@@ -1,31 +1,35 @@
 <script lang="ts">
-  import { trpc } from '$lib/trpc'
+  import { trpc } from "$lib/trpc";
 
-  export let data
+  export let data;
 
-  const emptyQuery = trpc[''].createQuery('Elysia')
-  const greetingQuery = trpc.greeting.createQuery('Aponia')
-  const goodbyeQuery = trpc.goodbye.createQuery('Kiana')
+  const emptyQuery = trpc[""].createQuery("Elysia");
+  const greetingQuery = trpc.greeting.createQuery("Aponia");
+  const goodbyeQuery = trpc.goodbye.createQuery("Kiana");
 </script>
+
+<p>
+  {$emptyQuery.status}
+  {$greetingQuery.status}
+  {$goodbyeQuery.status}
+</p>
 
 <p>
   With a load function, the data is fetched and cached prior to the page load,
   which prevents a flash.
 </p>
 <p>
-  It seems that two fetches are done; 
-  this is because the first fetch hydrates the query client cache,
-  and the second occurs to refresh the data. 
-  The query client has a stale time of 0 by default,
-  so setting this to a higher number or "refetchOnMount" to false
-  will prevent the second fetch.
+  It seems that two fetches are done; this is because the first fetch hydrates
+  the query client cache, and the second occurs to refresh the data. The query
+  client has a stale time of 0 by default, so setting this to a higher number or
+  "refetchOnMount" to false will prevent the second fetch.
 </p>
 
 <div>
   <h1>Page Load Data</h1>
   <div>
     <h2>'' (prefetch)</h2>
-    <p>{data['']}</p>
+    <p>{data[""]}</p>
   </div>
 
   <div>

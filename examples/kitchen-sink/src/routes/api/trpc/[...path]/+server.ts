@@ -5,14 +5,13 @@ import type { RouteParams, RouteId } from './$types'
 import { createContext } from '$lib/server/trpc/context'
 import type { RequestHandler } from './$types'
 
+const trpcRequestHandler = createTRPCRequestHandler<AppRouter, RouteParams, RouteId>({
+  router: appRouter,
+  createContext
+})
+
 const requestHandler: RequestHandler = event => {
   event.request.headers.set('x-organization-handle', event.params.path)
-
-  const trpcRequestHandler = createTRPCRequestHandler<AppRouter, RouteParams, RouteId>({
-    router: appRouter,
-    createContext
-  })
-
   return trpcRequestHandler(event)
 }
 

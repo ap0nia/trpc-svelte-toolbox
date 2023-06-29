@@ -9,7 +9,7 @@
   "dependencies": {
     "@bevm0/trpc-svelte-query": "*",
     "@bevm0/trpc-sveltekit": "*",
-    "@tanstack/svelte-query": "4.27.0",
+    "@tanstack/svelte-query": "^4.29.5",
     "@trpc/client": "^10.25.1",
     "@trpc/server": "^10.25.1",
     "zod": "^3.21.4"

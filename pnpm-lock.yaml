@@ -85,8 +85,8 @@ importers:
         specifier: '*'
         version: link:../../packages/trpc-sveltekit
       '@tanstack/svelte-query':
-        specifier: 4.27.0
-        version: 4.27.0(svelte@3.57.0)
+        specifier: ^4.29.5
+        version: 4.29.5(svelte@3.57.0)
       '@trpc/client':
         specifier: ^10.25.1
         version: 10.25.1(@trpc/server@10.25.1)
@@ -4235,6 +4235,15 @@ packages:
       svelte: ^3.54.0
     dependencies:
       '@tanstack/query-core': 4.27.0
+      svelte: 3.57.0
+    dev: false
+
+  /@tanstack/svelte-query@4.29.5(svelte@3.57.0):
+    resolution: {integrity: sha512-8FKUEBPzTcn1jyro9bhvihaZC858gT2XkHfrKNrN7J4fJDj/ZB0X+7xk9bpwWQ1vboe4mKvBreD916MFs+WA6A==}
+    peerDependencies:
+      svelte: ^3.54.0
+    dependencies:
+      '@tanstack/query-core': 4.29.5
       svelte: 3.57.0
     dev: false
 

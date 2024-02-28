@@ -19,7 +19,7 @@ type CreateQueriesProcedure<
   TError = TRPCClientErrorLike<T>
 > = (
   input: TInput,
-  opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
+  opts?: Partial<CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions>
 ) => CreateQueryOptions<TOutput, unknown, TOutput, [TPath, TInput]>
 
 export type CreateQueriesProxy<TRouter extends AnyRouter, TPath extends string = ''> = {

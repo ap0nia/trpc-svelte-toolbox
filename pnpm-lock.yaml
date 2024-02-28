@@ -159,7 +159,7 @@ importers:
         specifier: ^10.25.1
         version: 10.25.1
       svelte:
-        specifier: ^3.58.0
+        specifier: 3 - 5
         version: 3.58.0
     devDependencies:
       '@sveltejs/kit':

@@ -36,12 +36,12 @@ interface CreateTRPCQuery<
 > {
   (
     input: MaybeWritable<TInput>,
-    opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
+    opts?: Partial<CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]>> & TRPCOptions
   ): CreateQueryResult<TOutput, TError>
 
   (
     input: MaybeWritable<TInput>,
-    opts?: CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]> & TRPCOptions
+    opts?: Partial<CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]>> & TRPCOptions
   ): DefinedCreateQueryResult<TOutput, TError>
 }
 
@@ -54,7 +54,7 @@ type CreateTRPCInfiniteQuery<
   NoCursor = Omit<TInput, 'cursor'>
 > = (
   input: MaybeWritable<NoCursor>,
-  opts?: CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]> & TRPCOptions
+  opts?: Partial<CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]>> & TRPCOptions
 ) => CreateInfiniteQueryResult<TOutput, TError>
 
 type CreateTRPCMutation<
@@ -64,7 +64,7 @@ type CreateTRPCMutation<
   TOutput = inferTransformedProcedureOutput<T>,
   TError = TRPCClientErrorLike<T>
 > = (
-  opts?: CreateMutationOptions<TOutput, TError, TInput, TContext> & TRPCOptions
+  opts?: Partial<CreateMutationOptions<TOutput, TError, TInput, TContext>> & TRPCOptions
 ) => CreateMutationResult<TOutput, TError, TInput, TContext>
 
 interface CreateTRPCSubscriptionOptions<TOutput, TError> {

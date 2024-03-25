@@ -1,8 +1,6 @@
 import { get, writable } from 'svelte/store'
 import { createRecursiveProxy } from '@trpc/server/shared'
 import {
-  InfiniteQueryObserver,
-  QueryObserver,
   createInfiniteQuery,
   createMutation,
   createQuery,
@@ -16,7 +14,7 @@ import type {
 } from '@tanstack/svelte-query'
 import type { TRPCUntypedClient } from '@trpc/client'
 import type { AnyRouter, MaybePromise } from '@trpc/server'
-import { createReactiveQuery, isWritable } from '../../extensions/createReactiveQuery'
+import { isWritable } from '../../extensions/createReactiveQuery'
 import { getQueryKeyInternal } from '../../helpers/getQueryKey'
 import type { SvelteQueryProxy, TRPCOptions } from './types'
 
@@ -72,7 +70,7 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
 
         const inputStore = anyArgs[0]
 
-        const optionsStore = writable<CreateQueryOptions & TRPCOptions>(queryOptions, (set) => {
+        const optionsStore = writable<CreateQueryOptions<any>>(queryOptions, (set) => {
           const unsubscribe = inputStore.subscribe((newInput) => {
             set({
               ...queryOptions,
@@ -88,7 +86,7 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
           return unsubscribe
         })
 
-        return createReactiveQuery(optionsStore, QueryObserver)
+        return createQuery(optionsStore)
       }
 
       case 'createInfiniteQuery': {
@@ -134,7 +132,7 @@ export function createSvelteQueryProxy<T extends AnyRouter>(
           }
         )
 
-        return createReactiveQuery(optionsStore, InfiniteQueryObserver as typeof QueryObserver)
+        return createInfiniteQuery(optionsStore)
       }
 
       case 'createMutation': {

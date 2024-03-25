@@ -44,17 +44,17 @@ export function createReactiveQuery<
     // eslint-disable-next-line no-underscore-dangle, no-param-reassign
     defaultOptions._optimisticResults = 'optimistic'
 
-    if (defaultOptions.onError != null) {
-      defaultOptions.onError = notifyManager.batchCalls(defaultOptions.onError)
-    }
+    // if (defaultOptions.onError != null) {
+    //   defaultOptions.onError = notifyManager.batchCalls(defaultOptions.onError)
+    // }
 
-    if (defaultOptions.onSuccess != null) {
-      defaultOptions.onSuccess = notifyManager.batchCalls(defaultOptions.onSuccess)
-    }
+    // if (defaultOptions.onSuccess != null) {
+    //   defaultOptions.onSuccess = notifyManager.batchCalls(defaultOptions.onSuccess)
+    // }
 
-    if (defaultOptions.onSettled != null) {
-      defaultOptions.onSettled = notifyManager.batchCalls(defaultOptions.onSettled)
-    }
+    // if (defaultOptions.onSettled != null) {
+    //   defaultOptions.onSettled = notifyManager.batchCalls(defaultOptions.onSettled)
+    // }
 
     return defaultOptions
   })

@@ -16,8 +16,8 @@ import type {
   CreateInfiniteQueryResult,
   CreateMutationOptions,
   CreateMutationResult,
+  StoreOrVal,
 } from '@tanstack/svelte-query'
-import type { MaybeWritable } from '../../extensions/createReactiveQuery'
 
 export interface TRPCOptions {
   trpc?: Omit<TRPCRequestOptions, 'signal'> & { abortOnUnmount?: boolean }
@@ -35,12 +35,12 @@ interface CreateTRPCQuery<
   TError = TRPCClientErrorLike<T>
 > {
   (
-    input: MaybeWritable<TInput>,
+    input: StoreOrVal<TInput>,
     opts?: Partial<CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]>> & TRPCOptions
   ): CreateQueryResult<TOutput, TError>
 
   (
-    input: MaybeWritable<TInput>,
+    input: StoreOrVal<TInput>,
     opts?: Partial<CreateQueryOptions<TOutput, TError, TOutput, [TPath, TInput]>> & TRPCOptions
   ): DefinedCreateQueryResult<TOutput, TError>
 }
@@ -53,8 +53,9 @@ type CreateTRPCInfiniteQuery<
   TError = TRPCClientErrorLike<T>,
   NoCursor = Omit<TInput, 'cursor'>
 > = (
-  input: MaybeWritable<NoCursor>,
-  opts?: Partial<CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]>> & TRPCOptions
+  input: StoreOrVal<NoCursor>,
+  opts?: Partial<CreateInfiniteQueryOptions<TOutput, TError, TOutput, [TPath, NoCursor]>> &
+    TRPCOptions
 ) => CreateInfiniteQueryResult<TOutput, TError>
 
 type CreateTRPCMutation<
@@ -99,7 +100,7 @@ export interface SubscriptionProcedure<T extends AnyProcedure> {
 }
 
 // prettier-ignore
-export type SvelteQueryProcedure<TProcedure, TPath extends string> = 
+export type SvelteQueryProcedure<TProcedure, TPath extends string> =
   TProcedure extends AnyQueryProcedure ? QueryProcedure<TProcedure, TPath> :
   TProcedure extends AnyMutationProcedure ? MutationProcedure<TProcedure> :
   TProcedure extends AnySubscriptionProcedure ? SubscriptionProcedure<TProcedure> : never

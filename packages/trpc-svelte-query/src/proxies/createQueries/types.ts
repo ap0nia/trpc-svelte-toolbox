@@ -1,8 +1,7 @@
-import type { CreateQueryOptions } from '@tanstack/svelte-query'
-import type {
-  CreateQueriesResult,
-  QueriesOptions,
-} from '@tanstack/svelte-query/build/lib/createQueries'
+import type { Readable } from 'svelte/store'
+
+import type { CreateQueryOptions, StoreOrVal } from '@tanstack/svelte-query'
+import type { QueriesOptions, QueriesResults } from '@tanstack/svelte-query/dist/createQueries'
 import type { TRPCClientErrorLike, TRPCRequestOptions } from '@trpc/client'
 import type { AnyProcedure, AnyQueryProcedure, AnyRouter, inferProcedureInput } from '@trpc/server'
 import type { inferTransformedProcedureOutput } from '@trpc/server/shared'
@@ -30,6 +29,12 @@ export type CreateQueriesProxy<TRouter extends AnyRouter, TPath extends string =
     : never
 }
 
-export type CreateQueriesFn<T extends AnyRouter> = <Options extends unknown[]>(
-  callback: (t: CreateQueriesProxy<T>) => readonly [...QueriesOptions<Options>]
-) => CreateQueriesResult<Options>
+export type CreateQueriesFn<T extends AnyRouter> = <
+  TData extends any[],
+  TCombinedResult = QueriesResults<TData>
+>(
+  callback: (t: CreateQueriesProxy<T>) => {
+    queries: StoreOrVal<[...QueriesOptions<TData>]>
+    combine?: (result: QueriesResults<TData>) => TCombinedResult
+  }
+) => Readable<TCombinedResult>

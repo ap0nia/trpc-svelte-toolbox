@@ -57,7 +57,7 @@ export const trpc = createTRPCSvelte<AppRouter>({
 ```html
 <!-- src/routes/+layout.svelte -->
 <script>
-  import { QueryClientProvider } from '@tanstack/react-query';
+  import { QueryClientProvider } from '@tanstack/svelte-query';
   import { trpc } from '$lib/trpc'
 </script>
 
